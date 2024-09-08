@@ -13,7 +13,7 @@
 
 ## Requirements
 
-[libraries]
+[Libraries]
 
 
 <a name="installation"/>
