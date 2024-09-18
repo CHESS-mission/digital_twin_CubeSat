@@ -163,3 +163,4 @@ cython_debug/
 
 # my own files
 *.DS_Store
+.vscode
