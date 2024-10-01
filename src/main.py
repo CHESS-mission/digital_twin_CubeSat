@@ -12,8 +12,8 @@ def run(args: List[str]):
     Args:
         args (List[str]): _description_
     """
-    print("Starting the simulation...")
     print("User arguments: ", args)
+    print("Starting the simulation...")
     simulation = Simulation(args)
     simulation.run()
     print("Simulation ended!")
