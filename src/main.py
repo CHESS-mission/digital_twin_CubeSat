@@ -4,6 +4,7 @@
 import sys
 from typing import List
 
+from digital_twin import Simulation
 
 def run(args: List[str]):
     """Main function that runs the simulation.
@@ -12,8 +13,9 @@ def run(args: List[str]):
         args (List[str]): _description_
     """
     print("Starting the simulation...")
-    print(args)
-
+    print("User arguments: ", args)
+    simulation = Simulation(args)
+    simulation.run()
     print("Simulation ended!")
 
 

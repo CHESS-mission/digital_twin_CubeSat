@@ -1,0 +1,1 @@
+from digital_twin.spacecraft.telecom.telecom import Telecom
