@@ -6,6 +6,7 @@ from typing import List
 
 from digital_twin import Simulation
 
+
 def run(args: List[str]):
     """Main function that runs the simulation.
 
@@ -30,4 +31,5 @@ if __name__ == "__main__":
     elif len(sys.argv) > 2:  # User arguments provided as separate strings
         run(sys.argv[1:])
     else:
+
         run([])  # No user argument
