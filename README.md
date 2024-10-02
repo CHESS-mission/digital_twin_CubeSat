@@ -29,7 +29,8 @@
 
 ## Usage
 
-
+- by convention, values in data folder are precised in kg, km, sec, deg.
+	- except for the simulation user args where you can define your unit
 
 
 

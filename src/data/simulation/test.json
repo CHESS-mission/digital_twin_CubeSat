@@ -1,0 +1,6 @@
+{
+    "units_delta_t": "second",
+    "delta_t": 600,
+    "units_duration_sim": "year",
+    "duration_sim": 1
+}
