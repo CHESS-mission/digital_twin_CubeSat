@@ -9,6 +9,7 @@ from numba import njit as jit
 import numpy as np
 
 from astropy import units as u
+from astropy.units import Quantity
 from astropy.time import Time
 
 from poliastro.twobody import Orbit
@@ -38,6 +39,7 @@ class OrbitPropagator:
         self.init_alt = self.init_SMA - earth_R
 
         # Define orbit, time units and number of timesteps
+        # TODO: more general orbit
         init_orbit = Orbit.heliosynchronous(
             attractor=attractor,
             a=self.init_SMA,
@@ -51,7 +53,7 @@ class OrbitPropagator:
         print("Initial orbital period:", init_orbit.period)
         print("Initial orbit characteristics:", init_orbit)
 
-        current_orbit = copy.deepcopy(init_orbit)
+        self.current_orbit = copy.deepcopy(init_orbit)
 
         # Constant approximation for now
         # TODO: update
@@ -60,9 +62,9 @@ class OrbitPropagator:
         ) * (u.kg / u.km**3)
 
         self.C_D = spacecraft_params["C_D"]
-        self.A_over_M = spacecraft_params["A_over_m"]
+        self.A_over_m = spacecraft_params["A_over_m"]
 
-        method = CowellPropagator(f=self.f)
+        self.method = CowellPropagator(f=self.f)
 
     @property
     def r(self) -> np.array:
@@ -72,10 +74,14 @@ class OrbitPropagator:
     def v(self) -> np.array:
         return self.current_orbit.v
 
-    def propagate(self) -> np.array:
-        pass
+    def propagate(self, delta_t: Quantity) -> np.array:
+        new_orbit = self.current_orbit.propagate(delta_t, method=self.method)
+        self.current_orbit = new_orbit
+        rv = np.zeros(6)
+        rv[:3] = self.current_orbit.r
+        rv[3:] = self.current_orbit.v
+        return rv
 
-    @jit  # Add @jit for speed!
     def a_d(self, t0, state, k, J2, R, C_D, A_over_m, rho):
         return J2_perturbation(t0, state, k, J2, R) + atmospheric_drag(
             t0, state, k, C_D, A_over_m, rho
