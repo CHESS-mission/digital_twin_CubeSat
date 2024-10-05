@@ -2,6 +2,7 @@
 """
 
 from typing import Dict
+import time
 
 import numpy as np
 
@@ -65,12 +66,19 @@ class Simulation:
         eph[0, :3] = self.propagator.r
         eph[0, 3:] = self.propagator.v
 
+        print("Number of timesteps:", self.n_timesteps)
+        start_for_loop = time.time()
+
         for t in range(0, self.n_timesteps):
             if t % 500 == 0:
                 print(t)
             rv = self.propagator.propagate(self.delta_t)
             eph[t + 1, :3] = rv[:3]
             eph[t + 1, 3:] = rv[3:]
+
+        end_for_loop = time.time()
+        duration_for_loop = end_for_loop - start_for_loop
+        print("Time: ", duration_for_loop)
 
         # Extract the data
         rr, vv, SMAs, ECCs, INCs, RAANs, AOPs, TAs, altitudes = (
