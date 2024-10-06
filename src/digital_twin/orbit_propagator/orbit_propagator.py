@@ -25,7 +25,9 @@ from digital_twin.orbit_propagator.constants import attractor
 
 
 class OrbitPropagator:
-    def __init__(self, orbit_params: Dict, epoch: Time, spacecraft_params) -> None:
+    def __init__(
+        self, orbit_params: Dict, epoch: Time, spacecraft_params: Dict
+    ) -> None:
         print("Initializing the propagator...")
         # INITIALIZE ORBITAL ELEMENTS
         self.init_SMA = orbit_params["orbital_elements"]["SMA"] * u.km

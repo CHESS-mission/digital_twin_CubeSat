@@ -2,5 +2,6 @@
     "units_delta_t": "second",
     "delta_t": 600,
     "units_duration_sim": "day",
-    "duration_sim": 100
+    "duration_sim": 100,
+    "init_operation_mode": "IDLE"
 }

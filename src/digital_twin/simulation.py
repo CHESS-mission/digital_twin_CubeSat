@@ -12,6 +12,7 @@ from poliastro.core.elements import rv2coe
 
 from digital_twin.orbit_propagator import OrbitPropagator
 from digital_twin.spacecraft import Spacecraft
+from digital_twin.mode_switch import ModeSwitch
 from digital_twin.utils import get_astropy_unit
 from digital_twin.constants import earth_R, earth_k
 from digital_twin.plotting import plot_1d, seconds_to_days
@@ -60,6 +61,10 @@ class Simulation:
             )
         )  # gives the results in days
 
+        # INITIALIZE MODE SWITCH ALGORITHM
+        self.switch_algo = ModeSwitch(simulation_params["init_operation_mode"])
+        print(f"Init operation mode: {self.switch_algo.operating_mode}")
+
     def run(self) -> None:
         print("Simulation running...")
         eph = np.zeros((self.n_timesteps + 1, 6))
@@ -72,9 +77,31 @@ class Simulation:
         for t in range(0, self.n_timesteps):
             if t % 500 == 0:
                 print(t)
+
+            # 1. propagate to next position and store the results
             rv = self.propagator.propagate(self.delta_t)
             eph[t + 1, :3] = rv[:3]
             eph[t + 1, 3:] = rv[3:]
+
+            # 2. Calculate position based params: communication window, eclipse
+            com_window = calculate_com_window()
+            eclipse_status = calculate_eclipse_status()
+            measurement_session = (
+                True  # initiate this way, always want to measure if possible
+            )
+
+            # 3. Check for potential flags raised by OBS
+            safe_flag = False
+
+            # 4. Switch mode based on location, Eps and Telecom states
+            self.switch_algo.switch_mode(
+                self.spacecraft.eps,
+                self.spacecraft.telecom,
+                com_window,
+                eclipse_status,
+                measurement_session,
+                safe_flag,
+            )
 
         end_for_loop = time.time()
         duration_for_loop = end_for_loop - start_for_loop

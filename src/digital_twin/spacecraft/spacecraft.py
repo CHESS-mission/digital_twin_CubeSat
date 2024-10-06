@@ -23,9 +23,9 @@ class Spacecraft:
         self.B = self.C_D * self.A_over_m  # Approximation of the ballistic coefficient
 
         # SUBSYSTEMS INITIALIZATION
-        self.eps_subsystem = Eps()
-        self.telecom_subsystem = Telecom()
-        self.adcs_subsystem = Adcs()
+        self.eps_subsystem = Eps(params["eps"])
+        self.telecom_subsystem = Telecom(params["telecom"])
+        self.adcs_subsystem = Adcs(params["adcs"])
 
         @property
         def C_D(self) -> Quantity:
@@ -34,3 +34,11 @@ class Spacecraft:
         @property
         def A_over_m(self) -> Quantity:
             return self.A_over_m
+
+        @property
+        def eps(self) -> Eps:
+            return self.eps_subsystem
+
+        @property
+        def telecom(self) -> Telecom:
+            return self.telecom_subsystem
