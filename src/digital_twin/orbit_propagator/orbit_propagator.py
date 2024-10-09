@@ -42,7 +42,7 @@ class OrbitPropagator:
 
         # Define orbit, time units and number of timesteps
         # TODO: more general orbit
-        init_orbit = Orbit.heliosynchronous(
+        self.init_orbit = Orbit.heliosynchronous(
             attractor=attractor,
             a=self.init_SMA,
             ecc=self.init_ECC,
@@ -52,10 +52,10 @@ class OrbitPropagator:
             nu=self.init_TA,
             epoch=epoch,
         )
-        print("Initial orbital period:", init_orbit.period)
-        print("Initial orbit characteristics:", init_orbit)
+        print("Initial orbital period:", self.init_orbit.period)
+        print("Initial orbit characteristics:", self.init_orbit)
 
-        self.current_orbit = copy.deepcopy(init_orbit)
+        self.current_orbit = copy.deepcopy(self.init_orbit)
 
         # Constant approximation for now
         # TODO: update
@@ -75,6 +75,9 @@ class OrbitPropagator:
     @property
     def v(self) -> np.array:
         return self.current_orbit.v
+
+    def get_initial_orbit(self) -> Orbit:
+        return self.init_orbit
 
     def propagate(self, delta_t: Quantity) -> np.array:
         new_orbit = self.current_orbit.propagate(delta_t, method=self.method)

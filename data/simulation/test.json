@@ -1,0 +1,15 @@
+{
+    "units_delta_t": "second",
+    "delta_t": 600,
+    "units_duration_sim": "day",
+    "duration_sim": 20,
+    "init_operating_mode": "IDLE",
+    "report":{
+        "folder": "../results/",
+        "title_figures": "CHESS_1 (20 days)",
+        "orbital_elem_evolution": "yes",
+        "trajectory_2d": "yes",
+        "trajectory_3d": "yes",
+        "groundtrack": "yes"
+    }
+}
