@@ -1,0 +1,11 @@
+{
+	"stations": [
+		{
+			"name": "Lausanne",
+			"latitude": 46.31,
+			"longitude": 6.38,
+			"elevation_angle": 15,
+			"elevation_angle_unit": "degree"
+		}
+	]
+}

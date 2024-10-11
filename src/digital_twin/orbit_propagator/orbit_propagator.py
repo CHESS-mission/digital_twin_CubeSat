@@ -52,8 +52,6 @@ class OrbitPropagator:
             nu=self.init_TA,
             epoch=epoch,
         )
-        print("Initial orbital period:", self.init_orbit.period)
-        print("Initial orbit characteristics:", self.init_orbit)
 
         self.current_orbit = copy.deepcopy(self.init_orbit)
 
@@ -67,6 +65,9 @@ class OrbitPropagator:
         self.A_over_m = spacecraft_params["A_over_m"]
 
         self.method = CowellPropagator(f=self.f)
+
+    def __str__(self) -> str:
+        return f"Initial orbit: {self.init_orbit} with initial period {self.init_orbit.period}"
 
     @property
     def r(self) -> np.array:
@@ -107,3 +108,12 @@ class OrbitPropagator:
         du_ad = np.array([0, 0, 0, ax, ay, az])
 
         return du_kep + du_ad
+
+    def calculate_com_window(self):
+        pass
+
+    def calculate_eclipse_status(self):
+        pass
+
+    def update_cross_section_mass_ratio(self, new_A_over_m: Quantity):
+        self.A_over_m = new_A_over_m

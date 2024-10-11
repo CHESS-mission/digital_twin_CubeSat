@@ -10,8 +10,13 @@ from poliastro.core.elements import rv2coe
 from digital_twin.constants import earth_R, earth_k
 
 
-def get_astropy_unit(unit_string: str) -> Unit:
+def get_astropy_unit_time(unit_string: str) -> Unit:
     units = {"second": u.s, "hour": u.h, "day": u.day, "year": u.year}
+    return units[unit_string]
+
+
+def get_astropy_units_angle(unit_string: str) -> Unit:
+    units = {"degree": u.deg, "radian": u.rad}
     return units[unit_string]
 
 

@@ -16,15 +16,18 @@ def run(args: List[str]) -> None:
     Args:
         args (List[str]): user string arguments
     """
-    if len(args) != 3:
+    if len(args) != 4:
         raise TypeError(
-            "Please provide 3 data files for the simulaton, orbit and spacecraft parameters!"
+            "Please provide 4 data files for the simulaton, orbit, spacecraft and ground station parameters!"
         )
     simulation_params = parse_data_file(args[0])
     orbit_params = parse_data_file(args[1])
     spacecraft_params = parse_data_file(args[2])
+    station_params = parse_data_file(args[3])
     print("Starting the simulation...")
-    simulation = Simulation(simulation_params, orbit_params, spacecraft_params)
+    simulation = Simulation(
+        simulation_params, orbit_params, spacecraft_params, station_params
+    )
     simulation.run()
     print("Simulation ended!")
 
