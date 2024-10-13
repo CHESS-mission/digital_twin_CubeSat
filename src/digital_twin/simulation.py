@@ -7,6 +7,8 @@ import time
 import numpy as np
 
 from astropy.time import Time, TimeDelta
+import astropy.units as u
+from astropy.units import Quantity
 
 from digital_twin.ground_station import GroundStation
 from digital_twin.mode_switch import ModeSwitch
@@ -15,6 +17,8 @@ from digital_twin.orbit_propagator.constants import attractor_string
 from digital_twin.plotting import (
     plot_1d,
     seconds_to_days,
+    seconds_to_minutes,
+    seconds_to_hours,
     plot_orbit_trajectory_3d,
     plot_orbit_2d,
     plot_groundtrack,
@@ -38,21 +42,25 @@ class Simulation:
 
         # TIME INITIALIZATION
         self.sim_unit = get_astropy_unit_time(simulation_params["units_delta_t"])
-        delta_t_val = simulation_params["delta_t"] * self.sim_unit
-        self.delta_t = TimeDelta(delta_t_val)
-        self.init_time_local = 0 * self.sim_unit
+        self.delta_t = simulation_params["delta_t"] * self.sim_unit
+        init_time_local = 0 * self.sim_unit
 
         self.duration_sim = simulation_params["duration_sim"] * get_astropy_unit_time(
             simulation_params["units_duration_sim"]
         )
         self.n_timesteps = int(
-            self.duration_sim.to_value(self.sim_unit) / delta_t_val.value
+            self.duration_sim.to_value(self.sim_unit) / self.delta_t.value
         )
-        self.end_time_local = (self.n_timesteps * delta_t_val.value) * self.sim_unit
+        end_time_local = (self.n_timesteps * self.delta_t.value) * self.sim_unit
 
-        self.epoch = Time(orbit_params["epoch"], format="iso", scale="utc")
-        self.init_time = self.init_time_local + self.epoch
-        self.end_time = self.end_time_local + self.epoch
+        epoch = Time(orbit_params["epoch"], format="iso", scale="utc")
+        self.init_time = init_time_local + epoch
+        self.end_time = end_time_local + epoch
+
+        self.tofs = TimeDelta(
+            np.linspace(init_time_local, end_time_local, num=self.n_timesteps + 1)
+        )  # gives the results in days
+        self.epochs_array = np.array(epoch + self.tofs)
 
         # MODE SWITCH ALGORITHM INITIALIZATION
         self.switch_algo = ModeSwitch(
@@ -61,10 +69,6 @@ class Simulation:
 
         # SPACECRAFT INITIALIZATION
         self.spacecraft = Spacecraft(spacecraft_params, self.switch_algo.operating_mode)
-        spacecraft_args = {
-            "C_D": self.spacecraft.C_D,
-            "A_over_m": self.spacecraft.A_over_m,
-        }
 
         # GROUND STATION INITIALIZATION
         self.ground_stations = []
@@ -73,13 +77,11 @@ class Simulation:
         self.ground_stations = np.array(self.ground_stations)
 
         # PROPAGATOR INITIALIZATION
-        self.propagator = OrbitPropagator(orbit_params, self.epoch, spacecraft_args)
-        self.tofs = TimeDelta(
-            np.linspace(
-                self.init_time_local, self.end_time_local, num=self.n_timesteps + 1
-            )
-        )  # gives the results in days
-        self.epochs_array = np.array(self.epoch + self.tofs)
+        spacecraft_args = {
+            "C_D": self.spacecraft.C_D,
+            "A_over_m": self.spacecraft.A_over_m,
+        }
+        self.propagator = OrbitPropagator(orbit_params, epoch, spacecraft_args)
 
         # report parameters
         self.report_params = simulation_params["report"]
@@ -106,6 +108,7 @@ class Simulation:
             eph[t + 1, 3:] = rv[3:]
 
             # # 2. Calculate position based params: communication window, eclipse
+            # need the ground stations for that
             # com_window = self.propagator.calculate_com_window()
             # eclipse_status = self.propagator.calculate_eclipse_status()
             # measurement_session = (
@@ -116,6 +119,7 @@ class Simulation:
             # safe_flag = False
 
             # # 4. Switch mode based on location, Eps and Telecom states
+            # TODO: will have to consider changing this when non instantanous attitude change implemented
             # old_mode = self.switch_algo.operating_mode
             # self.switch_algo.switch_mode(
             #     self.spacecraft.get_eps(),
@@ -136,8 +140,9 @@ class Simulation:
             # self.propagator.update_cross_section_mass_ratio(self.spacecraft.A_over_m)
 
         end_for_loop = time.time()
-        duration_for_loop = end_for_loop - start_for_loop
-        print("Time: ", duration_for_loop)
+        duration = end_for_loop - start_for_loop
+        print("Simulation ended!")
+        print(f"Time: {duration} s")
 
         # Extract the data
         rr, vv, SMAs, ECCs, INCs, RAANs, AOPs, TAs, altitudes = (
@@ -169,6 +174,7 @@ class Simulation:
                 data["INCs"],
                 data["altitudes"],
                 self.report_params["folder"],
+                self.duration_sim,
             )
         if self.report_params["trajectory_2d"] == "yes":
             plot_orbit_2d(
@@ -228,16 +234,32 @@ def plot_orbital_elem_evolution(
     INCs: np.array,
     altitudes: np.array,
     folder: str,
+    duration_sim: Quantity,
 ):
     ticks_angle = np.array([0, 1 / 2 * np.pi, np.pi, 3 / 2 * np.pi, 2 * np.pi])
     tick_labels_angle = np.array([r"$0$", r"$\pi/2$", r"$\pi$", r"$3\pi/2$", r"$2\pi$"])
+
+    # update what the x_axis scale should be
+    if duration_sim <= 3 * u.h:
+        x_label_f = seconds_to_minutes
+        x_label = r"Time ($min$)"
+    elif duration_sim <= 3 * u.day:
+        x_label_f = seconds_to_hours
+        x_label = r"Time ($hour$)"
+    else:
+        x_label_f = seconds_to_days
+        x_label = r"Time ($day$)"
+
+    # update how many values to step to obtain clear plotting (approximately 50 points)
+    step = int(len(tofs) / 50)
+
     plot_1d(
         tofs.to_value("second"),
         RAANs,
         "RAAN Over Time",
-        r"Time ($day$)",
+        x_label,
         r"RAAN ($rad$)",
-        step=100,
+        step=step,
         fill_under=False,
         remove_box=True,
         y_range=(min(RAANs) - 0.2, max(RAANs) + 0.2),
@@ -245,7 +267,7 @@ def plot_orbital_elem_evolution(
         custom_y_ticks=True,
         y_ticks=ticks_angle,
         y_tick_labels=tick_labels_angle,
-        x_label_f=seconds_to_days,
+        x_label_f=x_label_f,
         show=False,
         save_filename=folder + "RAAN.pdf",
     )
@@ -254,16 +276,16 @@ def plot_orbital_elem_evolution(
         tofs.to_value("second"),
         AOPs,
         "Argument of Periapsis Over Time",
-        r"Time ($day$)",
+        x_label,
         r"Argps ($rad$)",
-        step=100,
+        step=step,
         fill_under=False,
         remove_box=True,
         y_range=(min(AOPs) - 0.2, max(AOPs) + 0.2),
         custom_y_ticks=True,
         y_ticks=ticks_angle,
         y_tick_labels=tick_labels_angle,
-        x_label_f=seconds_to_days,
+        x_label_f=x_label_f,
         show=False,
         save_filename=folder + "AOP.pdf",
     )
@@ -272,14 +294,14 @@ def plot_orbital_elem_evolution(
         tofs.to_value("second"),
         ECCs,
         "Eccentricity Over Time",
-        r"Time ($day$)",
+        x_label,
         r"Ecc",
-        step=100,
+        step=step,
         fill_under=False,
         remove_box=True,
         y_range=(min(ECCs) - 0.1, max(ECCs) + 0.1),
         scatter=True,
-        x_label_f=seconds_to_days,
+        x_label_f=x_label_f,
         show=False,
         save_filename=folder + "ECC.pdf",
     )
@@ -288,16 +310,16 @@ def plot_orbital_elem_evolution(
         tofs.to_value("second"),
         INCs,
         "Inclination over time",
-        r"Time ($day$)",
+        x_label,
         r"Inc ($rad$)",
-        step=100,
+        step=step,
         fill_under=False,
         remove_box=True,
         y_range=(min(INCs) - 0.2, max(INCs) + 0.2),
         custom_y_ticks=True,
         y_ticks=ticks_angle,
         y_tick_labels=tick_labels_angle,
-        x_label_f=seconds_to_days,
+        x_label_f=x_label_f,
         show=False,
         save_filename=folder + "INC.pdf",
     )
@@ -306,13 +328,13 @@ def plot_orbital_elem_evolution(
         tofs.to_value("second"),
         altitudes,
         "Spacecraft Altitude Over Time",
-        r"Time ($day$)",
+        x_label,
         r"Altitude ($km$)",
-        step=100,
+        step=step,
         fill_under=False,
         remove_box=True,
         y_range=(min(altitudes) - 20, max(altitudes) + 20),
-        x_label_f=seconds_to_days,
+        x_label_f=x_label_f,
         show=False,
         save_filename=folder + "altitude.pdf",
     )

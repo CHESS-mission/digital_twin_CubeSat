@@ -48,6 +48,10 @@ class Spacecraft:
         eclipse_status: bool,
         delta_t: TimeDelta,
     ):
+        # TODO: later, if want to implement some latency instead of instant attitude change, 
+        # TODO: (continued) will need to not update all subsystem but find a way to wait a few timesteps
+        # TODO: same for updating power_consumed and generated, will have to block all of this
+        # TODO: but also, the get_cross_section can update smoothly when decided to implement non-instantanous attitude change
         # Update each subsystem based on old mode, new mode, location, communication_window and eclispe_status boolean
         for subsystem in self.subsystems:
             subsystem.update(old_mode, new_mode, rv, com_window, eclipse_status)

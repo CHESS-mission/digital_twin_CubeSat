@@ -113,6 +113,18 @@ def seconds_to_days(x, pos):
     return f"{x / 86400:.0f}"
 
 
+# Function to convert seconds to hours to change label of x axis
+def seconds_to_hours(x, pos):
+    """Convert seconds to hours."""
+    return f"{x / 3600:.0f}"
+
+
+# Function to convert seconds to minutes to change label of x axis
+def seconds_to_minutes(x, pos):
+    """Convert seconds to minutes."""
+    return f"{x / 60:.0f}"
+
+
 def plot_orbit_trajectory_3d(
     title: str,
     attractor_name: str,

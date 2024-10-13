@@ -30,36 +30,32 @@ class OrbitPropagator:
     ) -> None:
         print("Initializing the propagator...")
         # INITIALIZE ORBITAL ELEMENTS
-        self.init_SMA = orbit_params["orbital_elements"]["SMA"] * u.km
-        self.init_INC = orbit_params["orbital_elements"]["INC"] * u.deg
-        self.init_ECC = orbit_params["orbital_elements"]["ECC"] * u.one
-        self.init_RAAN = orbit_params["orbital_elements"]["RAAN"] * u.deg
-        self.init_AOP = orbit_params["orbital_elements"]["AOP"] * u.deg
-        self.init_TA = orbit_params["orbital_elements"]["TA"] * u.deg
-        self.init_epoch = epoch
-        self.attractor = attractor
-        self.init_alt = self.init_SMA - earth_R
+        init_SMA = orbit_params["orbital_elements"]["SMA"] * u.km
+        init_INC = orbit_params["orbital_elements"]["INC"] * u.deg
+        init_ECC = orbit_params["orbital_elements"]["ECC"] * u.one
+        init_RAAN = orbit_params["orbital_elements"]["RAAN"] * u.deg
+        init_AOP = orbit_params["orbital_elements"]["AOP"] * u.deg
+        init_TA = orbit_params["orbital_elements"]["TA"] * u.deg
 
-        # Define orbit, time units and number of timesteps
         # TODO: more general orbit
         self.init_orbit = Orbit.heliosynchronous(
             attractor=attractor,
-            a=self.init_SMA,
-            ecc=self.init_ECC,
+            a=init_SMA,
+            ecc=init_ECC,
             # inc = inc,
-            raan=self.init_RAAN,
-            argp=self.init_AOP,
-            nu=self.init_TA,
+            raan=init_RAAN,
+            argp=init_AOP,
+            nu=init_TA,
             epoch=epoch,
         )
 
         self.current_orbit = copy.deepcopy(self.init_orbit)
 
-        # Constant approximation for now
-        # TODO: update
-        self.rho = atmosphere_model.density(self.init_alt).to_value(
+        # Approximation updated every 500 timesteps for now (TODO: update)
+        self.rho = atmosphere_model.density(init_SMA - earth_R).to_value(
             u.kg / u.km**3
         ) * (u.kg / u.km**3)
+        self.countdown_rho = 500  # rho will be updated when countdown reaches 0
 
         self.C_D = spacecraft_params["C_D"]
         self.A_over_m = spacecraft_params["A_over_m"]
@@ -95,6 +91,13 @@ class OrbitPropagator:
 
     def f(self, t0, state, k):
         du_kep = func_twobody(t0, state, k)
+
+        if self.countdown_rho > 0:
+            self.countdown_rho -= 1
+        else:
+            self.update_rho(state[:3])  # update air density based on current altitude
+            self.countdown_rho = 500  # restart countdown
+
         ax, ay, az = self.a_d(
             t0,
             state,
@@ -115,5 +118,11 @@ class OrbitPropagator:
     def calculate_eclipse_status(self):
         pass
 
-    def update_cross_section_mass_ratio(self, new_A_over_m: Quantity):
+    def update_cross_section_mass_ratio(self, new_A_over_m: Quantity) -> None:
         self.A_over_m = new_A_over_m
+
+    def update_rho(self, position: np.array) -> None:
+        alt = (np.linalg.norm(position) - earth_R.value) * u.km
+        self.rho = atmosphere_model.density(alt).to_value(u.kg / u.km**3) * (
+            u.kg / u.km**3
+        )
