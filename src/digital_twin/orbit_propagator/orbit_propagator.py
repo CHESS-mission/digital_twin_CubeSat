@@ -113,6 +113,8 @@ class OrbitPropagator:
         return du_kep + du_ad
 
     def calculate_com_window(self):
+        pos = self.current_orbit.r
+
         pass
 
     def calculate_eclipse_status(self):
