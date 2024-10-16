@@ -107,10 +107,10 @@ class Simulation:
 
             # 2. Calculate position based params: communication window, eclipse
             visibility = self.propagator.calculate_vis_window(self.ground_stations)
+            # communication window might depend on user-defined scheduler
             eclipse_status = self.propagator.calculate_eclipse_status()
-            measurement_session = (
-                True  # initiate this way, always want to measure if possible
-            )
+            # depends on user-defined scheduler
+            measurement_session = True
 
             # 3. Check for potential flags raised by OBS
             safe_flag = False
