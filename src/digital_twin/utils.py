@@ -52,3 +52,38 @@ def extract_propagation_data_from_ephemeris(eph: np.array):
     altitudes = np.linalg.norm(eph, axis=1) - earth_R.value
 
     return rr, vv, SMAs, ECCs, INCs, RAANs, AOPs, TAs, altitudes
+
+
+def angle_between_vectors(A, B):
+    """
+    Calculates the angle (in degrees) between corresponding 3D vectors
+    in matrices A and B. Each row represents a vector in 3D space.
+
+    Parameters:
+    A : np.ndarray
+        Matrix of shape (n, 3) representing n 3D vectors.
+    B : np.ndarray
+        Matrix of shape (n, 3) representing n 3D vectors.
+
+    Returns:
+    np.ndarray
+        A vector of shape (n,) containing the angles (in degrees) between corresponding vectors.
+    """
+    # Dot product of corresponding rows in A and B
+    dot_product = np.einsum("ij,ij->i", A, B)
+
+    # Norm (magnitude) of vectors in A and B
+    norm_A = np.linalg.norm(A, axis=1)
+    norm_B = np.linalg.norm(B, axis=1)
+
+    # Cosine of the angle
+    cos_theta = dot_product / (norm_A * norm_B)
+
+    # Clip to avoid numerical errors leading to values outside the range [-1, 1]
+    cos_theta = np.clip(cos_theta, -1.0, 1.0)
+
+    # Calculate the angle in radians and then convert to degrees
+    angle_rad = np.arccos(cos_theta)  # KEEP values between 0 and pi/2
+    angle_deg = np.degrees(angle_rad)
+
+    return angle_deg

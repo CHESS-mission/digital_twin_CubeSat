@@ -77,11 +77,7 @@ class Simulation:
         self.ground_stations = np.array(self.ground_stations)
 
         # PROPAGATOR INITIALIZATION
-        spacecraft_args = {
-            "C_D": self.spacecraft.C_D,
-            "A_over_m": self.spacecraft.A_over_m,
-        }
-        self.propagator = OrbitPropagator(orbit_params, epoch, spacecraft_args)
+        self.propagator = OrbitPropagator(orbit_params, epoch)
 
         # report parameters
         self.report_params = simulation_params["report"]
@@ -103,20 +99,21 @@ class Simulation:
                 print(t)  # TODO: remove
 
             # 1. propagate to next position and store the results
-            rv = self.propagator.propagate(self.delta_t)
+            rv = self.propagator.propagate(
+                self.delta_t, self.spacecraft.C_D, self.spacecraft.A_over_m
+            )
             eph[t + 1, :3] = rv[:3]
             eph[t + 1, 3:] = rv[3:]
 
-            # # 2. Calculate position based params: communication window, eclipse
-            # need the ground stations for that
-            # com_window = self.propagator.calculate_com_window()
-            # eclipse_status = self.propagator.calculate_eclipse_status()
-            # measurement_session = (
-            #     True  # initiate this way, always want to measure if possible
-            # )
+            # 2. Calculate position based params: communication window, eclipse
+            visibility = self.propagator.calculate_vis_window(self.ground_stations)
+            eclipse_status = self.propagator.calculate_eclipse_status()
+            measurement_session = (
+                True  # initiate this way, always want to measure if possible
+            )
 
-            # # 3. Check for potential flags raised by OBS
-            # safe_flag = False
+            # 3. Check for potential flags raised by OBS
+            safe_flag = False
 
             # # 4. Switch mode based on location, Eps and Telecom states
             # TODO: will have to consider changing this when non instantanous attitude change implemented
@@ -135,9 +132,6 @@ class Simulation:
             # self.spacecraft.update_subsystems(
             #     old_mode, new_mode, rv, com_window, eclipse_status, self.delta_t
             # )
-
-            # # 6. Get new cross section from attitude change and share to propagator for dynamic drag calculations
-            # self.propagator.update_cross_section_mass_ratio(self.spacecraft.A_over_m)
 
         end_for_loop = time.time()
         duration = end_for_loop - start_for_loop
