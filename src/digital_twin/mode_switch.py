@@ -71,7 +71,7 @@ class ModeSwitch:
             # Else try to measure
             if (
                 (eps.battery_level >= eps.measure_threshold)
-                and (not telecom.data_storage_full)
+                and (not telecom.data_storage_full())
                 and (measurement_session)
             ):
                 self.operating_mode = 5
@@ -108,7 +108,7 @@ class ModeSwitch:
         # Try to measure
         if (
             (eps.battery_level >= eps.measure_threshold)
-            and (not telecom.data_storage_full)
+            and (not telecom.data_storage_full())
             and (measurement_session)
         ):
             self.operating_mode = 5
@@ -134,28 +134,28 @@ class ModeSwitch:
         # X-BAND DOWNLINK in priority if possible
         if (
             (eps.battery_level >= eps.xb_threshold)
-            and (telecom.handshake)
+            and (telecom.handshake())
             and (com_window)
-            and (not telecom.downlink_complete)
+            and (not telecom.downlink_complete())
         ):
             self.operating_mode = 4
-            # eps.data_storage_full = False
+            # eps.data_storage_full() = False
         else:
             # Else try to go to idle
-            if (not com_window) or (telecom.com_finished):
+            if (not com_window) or (telecom.com_finished()):
                 self.operating_mode = 0
                 # eps.com_duration = 0
-                # eps.com_finished = False
+                # eps.com_finished() = False
             else:
                 self.operating_mode = 3  # stays un current mode
                 # Increment communication duration
                 # eps.com_duration += dt
                 # if eps.com_duration >= eps.com_max_duration:
-                # eps.com_finished = True
+                # eps.com_finished() = True
 
     def mode_switch_from_X_BAND_COM(self, telecom: Telecom, com_window: bool):
         # Go back to UHF-COM if downlink is finished (if COM is still possible)
-        if com_window and telecom.downlink_complete:
+        if com_window and telecom.downlink_complete():
             self.operating_mode = 3
         else:
             # Else try to go to idle
@@ -166,8 +166,8 @@ class ModeSwitch:
                 # decrement data storage
                 # eps.data_storage -= eps.x_band_rate * dt  # adapt to data rate
                 # if eps.data_storage <= 0:
-                # eps.downlink_complete = True
-                # eps.campaign_finished = False
+                # eps.downlink_complete() = True
+                # eps.campaign_finished() = False
                 # eps.data_storage = 0
 
     def mode_switch_from_MEASUREMENT(
@@ -175,7 +175,7 @@ class ModeSwitch:
         telecom: Telecom,
     ):
         # Go to idle after measurement normally ends
-        if telecom.data_storage_full or telecom.campaign_finished:
+        if telecom.data_storage_full() or telecom.campaign_finished():
             self.operating_mode = 0
             # eps.measurement_duration = 0
         else:
@@ -183,9 +183,9 @@ class ModeSwitch:
             # Increment data stored
             # eps.data_storage += eps.measure_rate * dt  # adapt to data rate of ScienceInstrument
             # if eps.data_storage >= eps.max_storage:
-            # eps.data_storage_full = True
+            # eps.data_storage_full() = True
 
             # Increment campaign duration
             # eps.measurement_duration += dt
             # if eps.measurement_duration >= eps.science_max_duration:
-            # eps.campaign_finished = True
+            # eps.campaign_finished() = True

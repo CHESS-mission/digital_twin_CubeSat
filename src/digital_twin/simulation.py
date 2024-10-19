@@ -42,6 +42,10 @@ class Simulation:
     ) -> None:
 
         # TIME INITIALIZATION
+        if simulation_params["units_delta_t"] != "second":
+            raise ValueError(
+                "Simulation no implemented for timesteps not expressed in seconds"
+            )
         self.sim_unit = get_astropy_unit_time(simulation_params["units_delta_t"])
         self.delta_t = simulation_params["delta_t"] * self.sim_unit
         init_time_local = 0 * self.sim_unit
@@ -135,7 +139,7 @@ class Simulation:
             new_mode = self.switch_algo.operating_mode
             modes[t + 1] = new_mode
 
-            # # 5. Ask spacecraft to update all subsystems
+            # 5. Ask spacecraft to update all subsystems
             # self.spacecraft.update_subsystems(
             #     old_mode, new_mode, rv, com_window, eclipse_status, self.delta_t
             # )

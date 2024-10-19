@@ -9,8 +9,8 @@ from typing import Dict
 # TODO: check if it is better to implement with an @abstractclass decorator instead
 class SubSystem:
     # this init function is call by all subsystems
-    def __init__(self, init_operating_mode: str):
-        self.operating_mode = init_operating_mode
+    def __init__(self):
+        pass
 
     def update(
         self,
@@ -22,7 +22,7 @@ class SubSystem:
     ) -> None:
         raise (NotImplementedError)
 
-    def compute_power_consumed(self) -> float:
+    def compute_power_consumed(self, mode: int) -> float:
         raise (NotImplementedError)
 
     def __str__(self) -> str:

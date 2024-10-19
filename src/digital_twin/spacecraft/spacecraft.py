@@ -18,17 +18,15 @@ class Spacecraft:
         print("Initializing the spacecraft...")
         self.name = params["general"]["name"]
         self.C_D = params["general"]["C_D"] * u.one
-        self.init_cross_section = params["general"]["cross_section_area"] * u.km**2
-        self.cross_section = (
-            self.init_cross_section
-        )  # NOTE: will have to update this when I implement ADCS module!
+        init_cross_section = params["general"]["cross_section_area"] * u.km**2
+        self.cross_section = init_cross_section  # NOTE: will have to update this when I implement ADCS module!
         self.mass = params["general"]["mass"] * u.kg
         self.A_over_m = ((self.cross_section) / (self.mass)).to_value(
             u.km**2 / u.kg
         ) * (u.km**2 / u.kg)
         self.B = self.C_D * self.A_over_m  # Approximation of the ballistic coefficient
 
-        # SUBSYSTEMS INITIALIZATION
+        # SUBSYSTEMS INITIALIZATION (main ones)
         self.eps_subsystem = Eps(params["eps"], init_operating_mode)
         self.telecom_subsystem = Telecom(params["telecom"], init_operating_mode)
         self.adcs_subsystem = Adcs(params["adcs"], init_operating_mode)
@@ -37,6 +35,26 @@ class Spacecraft:
             self.eps_subsystem,
             self.telecom_subsystem,
             self.adcs_subsystem,
+        ]
+
+        # OTHER SUBSYSTEMS INITIALIZATIONS
+
+        {int(k): v * u.W for k, v in params["obc"]["consumption"].items()}
+
+        self.obc_power_consumption = {
+            int(k): v * u.W for k, v in params["obc"]["consumption"].items()
+        }
+        self.gnss_power_consumption = {
+            int(k): v * u.W for k, v in params["gnss"]["consumption"].items()
+        }
+        self.tof_power_consumption = {
+            int(k): v * u.W for k, v in params["tof"]["consumption"].items()
+        }
+
+        self.secondary_subsystems_consumption = [
+            self.obc_power_consumption,
+            self.gnss_power_consumption,
+            self.tof_power_consumption,
         ]
 
     def update_subsystems(
@@ -48,17 +66,13 @@ class Spacecraft:
         eclipse_status: bool,
         delta_t: TimeDelta,
     ):
-        # TODO: later, if want to implement some latency instead of instant attitude change,
-        # TODO: (continued) will need to not update all subsystem but find a way to wait a few timesteps
-        # TODO: same for updating power_consumed and generated, will have to block all of this
-        # TODO: but also, the get_cross_section can update smoothly when decided to implement non-instantanous attitude change
         # Update each subsystem based on old mode, new mode, location, communication_window and eclispe_status boolean
         for subsystem in self.subsystems:
             subsystem.update(old_mode, new_mode, rv, com_window, eclipse_status)
             # TODO: implement the functions! use the mode_switch commented code from Math's matlab functions
 
         # get new cross section from ADCS change of orientation, and update related spacecraft attributes
-        self.cross_section = self.adcs_subsystem.get_cross_section()
+        self.cross_section = self.adcs_subsystem.get_cross_section(self.cross_section)
         self.A_over_m = ((self.cross_section) / (self.mass)).to_value(
             u.km**2 / u.kg
         ) * (u.km**2 / u.kg)
@@ -67,10 +81,9 @@ class Spacecraft:
         # Compute the power consumed by each subsystem at current timestep
         power_consumed = 0
         for subsystem in self.subsystems:
-            power_consumed += subsystem.compute_power_consumed()
-            # TODO: need to make sure it is given in sim_unit of time
-        # TODO add power consumed by subsystems that are not implemented as "classes"
-        power_consumed *= delta_t  # Multiply by timestep
+            power_consumed += subsystem.compute_power_consumed(new_mode)
+        for dic in self.secondary_subsystems_consumption:
+            power_consumed += dic[str(new_mode)]
 
         # Update EPS based on data gathered for all other subsystems
         self.eps_subsystem.update_batteries(power_consumed, delta_t)

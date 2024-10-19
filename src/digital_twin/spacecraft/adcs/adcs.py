@@ -15,7 +15,11 @@ class Adcs(SubSystem):
     def __init__(self, params: Dict, init_operating_mode: int) -> None:
         print("Initializing ADCS subsystem... ")
 
-        super(Adcs, self).__init__(init_operating_mode)
+        super(Adcs, self).__init__()
+
+        self.consumption_mean = {
+            int(k): v * u.W for k, v in params["consumption"].items()
+        }
 
     def update(
         self,
@@ -27,13 +31,11 @@ class Adcs(SubSystem):
     ) -> None:
         pass
 
-    def get_cross_section(self) -> Quantity:
-        return (
-            0.07487e-6 * u.km**2
-        )  # right now, it is the initial value cubeSat, will need to update this
+    def get_cross_section(self, old_cross_section: Quantity) -> Quantity:
+        return old_cross_section  # right now, it is the initial value cubeSat, will need to update this
 
-    def compute_power_consumed(self) -> float:
-        return 0.0
+    def compute_power_consumed(self, mode: int) -> float:
+        return self.consumption_mean[mode]
 
     def __str__(self) -> str:
         return f"ADCS:"
