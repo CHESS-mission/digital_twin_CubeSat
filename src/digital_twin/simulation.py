@@ -210,10 +210,8 @@ class Simulation:
 
         if self.report_params["modes"] == "yes":
             save_filename = self.report_params["folder"] + "modes.pdf"
-            modes = np.zeros(data["tofs"].shape[0])
-            modes[:100] = 3
             plot_operating_modes(
-                modes,
+                data["modes"],
                 data["tofs"].to_value("second"),
                 self.duration_sim,
                 save_filename=save_filename,
