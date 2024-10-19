@@ -7,6 +7,7 @@ import plotly.graph_objects as go
 
 from astropy.time import Time, TimeDelta
 from astropy import units as u
+from astropy.units import Quantity
 from astropy.coordinates import (
     GCRS,
     ITRS,
@@ -17,6 +18,8 @@ from astropy.coordinates import (
 from poliastro.twobody import Orbit
 from poliastro.plotting import StaticOrbitPlotter, OrbitPlotter3D
 from poliastro.earth.plotting import GroundtrackPlotter
+
+from digital_twin.constants import mode_dict
 
 
 # Function for general plotting in 2d with x and y arrays as input
@@ -425,3 +428,89 @@ def plot_groundtrack(
     gp.fig.write_image(folder + "groundtrack.png", scale=3)
     if show:
         gp.fig.show()
+
+
+def plot_operating_modes(
+    modes: np.array,
+    tofs: np.array,
+    duration_sim: Quantity,
+    save_filename: str = None,
+    show: bool = True,
+):
+
+    modes = [int(mode) for mode in modes]
+
+    # update what the x_axis scale should be
+    if duration_sim <= 3 * u.h:
+        x_label_f = seconds_to_minutes
+        x_label = r"Time ($min$)"
+    elif duration_sim <= 3 * u.day:
+        x_label_f = seconds_to_hours
+        x_label = r"Time ($hour$)"
+    else:
+        x_label_f = seconds_to_days
+        x_label = r"Time ($day$)"
+
+    # Mode names
+    mode_labels = [mode_dict[key] for key in sorted(mode_dict.keys())]
+    colors = ["#5cb85c", "#d9534f", "#5bc0de", "#f0ad4e", "#a0522d", "#6f42c1"]
+
+    plt.figure(figsize=(6, 3.5))
+    plt.ylim(-0.6, len(mode_labels) - 0.3)  # Adjust limits to avoid space
+
+    # Manually add horizontal grid lines at each mode level to make grid
+    for y in range(len(mode_labels)):
+        plt.axhline(
+            y=y, color="gray", linestyle="--", linewidth=0.8
+        )  # Add horizontal grid lines
+
+    # Create the step plot using horizontal lines (hlines)
+    for i in range(1, len(tofs)):
+        plt.hlines(
+            modes[i - 1],
+            tofs[i - 1],
+            tofs[i],
+            colors=colors[modes[i - 1]],
+            linewidth=10,
+        )
+    plt.hlines(
+        modes[-1], tofs[-1], tofs[-1] + 10, colors=colors[modes[-1]], linewidth=10
+    )  # Extend last line
+
+    plt.title("Satellite Modes Over Time", fontsize=13, fontweight="medium")
+    plt.xlabel(x_label, fontsize=11)
+
+    # Add a legend
+    handles = [
+        plt.Line2D([0], [0], color=colors[i], linewidth=5)
+        for i in range(len(mode_labels))
+    ]
+    plt.legend(
+        handles,
+        mode_labels,
+        loc="upper center",
+        bbox_to_anchor=(0.5, -0.5),
+        ncol=3,
+        title="Modes",
+    )
+
+    # Hide y-ticks and y-axis label
+    plt.yticks([])
+    plt.ylabel("")
+
+    ax = plt.gca()
+    ax.xaxis.set_ticks_position("none")  # Remove x-ticks
+    ax.spines["top"].set_color((0.8, 0.8, 0.8))
+    ax.spines["right"].set_color((0.8, 0.8, 0.8))
+    ax.spines["left"].set_color((0.8, 0.8, 0.8))
+    ax.spines["bottom"].set_color((0.8, 0.8, 0.8))
+    ax.xaxis.set_major_formatter(FuncFormatter(x_label_f))
+
+    # Show the plot
+    plt.tight_layout()
+    if save_filename is not None:
+        plt.savefig(save_filename)
+    if show:
+        plt.show()
+    else:
+        plt.close()

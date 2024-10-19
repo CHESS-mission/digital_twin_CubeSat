@@ -9,7 +9,7 @@ from digital_twin.spacecraft import SubSystem
 
 
 class Telecom(SubSystem):
-    def __init__(self, params: Dict, init_operating_mode: str) -> None:
+    def __init__(self, params: Dict, init_operating_mode: int) -> None:
         print("Initializing Telecom subsystem... ")
 
         super(Telecom, self).__init__(init_operating_mode)

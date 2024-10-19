@@ -13,3 +13,13 @@ sun_R = Sun.R.to(u.km)
 
 # ATMOSPHERIC MODEL
 atmosphere_model = COESA76()
+
+# SPACECRAFT MODES
+mode_dict = {
+    0: "IDLE",
+    1: "SAFE",
+    2: "CHARGING",
+    3: "UHF_COM",
+    4: "X_BAND_COM",
+    5: "MEASUREMENT",
+}

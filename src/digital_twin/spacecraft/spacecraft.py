@@ -14,7 +14,7 @@ from digital_twin.spacecraft.adcs import Adcs
 
 
 class Spacecraft:
-    def __init__(self, params: Dict, init_operating_mode: str) -> None:
+    def __init__(self, params: Dict, init_operating_mode: int) -> None:
         print("Initializing the spacecraft...")
         self.name = params["general"]["name"]
         self.C_D = params["general"]["C_D"] * u.one
@@ -48,7 +48,7 @@ class Spacecraft:
         eclipse_status: bool,
         delta_t: TimeDelta,
     ):
-        # TODO: later, if want to implement some latency instead of instant attitude change, 
+        # TODO: later, if want to implement some latency instead of instant attitude change,
         # TODO: (continued) will need to not update all subsystem but find a way to wait a few timesteps
         # TODO: same for updating power_consumed and generated, will have to block all of this
         # TODO: but also, the get_cross_section can update smoothly when decided to implement non-instantanous attitude change

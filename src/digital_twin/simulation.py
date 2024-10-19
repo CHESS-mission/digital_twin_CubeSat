@@ -22,6 +22,7 @@ from digital_twin.plotting import (
     plot_orbit_trajectory_3d,
     plot_orbit_2d,
     plot_groundtrack,
+    plot_operating_modes,
 )
 from digital_twin.spacecraft import Spacecraft
 from digital_twin.utils import (
@@ -90,6 +91,8 @@ class Simulation:
         eph = np.zeros((self.n_timesteps + 1, 6))
         eph[0, :3] = self.propagator.r
         eph[0, 3:] = self.propagator.v
+        modes = np.zeros(self.n_timesteps + 1)
+        modes[0] = self.switch_algo.operating_mode
 
         print("Number of timesteps:", self.n_timesteps)
         start_for_loop = time.time()
@@ -107,26 +110,30 @@ class Simulation:
 
             # 2. Calculate position based params: communication window, eclipse
             visibility = self.propagator.calculate_vis_window(self.ground_stations)
-            # communication window might depend on user-defined scheduler
             eclipse_status = self.propagator.calculate_eclipse_status()
-            # depends on user-defined scheduler
-            measurement_session = True
+
+            # 3. Calculate user-scheduled params
+            measurement_session = (
+                True  # Assumption for now, later will depend on user-defined scheduler
+            )
+            com_window = visibility  # Assumption for now, later might depend on user-defined scheduler
 
             # 3. Check for potential flags raised by OBS
             safe_flag = False
 
-            # # 4. Switch mode based on location, Eps and Telecom states
+            # 4. Switch mode based on location, Eps and Telecom states
             # TODO: will have to consider changing this when non instantanous attitude change implemented
-            # old_mode = self.switch_algo.operating_mode
-            # self.switch_algo.switch_mode(
-            #     self.spacecraft.get_eps(),
-            #     self.spacecraft.get_telecom(),
-            #     com_window,
-            #     eclipse_status,
-            #     measurement_session,
-            #     safe_flag,
-            # )
-            # new_mode = self.switch_algo.operating_mode
+            old_mode = self.switch_algo.operating_mode
+            self.switch_algo.switch_mode(
+                self.spacecraft.get_eps(),
+                self.spacecraft.get_telecom(),
+                com_window,
+                eclipse_status,
+                measurement_session,
+                safe_flag,
+            )
+            new_mode = self.switch_algo.operating_mode
+            modes[t + 1] = new_mode
 
             # # 5. Ask spacecraft to update all subsystems
             # self.spacecraft.update_subsystems(
@@ -153,6 +160,7 @@ class Simulation:
             "AOPs": AOPs,
             "TAs": TAs,
             "altitudes": altitudes,
+            "modes": modes,
         }
         # Produce report
         self.produce_report(data_results)
@@ -200,6 +208,18 @@ class Simulation:
                 station_name="Lausanne",
             )
 
+        if self.report_params["modes"] == "yes":
+            save_filename = self.report_params["folder"] + "modes.pdf"
+            modes = np.zeros(data["tofs"].shape[0])
+            modes[:100] = 3
+            plot_operating_modes(
+                modes,
+                data["tofs"].to_value("second"),
+                self.duration_sim,
+                save_filename=save_filename,
+                show=False,
+            )
+
     def print_parameters(self):
         print("")
         print("*******************")
@@ -207,7 +227,7 @@ class Simulation:
         print("Simulation:")
         print(f"- init time: {self.init_time}")
         print(f"- end time: {self.end_time}")
-        print(f"- init operating mode: {self.switch_algo.operating_mode}")
+        print(f"- init operating mode: {self.switch_algo.print_operating_mode()}")
         print("")
         print(str(self.spacecraft))
         print("\nGround Stations:")

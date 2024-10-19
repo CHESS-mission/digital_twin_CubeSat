@@ -3,11 +3,16 @@
 
 from digital_twin.spacecraft.eps import Eps
 from digital_twin.spacecraft.telecom import Telecom
+from digital_twin.constants import mode_dict
 
 
 class ModeSwitch:
-    def __init__(self, init_mode: str) -> None:
-        self.operating_mode = init_mode
+    def __init__(self, init_mode: int) -> None:
+        self.mode_dict = mode_dict
+        self.operating_mode = int(init_mode)
+
+    def print_operating_mode(self) -> str:
+        return self.mode_dict[self.operating_mode]
 
     def switch_mode(
         self,
@@ -19,32 +24,32 @@ class ModeSwitch:
         safe_flag=False,
     ) -> None:
         if safe_flag:
-            self.operating_mode = "SAFE"
+            self.operating_mode = 1
         else:
             match self.operating_mode:
-                case "IDLE":
+                case 0:
                     self.mode_switch_from_IDLE(
                         eps, telecom, com_window, eclipse_status, measurement_session
                     )
-                case "SAFE":
+                case 1:
                     self.mode_switch_from_SAFE()
-                case "CHARGING":
+                case 2:
                     self.mode_switch_from_CHARGING(
                         eps, telecom, com_window, eclipse_status, measurement_session
                     )
-                case "UHF_COM":
+                case 3:
                     self.mode_switch_from_UHF_COM(eps, telecom, com_window)
-                case "X_BAND_COM":
+                case 4:
                     self.mode_switch_from_X_BAND_COM(telecom, com_window)
-                case "MEASUREMENT":
-                    self.mode_switch_from_MEASUREMENT(eps, com_window, eclipse_status)
+                case 5:
+                    self.mode_switch_from_MEASUREMENT(telecom)
                 case _:
                     raise AssertionError(
                         f"The current operating mode ({self.operating_mode}) does not exist"
                     )
 
     @property
-    def operating_mode(self) -> str:
+    def operating_mode(self) -> int:
         return self._operating_mode
 
     @operating_mode.setter
@@ -61,7 +66,7 @@ class ModeSwitch:
     ):
         # Charging in priority if low battery (if possible)
         if not (eclipse_status) and (eps.battery_level <= eps.min_battery):
-            self.operating_mode = "CHARGING"
+            self.operating_mode = 2
         else:
             # Else try to measure
             if (
@@ -69,28 +74,28 @@ class ModeSwitch:
                 and (not telecom.data_storage_full)
                 and (measurement_session)
             ):
-                self.operating_mode = "MEASUREMENT"
+                self.operating_mode = 5
                 # eps.MeasurementDuration = 0
                 # eps.DownlinkComplete = false
                 # eps.CampaignFinished = false
             else:
                 # Else try to communicate
                 if (eps.battery_level >= eps.com_threshold) and (com_window):
-                    self.operating_mode = "UHF_COM"
+                    self.operating_mode = 3
                     # eps.OperatingMode = eps.UHF_COM
                     # eps.ComFinished = false
                     # eps.ComDuration = 0
                 else:
                     # Else try to charge (if possible)
                     if (not eclipse_status) and (eps.battery_level < eps.max_battery):
-                        self.operating_mode = "CHARGING"
+                        self.operating_mode = 2
                     else:
-                        self.operating_mode = "IDLE"
+                        self.operating_mode = 0
 
     def mode_switch_from_SAFE(self):
         # the case of a safe flag was treated in the switch_mode() function already
         # so, if the safe flag disappeared, switch to IDLE mode
-        self.operating_mode = "IDLE"
+        self.operating_mode = 0
 
     def mode_switch_from_CHARGING(
         self,
@@ -106,7 +111,7 @@ class ModeSwitch:
             and (not telecom.data_storage_full)
             and (measurement_session)
         ):
-            self.operating_mode = "MEASUREMENT"
+            self.operating_mode = 5
             # eps.MeasurementDuration = 0
             # eps.DownlinkComplete = false
             # eps.CampaignFinished = false
@@ -114,16 +119,16 @@ class ModeSwitch:
         else:
             # Else try to communicate
             if (eps.battery_level >= eps.com_threshold) and (com_window):
-                self.operating_mode = "UHF_COM"
+                self.operating_mode = 3
                 # eps.OperatingMode = eps.UHF_COM
                 # eps.ComFinished = false
                 # eps.ComDuration = 0
             else:
                 # Else stop charging if in eclipse or battery is full
                 if (eclipse_status) or (eps.battery_level >= eps.max_battery):
-                    self.operating_mode = "IDLE"
+                    self.operating_mode = 0
                 else:
-                    self.operating_mode = "CHARGING"
+                    self.operating_mode = 2
 
     def mode_switch_from_UHF_COM(self, eps: Eps, telecom: Telecom, com_window: bool):
         # X-BAND DOWNLINK in priority if possible
@@ -133,16 +138,16 @@ class ModeSwitch:
             and (com_window)
             and (not telecom.downlink_complete)
         ):
-            self.operating_mode = "X_BAND_COM"
+            self.operating_mode = 4
             # eps.data_storage_full = False
         else:
             # Else try to go to idle
             if (not com_window) or (telecom.com_finished):
-                self.operating_mode = "IDLE"
+                self.operating_mode = 0
                 # eps.com_duration = 0
                 # eps.com_finished = False
             else:
-                self.operating_mode = "UHF_COM"  # stays un current mode
+                self.operating_mode = 3  # stays un current mode
                 # Increment communication duration
                 # eps.com_duration += dt
                 # if eps.com_duration >= eps.com_max_duration:
@@ -151,13 +156,13 @@ class ModeSwitch:
     def mode_switch_from_X_BAND_COM(self, telecom: Telecom, com_window: bool):
         # Go back to UHF-COM if downlink is finished (if COM is still possible)
         if com_window and telecom.downlink_complete:
-            self.operating_mode = "UHF_COM"
+            self.operating_mode = 3
         else:
             # Else try to go to idle
             if not com_window:
-                self.operating_mode = "IDLE"
+                self.operating_mode = 0
             else:
-                self.operating_mode = "X_BAND_COM"
+                self.operating_mode = 4
                 # decrement data storage
                 # eps.data_storage -= eps.x_band_rate * dt  # adapt to data rate
                 # if eps.data_storage <= 0:
@@ -167,18 +172,14 @@ class ModeSwitch:
 
     def mode_switch_from_MEASUREMENT(
         self,
-        eps: Eps,
         telecom: Telecom,
-        com_window: bool,
-        eclipse_status: bool,
-        dt: float,
     ):
         # Go to idle after measurement normally ends
         if telecom.data_storage_full or telecom.campaign_finished:
-            self.operating_mode = "IDLE"
+            self.operating_mode = 0
             # eps.measurement_duration = 0
         else:
-            self.operating_mode = "MEASUREMENT"  # stay in measurement mode!
+            self.operating_mode = 5  # stay in measurement mode!
             # Increment data stored
             # eps.data_storage += eps.measure_rate * dt  # adapt to data rate of ScienceInstrument
             # if eps.data_storage >= eps.max_storage:

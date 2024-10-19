@@ -12,7 +12,7 @@ from digital_twin.spacecraft import SubSystem
 
 
 class Adcs(SubSystem):
-    def __init__(self, params: Dict, init_operating_mode: str) -> None:
+    def __init__(self, params: Dict, init_operating_mode: int) -> None:
         print("Initializing ADCS subsystem... ")
 
         super(Adcs, self).__init__(init_operating_mode)
