@@ -7,6 +7,7 @@ import numpy as np
 
 from astropy import units as u
 from astropy.units import Quantity
+from astropy.time import TimeDelta
 
 from digital_twin.spacecraft import SubSystem
 
@@ -28,13 +29,14 @@ class Adcs(SubSystem):
         rv: np.array,
         com_window: bool,
         eclipse_status: bool,
+        delta_t: TimeDelta,
     ) -> None:
         pass
 
     def get_cross_section(self, old_cross_section: Quantity) -> Quantity:
         return old_cross_section  # right now, it is the initial value cubeSat, will need to update this
 
-    def compute_power_consumed(self, mode: int) -> float:
+    def compute_power_consumed(self, mode: int) -> Quantity:
         return self.consumption_mean[mode]
 
     def __str__(self) -> str:

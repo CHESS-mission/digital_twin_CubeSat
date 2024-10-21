@@ -6,8 +6,12 @@ from typing import Dict
 import numpy as np
 
 from astropy import units as u
+from astropy.units import Quantity
+from astropy.time import TimeDelta
 
 from digital_twin.spacecraft import SubSystem
+from digital_twin.utils import get_astropy_unit_time
+from digital_twin.spacecraft.payload import Payload
 
 
 class Telecom(SubSystem):
@@ -22,27 +26,32 @@ class Telecom(SubSystem):
         self.consumption_mean_x_band = {
             int(k): v * u.W for k, v in params["consumption_x_band"].items()
         }
+        com_unit = get_astropy_unit_time(params["communication_max_duration_unit"])
+        self.com_max_duration = (params["communication_max_duration"] * com_unit).to(
+            u.s
+        )
 
-        self.measurement_duration = 0.0
-        self.communication_duration = 0.0
-        self.data_storage = 0.0
-
-    def data_storage_full(self) -> bool:
-        return False
+        # variables to track if communication is occuring and how much time (UHF_COM)
+        self.com_duration = 0.0 * u.s
+        self.is_communicating = False
 
     def handshake(self) -> bool:
         return True
 
-    def downlink_complete(self) -> bool:
-        return True
+    def downlink_complete(self, payload: Payload) -> bool:
+        # stop downlink when all data transferred
+        if payload.data_storage_empty():
+            return True
+        return False
 
-    # communication finished with ground station
     def com_finished(self) -> bool:
-        return False
-
-    # scientific data transfer to ground station session
-    def campaign_finished(self) -> bool:
-        return False
+        if not self.is_communicating:
+            return True
+        # stop the communication when maximum time reached
+        else:
+            if self.com_duration >= self.com_max_duration:
+                return True
+            return False
 
     def update(
         self,
@@ -51,11 +60,19 @@ class Telecom(SubSystem):
         rv: np.array,
         com_window: bool,
         eclipse_status: bool,
+        delta_t: TimeDelta,
     ) -> None:
-        pass
+        if new_mode == 3:  # UHF_COM
+            self.is_communicating = True
+            if old_mode != new_mode:  # just switched to communication mode
+                self.com_duration = 0.0 * u.s
+            self.com_duration += delta_t  # increase communication time
+        else:
+            self.is_communicating = False
+            self.com_duration = 0.0 * u.s
 
-    def compute_power_consumed(self, mode: int) -> float:
-        return self.consumption_mean[mode]
+    def compute_power_consumed(self, mode: int) -> Quantity:
+        return self.consumption_mean_uhf[mode] + self.consumption_mean_x_band[mode]
 
     def __str__(self) -> str:
         return f"Telecom:"

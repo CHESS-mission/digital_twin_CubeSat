@@ -131,6 +131,7 @@ class Simulation:
             self.switch_algo.switch_mode(
                 self.spacecraft.get_eps(),
                 self.spacecraft.get_telecom(),
+                self.spacecraft.get_payload(),
                 com_window,
                 eclipse_status,
                 measurement_session,
@@ -142,7 +143,6 @@ class Simulation:
             # 5. Ask spacecraft to update all subsystems
             # self.spacecraft.update_subsystems(
             #     old_mode, new_mode, rv, com_window, eclipse_status, self.delta_t
-            # )
 
         end_for_loop = time.time()
         duration = end_for_loop - start_for_loop

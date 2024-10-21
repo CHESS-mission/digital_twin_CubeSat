@@ -9,9 +9,9 @@
         "capacity": 42,
         "min_battery": 8.4,
         "max_battery": 33.6,
-        "measure_threshold": 0.5,
-        "com_threshold": 0.5,
-        "xb_threshold": 0.5,
+        "measure_threshold": 27.38,
+        "com_threshold": 9.24,
+        "xb_threshold": 11.69,
         "consumption": {
             "0": 0.2,
             "1": 0.24,
@@ -29,8 +29,10 @@
                 "4": 0,
                 "5": 0
             },
-            "mean_solar_input": 0.207
-
+            "mean_solar_input": 0.207,
+            "nb_cells": 28,
+            "cell_surface": 0.00265,
+            "efficiency": 0.29
         }
     },
     "telecom": {
@@ -49,7 +51,9 @@
             "3": 0,
             "4": 17.64,
             "5": 0
-        }
+        },
+        "communication_max_duration": 500,
+        "communication_max_duration_unit": "second"
 
     },
     "adcs": {
@@ -72,25 +76,29 @@
             "5": 1.7
         }
     },
-    "gnss": {
-        "consumption": {
+    "payload" : {
+        "consumption_gnss": {
             "0": 0.56,
             "1": 0,
             "2": 0.56,
             "3": 0.61,
             "4": 0.61,
             "5": 0.61
-        }
-    },
-    "tof": {
-        "consumption": {
+        },
+        "consumption_tof": {
             "0": 0,
             "1": 0,
             "2": 0,
             "3": 0,
             "4": 0,
             "5": 7.98
-        }
+        },
+        "measurement_rate": 0.0139616,
+        "max_storage": 250000,
+        "max_duration": 5730,
+        "max_duration_unit": "second",
+        "x_band_rate": 10
+
     }
 }
 

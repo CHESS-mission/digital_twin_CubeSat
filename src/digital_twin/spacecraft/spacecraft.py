@@ -11,6 +11,8 @@ from astropy.time import TimeDelta
 from digital_twin.spacecraft.eps import Eps
 from digital_twin.spacecraft.telecom import Telecom
 from digital_twin.spacecraft.adcs import Adcs
+from digital_twin.spacecraft.payload import Payload
+from digital_twin.spacecraft.obc import Obc
 
 
 class Spacecraft:
@@ -30,31 +32,15 @@ class Spacecraft:
         self.eps_subsystem = Eps(params["eps"], init_operating_mode)
         self.telecom_subsystem = Telecom(params["telecom"], init_operating_mode)
         self.adcs_subsystem = Adcs(params["adcs"], init_operating_mode)
+        self.payload_subsystem = Payload(params["payload"], init_operating_mode)
+        self.obc_subsystem = Obc(params["obc"], init_operating_mode)
 
         self.subsystems = [
             self.eps_subsystem,
             self.telecom_subsystem,
             self.adcs_subsystem,
-        ]
-
-        # OTHER SUBSYSTEMS INITIALIZATIONS
-
-        {int(k): v * u.W for k, v in params["obc"]["consumption"].items()}
-
-        self.obc_power_consumption = {
-            int(k): v * u.W for k, v in params["obc"]["consumption"].items()
-        }
-        self.gnss_power_consumption = {
-            int(k): v * u.W for k, v in params["gnss"]["consumption"].items()
-        }
-        self.tof_power_consumption = {
-            int(k): v * u.W for k, v in params["tof"]["consumption"].items()
-        }
-
-        self.secondary_subsystems_consumption = [
-            self.obc_power_consumption,
-            self.gnss_power_consumption,
-            self.tof_power_consumption,
+            self.payload_subsystem,
+            self.obc_subsystem,
         ]
 
     def update_subsystems(
@@ -68,8 +54,9 @@ class Spacecraft:
     ):
         # Update each subsystem based on old mode, new mode, location, communication_window and eclispe_status boolean
         for subsystem in self.subsystems:
-            subsystem.update(old_mode, new_mode, rv, com_window, eclipse_status)
-            # TODO: implement the functions! use the mode_switch commented code from Math's matlab functions
+            subsystem.update(
+                old_mode, new_mode, rv, com_window, eclipse_status, delta_t
+            )
 
         # get new cross section from ADCS change of orientation, and update related spacecraft attributes
         self.cross_section = self.adcs_subsystem.get_cross_section(self.cross_section)
@@ -82,11 +69,9 @@ class Spacecraft:
         power_consumed = 0
         for subsystem in self.subsystems:
             power_consumed += subsystem.compute_power_consumed(new_mode)
-        for dic in self.secondary_subsystems_consumption:
-            power_consumed += dic[str(new_mode)]
 
         # Update EPS based on data gathered for all other subsystems
-        self.eps_subsystem.update_batteries(power_consumed, delta_t)
+        self.eps_subsystem.update_batteries(power_consumed, delta_t, eclipse_status)
 
     def __str__(self):
         string1 = "\n".join(
@@ -123,3 +108,6 @@ class Spacecraft:
 
     def get_telecom(self) -> Telecom:
         return self.telecom_subsystem
+
+    def get_payload(self) -> Payload:
+        return self.payload_subsystem

@@ -1,0 +1,40 @@
+"""Main file for the On-Board Computer subsystem
+"""
+
+from typing import Dict
+
+import numpy as np
+
+from astropy import units as u
+from astropy.units import Quantity
+from astropy.time import TimeDelta
+
+from digital_twin.spacecraft import SubSystem
+
+
+class Obc(SubSystem):
+    def __init__(self, params: Dict, init_operating_mode: int) -> None:
+        print("Initializing Obc subsystem... ")
+
+        super(Obc, self).__init__()
+
+        self.consumption_mean = {
+            int(k): v * u.W for k, v in params["consumption"].items()
+        }
+
+    def update(
+        self,
+        old_mode: str,
+        new_mode: str,
+        rv: np.array,
+        com_window: bool,
+        eclipse_status: bool,
+        delta_t: TimeDelta,
+    ) -> None:
+        pass
+
+    def compute_power_consumed(self, mode: int) -> Quantity:
+        return self.consumption_mean[mode]
+
+    def __str__(self) -> str:
+        return f"Obc:"
