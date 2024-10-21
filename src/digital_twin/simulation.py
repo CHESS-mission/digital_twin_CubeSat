@@ -243,12 +243,12 @@ class Simulation:
 
 # Methods not part of the class not not general enough to be in utils file
 def plot_orbital_elem_evolution(
-    tofs: np.array,
-    RAANs: np.array,
-    AOPs: np.array,
-    ECCs: np.array,
-    INCs: np.array,
-    altitudes: np.array,
+    tofs: np.ndarray,
+    RAANs: np.ndarray,
+    AOPs: np.ndarray,
+    ECCs: np.ndarray,
+    INCs: np.ndarray,
+    altitudes: np.ndarray,
     folder: str,
     duration_sim: Quantity,
 ):

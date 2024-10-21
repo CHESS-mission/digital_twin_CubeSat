@@ -1,7 +1,7 @@
 {
     "units_delta_t": "second",
-    "delta_t": 600,
-    "units_duration_sim": "year",
+    "delta_t": 60,
+    "units_duration_sim": "day",
     "duration_sim": 1,
     "init_operating_mode": 0,
     "report":{

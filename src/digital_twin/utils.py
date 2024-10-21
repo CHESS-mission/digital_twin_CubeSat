@@ -21,7 +21,7 @@ def get_astropy_units_angle(unit_string: str) -> Unit:
 
 
 def check_and_empty_folder(folder_path: str) -> None:
-    # Check if folder exists, if not, create it
+    # If the folder does not exist, create it
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
     else:
@@ -31,12 +31,29 @@ def check_and_empty_folder(folder_path: str) -> None:
             for filename in os.listdir(folder_path):
                 file_path = os.path.join(folder_path, filename)
                 if os.path.isfile(file_path) or os.path.islink(file_path):
-                    os.unlink(file_path)  # Remove file or symlink
+                    os.unlink(file_path)
                 elif os.path.isdir(file_path):
-                    shutil.rmtree(file_path)  # Remove directory and its contents
+                    shutil.rmtree(file_path)
 
 
-def extract_propagation_data_from_ephemeris(eph: np.array):
+def extract_propagation_data_from_ephemeris(eph: np.ndarray):
+    """Uses Poliastro rv2coe() function to extract orbital elements at each timestep using position data.
+
+    Args:
+        eph (np.ndarray): Position data
+
+    Returns:
+        np.array (9): Orbital elements
+            rr: position
+            vv: velocity
+            SMAs: semi-major aixs
+            ECCs: eccentricity
+            INCs: inclination
+            RAANs: right ascension of the ascending node
+            AOPs: Argument of Periapsis
+            TAs: True Anomaly
+            altitudes: altitude from attractor's surface
+    """
     rr = eph[:, :3]
     vv = eph[:, 3:]
     orbital_params = np.array([rv2coe(earth_k, r, v) for r, v in zip(rr, vv)])
@@ -54,20 +71,17 @@ def extract_propagation_data_from_ephemeris(eph: np.array):
     return rr, vv, SMAs, ECCs, INCs, RAANs, AOPs, TAs, altitudes
 
 
-def angle_between_vectors(A, B):
+def angle_between_vectors(A: np.ndarray, B: np.ndarray) -> np.ndarray:
     """
     Calculates the angle (in degrees) between corresponding 3D vectors
     in matrices A and B. Each row represents a vector in 3D space.
 
-    Parameters:
-    A : np.ndarray
-        Matrix of shape (n, 3) representing n 3D vectors.
-    B : np.ndarray
-        Matrix of shape (n, 3) representing n 3D vectors.
+    Args:
+    A : (np.ndarray): Matrix of shape (n, 3) representing n 3D vectors.
+    B : (np.ndarray): Matrix of shape (n, 3) representing n 3D vectors.
 
     Returns:
-    np.ndarray
-        A vector of shape (n,) containing the angles (in degrees) between corresponding vectors.
+        np.ndarray: A vector of shape (n,) containing the angles (in degrees) between corresponding vectors.
     """
     # Dot product of corresponding rows in A and B
     dot_product = np.einsum("ij,ij->i", A, B)
