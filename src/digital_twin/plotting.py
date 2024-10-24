@@ -363,8 +363,8 @@ def plot_groundtrack(
     folder: str,
     traj_color: str = "purple",
     traj_width: float = 1,
-    station_coords: np.array = None,
-    station_name: str = "station",
+    stations_coords: np.ndarray = None,
+    stations_name: np.ndarray = None,
     station_color: str = "red",
     show: bool = False,
 ):
@@ -392,17 +392,19 @@ def plot_groundtrack(
     )
 
     # Add ground station
-    if station_coords is not None:
-        station = station_coords * u.deg  # [LAT LON]
-        gp.add_trace(
-            go.Scattergeo(
-                lat=station[0],
-                lon=station[-1],
-                name=station_name,
-                marker={"color": station_color},
-                showlegend=True,
+    if stations_coords is not None:
+        for index, station in enumerate(stations_coords):
+            coord = station * u.deg  # [LAT LON]
+            name = stations_name[index]
+            gp.add_trace(
+                go.Scattergeo(
+                    lat=coord[0],
+                    lon=coord[-1],
+                    name=name,
+                    marker={"color": station_color},
+                    showlegend=True,
+                )
             )
-        )
 
     # Customize plots
     gp.update_layout(

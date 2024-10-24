@@ -1,7 +1,7 @@
 """File to store ground station related functions and objects
 """
 
-from typing import Dict
+from typing import Dict, Tuple
 
 import numpy as np
 
@@ -49,3 +49,6 @@ class GroundStation:
 
     def __str__(self):
         return f'ground station "{self.name}" located at {self.station_coords} with an elevation angle of {self.elev_angle}'
+
+    def get_name_pos(self) -> Tuple[str, np.ndarray]:
+        return self.name, self.station_coords

@@ -1,14 +1,13 @@
 """Main file that runs the simulation
 """
 
-from typing import Dict
 import time
-
-import numpy as np
+from typing import Dict
 
 from astropy.time import Time, TimeDelta
 import astropy.units as u
 from astropy.units import Quantity
+import numpy as np
 
 from digital_twin.ground_station import GroundStation
 from digital_twin.mode_switch import ModeSwitch
@@ -33,6 +32,8 @@ from digital_twin.utils import (
 
 
 class Simulation:
+    """Manager class that gather all simulation objects and runs the main simulation loop."""
+
     def __init__(
         self,
         simulation_params: Dict,
@@ -84,13 +85,12 @@ class Simulation:
         # PROPAGATOR INITIALIZATION
         self.propagator = OrbitPropagator(orbit_params, epoch)
 
-        # report parameters
+        # data
         self.report_params = simulation_params["report"]
-
-        # Print summary of parameters for the simulation
         self.print_parameters()
 
     def run(self) -> None:
+        """Main simulation loop."""
         print("Simulation running...")
         eph = np.zeros((self.n_timesteps + 1, 6))
         eph[0, :3] = self.propagator.r
@@ -126,7 +126,6 @@ class Simulation:
             safe_flag = False
 
             # 4. Switch mode based on location, Eps and Telecom states
-            # TODO: will have to consider changing this when non instantanous attitude change implemented
             old_mode = self.switch_algo.operating_mode
             self.switch_algo.switch_mode(
                 self.spacecraft.get_eps(),
@@ -169,7 +168,8 @@ class Simulation:
         # Produce report
         self.produce_report(data_results)
 
-    def produce_report(self, data: str):
+    def produce_report(self, data: Dict) -> None:
+        """Produce plots and other report data."""
         check_and_empty_folder(self.report_params["folder"])
         if self.report_params["orbital_elem_evolution"] == "yes":
             plot_orbital_elem_evolution(
@@ -201,6 +201,12 @@ class Simulation:
                 traj=data["rr"],
             )
 
+        stations_coords = []
+        stations_names = []
+        for station in self.ground_stations:
+            name, pos = station.get_name_pos()
+            stations_coords.append(pos)
+            stations_names.append(name)
         if self.report_params["groundtrack"] == "yes":
             plot_groundtrack(
                 self.report_params["title_figures"],
@@ -208,8 +214,8 @@ class Simulation:
                 self.epochs_array,
                 "CHESS_1 cubeSat",
                 self.report_params["folder"],
-                station_coords=np.array([46.31, 6.38]),
-                station_name="Lausanne",
+                stations_coords=np.array(stations_coords),
+                stations_name=np.array(stations_names),
             )
 
         if self.report_params["modes"] == "yes":
@@ -222,7 +228,8 @@ class Simulation:
                 show=False,
             )
 
-    def print_parameters(self):
+    def print_parameters(self) -> None:
+        """Print a summary of the the simulation objects."""
         print("")
         print("*******************")
         print("INITIAL PARAMETERS:\n")
@@ -241,7 +248,7 @@ class Simulation:
         print("")
 
 
-# Methods not part of the class not not general enough to be in utils file
+# Method not part of the class but not general enough to be in utils file
 def plot_orbital_elem_evolution(
     tofs: np.ndarray,
     RAANs: np.ndarray,
@@ -250,8 +257,9 @@ def plot_orbital_elem_evolution(
     INCs: np.ndarray,
     altitudes: np.ndarray,
     folder: str,
-    duration_sim: Quantity,
+    duration_sim: Quantity["time"],
 ):
+    """Plot the evolution of RAAN, AOP, ECC, INC, and altitude during the simulation."""
     ticks_angle = np.array([0, 1 / 2 * np.pi, np.pi, 3 / 2 * np.pi, 2 * np.pi])
     tick_labels_angle = np.array([r"$0$", r"$\pi/2$", r"$\pi$", r"$3\pi/2$", r"$2\pi$"])
 
