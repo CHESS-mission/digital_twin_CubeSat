@@ -1,13 +1,12 @@
-"""Main file for the payload subsystem (gnss and tof together)
+"""File for the payload subsystem (gnss and tof together).
 """
 
 from typing import Dict
 
-import numpy as np
-
 from astropy import units as u
-from astropy.units import Quantity
 from astropy.time import TimeDelta
+from astropy.units import Quantity
+import numpy as np
 
 from digital_twin.spacecraft import SubSystem
 from digital_twin.utils import get_astropy_unit_time
@@ -58,7 +57,7 @@ class Payload(SubSystem):
         self,
         old_mode: str,
         new_mode: str,
-        rv: np.array,
+        rv: np.ndarray,
         com_window: bool,
         eclipse_status: bool,
         delta_t: TimeDelta,

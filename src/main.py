@@ -1,17 +1,15 @@
-"""Main file to run the simulation.
+"""Main file to run.
 """
 
-import json
 import sys
 from typing import List, Dict
 
-import numpy as np
-
 from digital_twin import Simulation
+from digital_twin.utils import parse_data_file
 
 
 def run(args: List[str]) -> None:
-    """Main function that runs the simulation.
+    """Main function to instantiate the Simuation class and run the simulation.
 
     Args:
         args (List[str]): user string arguments
@@ -24,27 +22,10 @@ def run(args: List[str]) -> None:
     orbit_params = parse_data_file(args[1])
     spacecraft_params = parse_data_file(args[2])
     station_params = parse_data_file(args[3])
-    print("Starting the simulation...")
     simulation = Simulation(
         simulation_params, orbit_params, spacecraft_params, station_params
     )
     simulation.run()
-    print("Simulation ended!")
-
-
-def parse_data_file(file_path: str) -> Dict:
-    """Parse JSON file provided by user
-
-    Args:
-        file_path (str): path to JSON file
-
-    Returns:
-        Dict: data from file in a dictionary
-    """
-    f = open(file_path)
-    data = json.load(f)
-    f.close()
-    return data
 
 
 if __name__ == "__main__":

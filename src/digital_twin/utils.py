@@ -1,11 +1,14 @@
+"""Util functions used everywhere in the code."""
+
+import json
 import os
 import shutil
-
-import numpy as np
+from typing import Dict, Tuple
 
 from astropy import units as u
 from astropy.units import Unit
 from poliastro.core.elements import rv2coe
+import numpy as np
 
 from digital_twin.constants import earth_R, earth_k
 
@@ -36,7 +39,7 @@ def check_and_empty_folder(folder_path: str) -> None:
                     shutil.rmtree(file_path)
 
 
-def extract_propagation_data_from_ephemeris(eph: np.ndarray):
+def extract_propagation_data_from_ephemeris(eph: np.ndarray) -> Tuple[np.ndarray]:
     """Uses Poliastro rv2coe() function to extract orbital elements at each timestep using position data.
 
     Args:
@@ -101,3 +104,18 @@ def angle_between_vectors(A: np.ndarray, B: np.ndarray) -> np.ndarray:
     angle_deg = np.degrees(angle_rad)
 
     return angle_deg
+
+
+def parse_data_file(file_path: str) -> Dict:
+    """Parse JSON file provided by user
+
+    Args:
+        file_path (str): path to JSON file
+
+    Returns:
+        Dict: data from file in a dictionary
+    """
+    f = open(file_path)
+    data = json.load(f)
+    f.close()
+    return data

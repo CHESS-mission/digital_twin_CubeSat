@@ -1,32 +1,27 @@
-"""Wrapper around poliastro orbit propagator
+"""Wrapper around poliastro orbit propagator.
 """
 
 from typing import Dict
 import copy
 
-from numba import njit as jit
-
-import numpy as np
-
 from astropy import units as u
-from astropy.units import Quantity
-from astropy.time import Time
 from astropy.coordinates import (
-    CartesianRepresentation,
-    SphericalRepresentation,
     GCRS,
     ITRS,
     get_body_barycentric_posvel,
 )
-
-from poliastro.twobody import Orbit
-from poliastro.twobody.propagation import CowellPropagator
+from astropy.time import Time
+from astropy.units import Quantity
+from poliastro.core.events import eclipse_function
 from poliastro.core.perturbations import (
     J2_perturbation,
     atmospheric_drag,
 )
 from poliastro.core.propagation import func_twobody
-from poliastro.core.events import eclipse_function
+from poliastro.twobody import Orbit
+from poliastro.twobody.propagation import CowellPropagator
+from numba import njit as jit
+import numpy as np
 
 from digital_twin.constants import atmosphere_model, earth_R, J2, sun_R, earth_k
 from digital_twin.orbit_propagator.constants import (
@@ -34,7 +29,6 @@ from digital_twin.orbit_propagator.constants import (
     star_string,
     attractor_string,
 )
-from digital_twin.ground_station import GroundStation
 from digital_twin.utils import angle_between_vectors
 
 
@@ -78,9 +72,9 @@ class OrbitPropagator:
         self.rho = atmosphere_model.density(init_SMA - earth_R).to_value(
             u.kg / u.km**3
         ) * (u.kg / u.km**3)
-        self.countdown_rho = 500  # rho will be updated when countdown reaches 0
+        self.countdown_rho = 500  # Rho will be updated when countdown reaches 0
 
-        self.method = CowellPropagator(f=self.f)
+        self.method = CowellPropagator(f=self.f)  # Numerical propagator
 
         self.drag_params = {
             "C_D": 0.0 * u.one,
@@ -91,20 +85,30 @@ class OrbitPropagator:
         return f"Initial orbit: {self.init_orbit} with initial period {self.init_orbit.period}"
 
     @property
-    def r(self) -> np.array:
+    def r(self) -> np.ndarray:
         return self.current_orbit.r
 
     @property
-    def v(self) -> np.array:
+    def v(self) -> np.ndarray:
         return self.current_orbit.v
 
     def get_initial_orbit(self) -> Orbit:
         return self.init_orbit
 
     def propagate(
-        self, delta_t: Quantity, C_D: Quantity, A_over_m: Quantity
-    ) -> np.array:
-        # update grad parameters
+        self, delta_t: Quantity["time"], C_D: Quantity, A_over_m: Quantity
+    ) -> np.ndarray:
+        """Propagate the satellite by 1 timestep.
+
+        Args:
+            delta_t (Quantity["time"]): Timestep used to propagate.
+            C_D (Quantity): Spacecraft new grad coefficient.
+            A_over_m (Quantity): Spacecraft new ratio of mass and area.
+
+        Returns:
+            np.ndarray: New position of the satellite.
+        """
+        # Update grad parameters
         self.drag_params["C_D"] = C_D
         self.drag_params["A_over_m"] = A_over_m
 
@@ -115,11 +119,80 @@ class OrbitPropagator:
         rv[3:] = self.current_orbit.v
         return rv
 
+    def calculate_vis_window(self, ground_stations: np.ndarray) -> np.ndarray:
+        """For each ground station, check if the satellite is visible.
+
+        Args:
+            ground_stations (np.ndarray): Array of ground stations.
+
+        Returns:
+            np.ndarray: array of Boolean values for each ground station (visible: True).
+        """
+        visibility = []
+        satellite_coords = np.reshape(np.array(self.current_orbit.r), (1, 3))
+        obstime = self.current_orbit.epoch
+
+        for gs in ground_stations:
+            cartesian_coords = gs.cartesian_coords
+            itrs_object = ITRS(cartesian_coords, obstime=obstime)
+            gcrs_object = itrs_object.transform_to(GCRS(obstime=obstime))
+            gs_coords = np.reshape(np.array(gcrs_object.data.xyz.value), (1, 3))
+            distance_vec = satellite_coords - gs_coords
+            angle = angle_between_vectors(distance_vec, gs_coords)
+            if (
+                angle >= (90 * u.deg - gs.elev_angle).value
+            ):  # Take into account ground station elevation angle
+                visibility.append(False)
+            else:
+                visibility.append(True)
+
+        return np.array(visibility)
+
+    def calculate_eclipse_status(self) -> bool:
+        """Calculates if the satellite receives light from the sun.
+        If the return value is negative, the satellite is in eclipse and does not receive sunlight.
+        """
+        # Taking into account umbra and penumbra for now
+        epoch = self.current_orbit.epoch
+        r = self.current_orbit.r.value
+        v = self.current_orbit.v.value
+
+        # Position vector of Sun wrt Solar System Barycenter
+        r_sec_ssb = get_body_barycentric_posvel("Sun", epoch)[0]
+        r_pri_ssb = get_body_barycentric_posvel("Earth", epoch)[0]
+        r_sec = ((r_sec_ssb - r_pri_ssb).xyz << u.km).value
+
+        eclipse = eclipse_function(
+            earth_k.value,
+            np.hstack((r, v)),
+            r_sec,
+            sun_R.value,
+            earth_R.value,
+            umbra=False,
+        )
+
+        return (
+            eclipse <= 0.0
+        )  # If <= 0, the satellite is in eclipse and doesn't get sunlight
+
+    def update_rho(self, position: np.ndarray) -> None:
+        """Update air density depending on satellite altitude.
+
+        Args:
+            position (np.ndarray): Position of the satellite.
+        """
+        alt = (np.linalg.norm(position) - earth_R.value) * u.km
+        self.rho = atmosphere_model.density(alt).to_value(u.kg / u.km**3) * (
+            u.kg / u.km**3
+        )
+
+    # Function used by f() to compute acceleration
     def a_d(self, t0, state, k, J2, R, C_D, A_over_m, rho):
         return J2_perturbation(t0, state, k, J2, R) + atmospheric_drag(
             t0, state, k, C_D, A_over_m, rho
         )
 
+    # Function used by propagate()
     def f(self, t0, state, k):
         du_kep = func_twobody(t0, state, k)
 
@@ -142,54 +215,3 @@ class OrbitPropagator:
         du_ad = np.array([0, 0, 0, ax, ay, az])
 
         return du_kep + du_ad
-
-    def calculate_vis_window(self, ground_stations: np.array) -> np.array:
-        visibility = []
-        satellite_coords = np.reshape(np.array(self.current_orbit.r), (1, 3))
-        obstime = self.current_orbit.epoch
-
-        for gs in ground_stations:
-            cartesian_coords = gs.cartesian_coords
-            itrs_object = ITRS(cartesian_coords, obstime=obstime)
-            gcrs_object = itrs_object.transform_to(GCRS(obstime=obstime))
-            gs_coords = np.reshape(np.array(gcrs_object.data.xyz.value), (1, 3))
-            distance_vec = satellite_coords - gs_coords
-            angle = angle_between_vectors(distance_vec, gs_coords)
-            if (
-                angle >= (90 * u.deg - gs.elev_angle).value
-            ):  # take into account ground station elevation angle
-                visibility.append(False)
-            else:
-                visibility.append(True)
-
-        return np.array(visibility)
-
-    def calculate_eclipse_status(self) -> bool:
-        # Taking into account umbra and penumbra for now
-        epoch = self.current_orbit.epoch
-        r = self.current_orbit.r.value
-        v = self.current_orbit.v.value
-
-        # Position vector of Sun wrt Solar System Barycenter
-        r_sec_ssb = get_body_barycentric_posvel("Sun", epoch)[0]
-        r_pri_ssb = get_body_barycentric_posvel("Earth", epoch)[0]
-        r_sec = ((r_sec_ssb - r_pri_ssb).xyz << u.km).value
-
-        eclipse = eclipse_function(
-            earth_k.value,
-            np.hstack((r, v)),
-            r_sec,
-            sun_R.value,
-            earth_R.value,
-            umbra=False,
-        )
-
-        return (
-            eclipse <= 0.0
-        )  # if <= 0, the satellite is in eclipse and doesn't get sunlight
-
-    def update_rho(self, position: np.array) -> None:
-        alt = (np.linalg.norm(position) - earth_R.value) * u.km
-        self.rho = atmosphere_model.density(alt).to_value(u.kg / u.km**3) * (
-            u.kg / u.km**3
-        )

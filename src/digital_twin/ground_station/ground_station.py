@@ -1,16 +1,15 @@
 """File to store ground station related functions and objects
 """
 
-from typing import Dict, Tuple
-
-import numpy as np
+from typing import Dict, Tuple, Any
 
 from astropy import units as u
-from astropy.units import Quantity
 from astropy.coordinates import CartesianRepresentation, SphericalRepresentation
+from astropy.units import Quantity
+import numpy as np
 
-from digital_twin.utils import get_astropy_units_angle
 from digital_twin.constants import earth_R
+from digital_twin.utils import get_astropy_units_angle
 
 
 class GroundStation:
@@ -32,22 +31,22 @@ class GroundStation:
         )
 
     @property
-    def cartesian_coords(self) -> tuple:
+    def cartesian_coords(self) -> CartesianRepresentation:
         return self._cartesian_coords
 
     @cartesian_coords.setter
-    def cartesian_coords(self, coords) -> None:
+    def cartesian_coords(self, coords: Any) -> None:
         self._cartesian_coords = coords
 
     @property
-    def elev_angle(self) -> Quantity:
+    def elev_angle(self) -> Quantity["angle"]:
         return self._elev_angle
 
     @elev_angle.setter
-    def elev_angle(self, angle) -> None:
+    def elev_angle(self, angle: Quantity["angle"]) -> None:
         self._elev_angle = angle
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'ground station "{self.name}" located at {self.station_coords} with an elevation angle of {self.elev_angle}'
 
     def get_name_pos(self) -> Tuple[str, np.ndarray]:

@@ -1,17 +1,16 @@
-"""Main file for the Telecom subsystem
+"""File for the Telecom subsystem.
 """
 
 from typing import Dict
 
+from astropy import units as u
+from astropy.time import TimeDelta
+from astropy.units import Quantity
 import numpy as np
 
-from astropy import units as u
-from astropy.units import Quantity
-from astropy.time import TimeDelta
-
 from digital_twin.spacecraft import SubSystem
-from digital_twin.utils import get_astropy_unit_time
 from digital_twin.spacecraft.payload import Payload
+from digital_twin.utils import get_astropy_unit_time
 
 
 class Telecom(SubSystem):
@@ -57,7 +56,7 @@ class Telecom(SubSystem):
         self,
         old_mode: str,
         new_mode: str,
-        rv: np.array,
+        rv: np.ndarray,
         com_window: bool,
         eclipse_status: bool,
         delta_t: TimeDelta,

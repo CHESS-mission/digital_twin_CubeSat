@@ -1,13 +1,15 @@
-"""File in which all functions for switching between different operation mode are implemented
+"""File in which all functions for switching between different operating modes are implemented.
 """
 
-from digital_twin.spacecraft.eps import Eps
-from digital_twin.spacecraft.telecom import Telecom
-from digital_twin.spacecraft.payload import Payload
 from digital_twin.constants import mode_dict
+from digital_twin.spacecraft.eps import Eps
+from digital_twin.spacecraft.payload import Payload
+from digital_twin.spacecraft.telecom import Telecom
 
 
 class ModeSwitch:
+    """Implement the mode switch algorithm defined in the MOP for the CHESS mission."""
+
     def __init__(self, init_mode: int) -> None:
         self.mode_dict = mode_dict
         self.operating_mode = int(init_mode)
@@ -32,7 +34,6 @@ class ModeSwitch:
                 case 0:
                     self.mode_switch_from_IDLE(
                         eps,
-                        telecom,
                         payload,
                         com_window,
                         eclipse_status,
@@ -43,7 +44,6 @@ class ModeSwitch:
                 case 2:
                     self.mode_switch_from_CHARGING(
                         eps,
-                        telecom,
                         payload,
                         com_window,
                         eclipse_status,
@@ -65,13 +65,12 @@ class ModeSwitch:
         return self._operating_mode
 
     @operating_mode.setter
-    def operating_mode(self, mode):
+    def operating_mode(self, mode: int) -> None:
         self._operating_mode = mode
 
     def mode_switch_from_IDLE(
         self,
         eps: Eps,
-        telecom: Telecom,
         payload: Payload,
         com_window: bool,
         eclipse_status: bool,
@@ -113,7 +112,6 @@ class ModeSwitch:
     def mode_switch_from_CHARGING(
         self,
         eps: Eps,
-        telecom: Telecom,
         payload: Payload,
         com_window: bool,
         eclipse_status: bool,

@@ -1,13 +1,8 @@
-from typing import List
+"""Gather all functions relating to plotting."""
 
-from matplotlib import pyplot as plt
-from matplotlib.ticker import FuncFormatter
-import numpy as np
-import plotly.graph_objects as go
+from typing import List, Tuple, Callable, Any
 
-from astropy.time import Time, TimeDelta
 from astropy import units as u
-from astropy.units import Quantity
 from astropy.coordinates import (
     GCRS,
     ITRS,
@@ -15,36 +10,42 @@ from astropy.coordinates import (
     CartesianRepresentation,
     SphericalRepresentation,
 )
-from poliastro.twobody import Orbit
-from poliastro.plotting import StaticOrbitPlotter, OrbitPlotter3D
+from astropy.time import Time, TimeDelta
+from astropy.units import Quantity
 from poliastro.earth.plotting import GroundtrackPlotter
+from poliastro.plotting import OrbitPlotter3D
+from poliastro.twobody import Orbit
+from matplotlib import pyplot as plt
+from matplotlib.ticker import FuncFormatter
+import numpy as np
+import plotly.graph_objects as go
 
 from digital_twin.constants import mode_dict
 
 
-# Function for general plotting in 2d with x and y arrays as input
 def plot_1d(
-    x: np.array,
-    y: np.array,
+    x: np.ndarray,
+    y: np.ndarray,
     title: str,
     xlabel: str,
     ylabel: str,
     step: int = 1,
     fill_under: bool = True,
     remove_box: bool = True,
-    x_range: tuple = None,
-    y_range: tuple = None,
+    x_range: Tuple = None,
+    y_range: Tuple = None,
     scatter: bool = False,
-    x_label_f: callable = None,
+    x_label_f: Callable = None,
     custom_y_ticks: bool = False,
-    y_ticks: np.array = None,
-    y_tick_labels: np.array = None,
+    y_ticks: np.ndarray = None,
+    y_tick_labels: np.ndarray = None,
     custom_x_ticks: bool = False,
-    x_ticks: np.array = None,
-    x_tick_labels: np.array = None,
+    x_ticks: np.ndarray = None,
+    x_tick_labels: np.ndarray = None,
     save_filename: str = None,
     show: bool = True,
-):
+) -> None:
+    """Function for general plotting in 2d with x and y arrays as input."""
     # Downsample the x and y arrays
     x_downsampled = x[::step]
     y_downsampled = y[::step]
@@ -110,20 +111,17 @@ def plot_1d(
         plt.close()
 
 
-# Function to convert seconds to days to change label of x axis
-def seconds_to_days(x, pos):
+def seconds_to_days(x: Any, pos: Any) -> Any:
     """Convert seconds to days."""
     return f"{x / 86400:.0f}"
 
 
-# Function to convert seconds to hours to change label of x axis
-def seconds_to_hours(x, pos):
+def seconds_to_hours(x: Any, pos: Any) -> Any:
     """Convert seconds to hours."""
     return f"{x / 3600:.0f}"
 
 
-# Function to convert seconds to minutes to change label of x axis
-def seconds_to_minutes(x, pos):
+def seconds_to_minutes(x: Any, pos: Any) -> Any:
     """Convert seconds to minutes."""
     return f"{x / 60:.0f}"
 
@@ -146,16 +144,11 @@ def plot_orbit_trajectory_3d(
     attractor_color: str = "mediumblue",
     sat_color: str = "red",
     show: bool = False,
-):
+) -> None:
     """Plot an orbit in 3d around its attractor.
 
     Option 1: with a grid and tick values but no tick lines.
-    Option 2: with no grid not tick values
-
-    Args:
-        orbit (Orbit): The orbit from the class Orbit to plot
-        title (str): Title of the figure
-        option (int, optional): Which kind of plotting desired, as explained above. Defaults to 1.
+    Option 2: with no grid not tick values.
     """
 
     if (orbit is None) and (traj is None):
@@ -304,7 +297,8 @@ def plot_orbit_2d(
     attractor_color: str = "mediumblue",
     sat_color: str = "red",
     show: bool = False,
-):
+) -> None:
+    """Plot an Orbit object in 2d (orbit plane) around its attractor."""
 
     fig = orbit.plot(interactive=True)
 
@@ -367,7 +361,8 @@ def plot_groundtrack(
     stations_name: np.ndarray = None,
     station_color: str = "red",
     show: bool = False,
-):
+) -> None:
+    """Plot a satellite groundtrack on Earth."""
     # For building geo traces
     gp = GroundtrackPlotter()
 
@@ -435,10 +430,11 @@ def plot_groundtrack(
 def plot_operating_modes(
     modes: np.array,
     tofs: np.array,
-    duration_sim: Quantity,
+    duration_sim: Quantity["time"],
     save_filename: str = None,
     show: bool = True,
-):
+) -> None:
+    """Plot operating modes during simulation to visualize them throughout time."""
 
     modes = [int(mode) for mode in modes]
 

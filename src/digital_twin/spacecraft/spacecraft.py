@@ -1,18 +1,18 @@
-"""Main file for the spacecraft object
+"""File for the spacecraft object.
 """
 
 from typing import Dict
 
-import numpy as np
 from astropy import units as u
-from astropy.units import Quantity
 from astropy.time import TimeDelta
+from astropy.units import Quantity
+import numpy as np
 
-from digital_twin.spacecraft.eps import Eps
-from digital_twin.spacecraft.telecom import Telecom
 from digital_twin.spacecraft.adcs import Adcs
-from digital_twin.spacecraft.payload import Payload
+from digital_twin.spacecraft.eps import Eps
 from digital_twin.spacecraft.obc import Obc
+from digital_twin.spacecraft.payload import Payload
+from digital_twin.spacecraft.telecom import Telecom
 
 
 class Spacecraft:
@@ -47,7 +47,7 @@ class Spacecraft:
         self,
         old_mode: str,
         new_mode: str,
-        rv: np.array,
+        rv: np.ndarray,
         com_window: bool,
         eclipse_status: bool,
         delta_t: TimeDelta,

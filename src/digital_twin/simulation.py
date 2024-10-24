@@ -1,4 +1,4 @@
-"""Main file that runs the simulation
+"""Main file to run the simulation
 """
 
 import time
@@ -32,7 +32,7 @@ from digital_twin.utils import (
 
 
 class Simulation:
-    """Manager class that gather all simulation objects and runs the main simulation loop."""
+    """Manager class which gathers simulation objects and runs the main simulation loop."""
 
     def __init__(
         self,

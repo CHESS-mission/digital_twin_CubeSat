@@ -1,13 +1,12 @@
-"""Main file for the On-Board Computer subsystem
+"""File for the On-Board Computer subsystem.
 """
 
 from typing import Dict
 
-import numpy as np
-
 from astropy import units as u
-from astropy.units import Quantity
 from astropy.time import TimeDelta
+from astropy.units import Quantity
+import numpy as np
 
 from digital_twin.spacecraft import SubSystem
 
@@ -26,7 +25,7 @@ class Obc(SubSystem):
         self,
         old_mode: str,
         new_mode: str,
-        rv: np.array,
+        rv: np.ndarray,
         com_window: bool,
         eclipse_status: bool,
         delta_t: TimeDelta,
