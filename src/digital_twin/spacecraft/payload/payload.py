@@ -31,8 +31,8 @@ class Payload(SubSystem):
         self.measurement_max_duration = (params["max_duration"] * measure_unit).to(u.s)
         self.x_band_rate = float(params["x_band_rate"]) * (u.Mbit / u.s)
 
-        self.measurement_duration = 0.0
-        self.data_storage = 0.0
+        self.measurement_duration = 0.0 * u.s
+        self.data_storage = 0.0 * u.Mbit
         self.is_measuring = False
 
     def data_storage_full(self) -> bool:
@@ -82,3 +82,6 @@ class Payload(SubSystem):
 
     def __str__(self) -> str:
         return f"Payload:"
+
+    def get_data_storage(self) -> Quantity:
+        return self.data_storage

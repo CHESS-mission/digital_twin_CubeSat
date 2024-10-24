@@ -22,6 +22,8 @@ from digital_twin.plotting import (
     plot_orbit_2d,
     plot_groundtrack,
     plot_operating_modes,
+    find_x_scale,
+    plot_boolean_bars,
 )
 from digital_twin.spacecraft import Spacecraft
 from digital_twin.utils import (
@@ -95,8 +97,28 @@ class Simulation:
         eph = np.zeros((self.n_timesteps + 1, 6))
         eph[0, :3] = self.propagator.r
         eph[0, 3:] = self.propagator.v
+
+        # data to store
         modes = np.zeros(self.n_timesteps + 1)
         modes[0] = self.switch_algo.operating_mode
+
+        battery_levels = np.zeros(self.n_timesteps + 1)
+        battery_levels[0] = self.spacecraft.get_eps().get_battery_level().value
+        power_consumption = np.zeros(self.n_timesteps + 1)
+        power_consumption[0] = self.spacecraft.get_eps().get_power_consumption().value
+        power_generation = np.zeros(self.n_timesteps + 1)
+        power_generation[0] = self.spacecraft.get_eps().get_power_generation().value
+
+        data_storage = np.zeros(self.n_timesteps + 1)
+        data_storage[0] = self.spacecraft.get_payload().get_data_storage().value
+
+        vis_windows = np.zeros(
+            (self.n_timesteps + 1, len(self.ground_stations))
+        )  # for each ground station
+        vis_windows[0] = self.propagator.calculate_vis_window(self.ground_stations)
+
+        eclipse_windows = np.zeros(self.n_timesteps + 1)
+        eclipse_windows[0] = self.propagator.calculate_eclipse_status()
 
         print("Number of timesteps:", self.n_timesteps)
         start_for_loop = time.time()
@@ -140,8 +162,21 @@ class Simulation:
             modes[t + 1] = new_mode
 
             # 5. Ask spacecraft to update all subsystems
-            # self.spacecraft.update_subsystems(
-            #     old_mode, new_mode, rv, com_window, eclipse_status, self.delta_t
+            self.spacecraft.update_subsystems(
+                old_mode, new_mode, rv, com_window, eclipse_status, self.delta_t
+            )
+
+            # 6. Save data
+            vis_windows[t + 1] = np.array([int(vis) for vis in visibility])
+            eclipse_windows[t + 1] = int(eclipse_status)
+            battery_levels[t + 1] = self.spacecraft.get_eps().get_battery_level().value
+            power_consumption[t + 1] = (
+                self.spacecraft.get_eps().get_power_consumption().value
+            )
+            power_generation[t + 1] = (
+                self.spacecraft.get_eps().get_power_generation().value
+            )
+            data_storage[t + 1] = self.spacecraft.get_payload().get_data_storage().value
 
         end_for_loop = time.time()
         duration = end_for_loop - start_for_loop
@@ -164,6 +199,12 @@ class Simulation:
             "TAs": TAs,
             "altitudes": altitudes,
             "modes": modes,
+            "vis": vis_windows,
+            "eclipse": eclipse_windows,
+            "battery": battery_levels,
+            "consumption": power_consumption,
+            "generation": power_generation,
+            "storage": data_storage,
         }
         # Produce report
         self.produce_report(data_results)
@@ -228,6 +269,95 @@ class Simulation:
                 show=False,
             )
 
+        x_label, x_label_f = find_x_scale(self.duration_sim)
+        step = int(len(data["tofs"]) / 100)
+
+        if self.report_params["battery_level"] == "yes":
+            plot_1d(
+                data["tofs"].to_value("second"),
+                (data["battery"] * (u.W * u.s)).to(u.W * u.h),
+                "Battery Level Over Time",
+                x_label,
+                r"Battery Level ($Wh$)",
+                step=step,
+                fill_under=False,
+                remove_box=True,
+                scatter=False,
+                x_label_f=x_label_f,
+                show=False,
+                save_filename=self.report_params["folder"] + "battery_level.pdf",
+            )
+
+        if self.report_params["power_consumption"] == "yes":
+            plot_1d(
+                data["tofs"].to_value("second"),
+                (data["consumption"] * (u.W * u.s)).to(u.W * u.h),
+                "Power Consumption Over Time",
+                x_label,
+                r"Power Consumption ($Wh$)",
+                step=step,
+                fill_under=False,
+                remove_box=True,
+                scatter=False,
+                x_label_f=x_label_f,
+                show=False,
+                save_filename=self.report_params["folder"] + "power_consumption.pdf",
+            )
+
+        if self.report_params["power_generation"] == "yes":
+            plot_1d(
+                data["tofs"].to_value("second"),
+                (data["generation"] * (u.W * u.s)).to(u.W * u.h),
+                "Power Generation Over Time",
+                x_label,
+                r"Power Generation ($Wh$)",
+                step=step,
+                fill_under=False,
+                remove_box=True,
+                scatter=False,
+                x_label_f=x_label_f,
+                show=False,
+                save_filename=self.report_params["folder"] + "power_generation.pdf",
+            )
+
+        if self.report_params["data_storage"] == "yes":
+            plot_1d(
+                data["tofs"].to_value("second"),
+                data["storage"],
+                "Data Storage Over Time",
+                x_label,
+                r"Data Storage ($Mbit$)",
+                step=step,
+                fill_under=False,
+                remove_box=True,
+                scatter=False,
+                x_label_f=x_label_f,
+                show=False,
+                save_filename=self.report_params["folder"] + "data_storage.pdf",
+            )
+
+        if self.report_params["visibility_windows"] == "yes":
+            save_filename = self.report_params["folder"] + "visibility_windows.pdf"
+            plot_boolean_bars(
+                data["vis"],
+                data["tofs"].to_value("second"),
+                self.duration_sim,
+                "Visibility Windows",
+                save_filename=save_filename,
+                show=False,
+            )
+
+        if self.report_params["eclipse_windows"] == "yes":
+            save_filename = self.report_params["folder"] + "eclipse_windows.pdf"
+            plot_boolean_bars(
+                data["eclipse"],
+                data["tofs"].to_value("second"),
+                self.duration_sim,
+                "Eclipse Windows",
+                save_filename=save_filename,
+                show=False,
+            )
+
     def print_parameters(self) -> None:
         """Print a summary of the the simulation objects."""
         print("")
@@ -263,19 +393,10 @@ def plot_orbital_elem_evolution(
     ticks_angle = np.array([0, 1 / 2 * np.pi, np.pi, 3 / 2 * np.pi, 2 * np.pi])
     tick_labels_angle = np.array([r"$0$", r"$\pi/2$", r"$\pi$", r"$3\pi/2$", r"$2\pi$"])
 
-    # update what the x_axis scale should be
-    if duration_sim <= 3 * u.h:
-        x_label_f = seconds_to_minutes
-        x_label = r"Time ($min$)"
-    elif duration_sim <= 3 * u.day:
-        x_label_f = seconds_to_hours
-        x_label = r"Time ($hour$)"
-    else:
-        x_label_f = seconds_to_days
-        x_label = r"Time ($day$)"
+    x_label, x_label_f = find_x_scale(duration_sim)
 
-    # update how many values to step to obtain clear plotting (approximately 50 points)
-    step = int(len(tofs) / 50)
+    # update how many values to step to obtain clear plotting (approximately 100 points)
+    step = int(len(tofs) / 100)
 
     plot_1d(
         tofs.to_value("second"),

@@ -53,9 +53,16 @@ def plot_1d(
     # Create the plot
     plt.figure(figsize=(6, 4))
     if scatter:
-        plt.scatter(x_downsampled, y_downsampled, marker=".", color="blue")
+        plt.scatter(x_downsampled, y_downsampled, marker=".", color="blue", s=10)
     else:
-        plt.plot(x_downsampled, y_downsampled, marker=".", linestyle="-", color="blue")
+        plt.plot(
+            x_downsampled,
+            y_downsampled,
+            marker=".",
+            linestyle="-",
+            color="blue",
+            markersize=4,
+        )
 
     # Beautifying the plot
     plt.title(title, fontsize=13, fontweight="medium")
@@ -133,7 +140,7 @@ def plot_orbit_trajectory_3d(
     orbit: Orbit = None,
     label_orbit: str = "",
     label_traj: str = "",
-    traj: np.array = None,
+    traj: np.ndarray = None,
     option: int = 1,
     orbit_color: str = "red",
     orbit_width: float = 7,
@@ -351,8 +358,8 @@ def plot_orbit_2d(
 
 def plot_groundtrack(
     title: str,
-    rr: np.array,
-    epochs: np.array,
+    rr: np.ndarray,
+    epochs: np.ndarray,
     label: str,
     folder: str,
     traj_color: str = "purple",
@@ -428,8 +435,8 @@ def plot_groundtrack(
 
 
 def plot_operating_modes(
-    modes: np.array,
-    tofs: np.array,
+    modes: np.ndarray,
+    tofs: np.ndarray,
     duration_sim: Quantity["time"],
     save_filename: str = None,
     show: bool = True,
@@ -439,15 +446,7 @@ def plot_operating_modes(
     modes = [int(mode) for mode in modes]
 
     # update what the x_axis scale should be
-    if duration_sim <= 3 * u.h:
-        x_label_f = seconds_to_minutes
-        x_label = r"Time ($min$)"
-    elif duration_sim <= 3 * u.day:
-        x_label_f = seconds_to_hours
-        x_label = r"Time ($hour$)"
-    else:
-        x_label_f = seconds_to_days
-        x_label = r"Time ($day$)"
+    x_label, x_label_f = find_x_scale(duration_sim)
 
     # Mode names
     mode_labels = [mode_dict[key] for key in sorted(mode_dict.keys())]
@@ -512,3 +511,89 @@ def plot_operating_modes(
         plt.show()
     else:
         plt.close()
+
+
+def find_x_scale(duration_sim: Quantity["time"]):
+    # update what the x_axis scale should be
+    if duration_sim <= 8 * u.h:
+        x_label_f = seconds_to_minutes
+        x_label = r"Time ($min$)"
+    elif duration_sim <= 3 * u.day:
+        x_label_f = seconds_to_hours
+        x_label = r"Time ($hour$)"
+    else:
+        x_label_f = seconds_to_days
+        x_label = r"Time ($day$)"
+    return x_label, x_label_f
+
+
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.ticker import FuncFormatter
+from astropy.units import Quantity
+
+
+def plot_boolean_bars(
+    bool_array: np.ndarray,
+    tofs: np.ndarray,
+    duration_sim: Quantity["time"],
+    title,
+    save_filename: str = None,
+    show: bool = True,
+) -> None:
+    """
+    Plot horizontal bars when the boolean variable is True (or 1),
+    and nothing when False (or 0).
+    """
+    # Convert the boolean array to integers (0, 1)
+    bool_array = [int(b) for b in bool_array]
+
+    # Update the x-axis scale
+    x_label, x_label_f = find_x_scale(duration_sim)
+
+    plt.figure(figsize=(6, 2))
+
+    # Manually add horizontal grid lines at each mode level to make grid
+    plt.axhline(y=0, color="gray", linestyle="--", linewidth=0.8)
+
+    # Create the step plot using horizontal lines (hlines)
+    for i in range(1, len(tofs)):
+        if bool_array[i - 1] == 1:
+            plt.hlines(
+                0, tofs[i - 1], tofs[i], colors="blue", linewidth=8
+            )  # Plot a bar when True (1)
+
+    # Extend the last line if the last value is True (1)
+    if bool_array[-1] == 1:
+        plt.hlines(0, tofs[-1], tofs[-1] + 10, colors="blue", linewidth=8)
+
+    plt.title(title, fontsize=13, fontweight="medium")
+    plt.xlabel(x_label, fontsize=11)
+
+    # Hide y-ticks and y-axis label, focus on horizontal bars
+    plt.yticks([])
+    plt.ylabel("")
+
+    # Adjust the axes
+    ax = plt.gca()
+    ax.spines["top"].set_color((0.8, 0.8, 0.8))
+    ax.spines["right"].set_color((0.8, 0.8, 0.8))
+    ax.spines["left"].set_color((0.8, 0.8, 0.8))
+    ax.spines["bottom"].set_color((0.8, 0.8, 0.8))
+    ax.xaxis.set_major_formatter(FuncFormatter(x_label_f))
+
+    plt.tight_layout()
+
+    # Save the plot if a filename is provided
+    if save_filename is not None:
+        plt.savefig(save_filename)
+
+    # Show or close the plot
+    if show:
+        plt.show()
+    else:
+        plt.close()
+
+
+# Example usage (find_x_scale and other utility functions need to be defined)
+# plot_boolean_bars([1, 0, 1, 1, 0], np.array([0, 10, 20, 30, 40]), duration_sim)

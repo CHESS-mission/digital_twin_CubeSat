@@ -1,8 +1,8 @@
 {
     "units_delta_t": "second",
-    "delta_t": 60,
-    "units_duration_sim": "day",
-    "duration_sim": 1,
+    "delta_t": 10,
+    "units_duration_sim": "hour",
+    "duration_sim": 4,
     "init_operating_mode": 0,
     "report":{
         "folder": "../results/",
@@ -11,6 +11,14 @@
         "trajectory_2d": "yes",
         "trajectory_3d": "yes",
         "groundtrack": "yes",
-        "modes": "yes"
+        "modes": "yes",
+        "battery_level": "yes",
+        "power_consumption": "yes",
+        "power_generation": "yes",
+        "data_storage": "yes",
+        "visibility_windows": "yes",
+        "eclipse_windows": "yes",
+        "save_numpy_arrays": "yes"
+
     }
 }

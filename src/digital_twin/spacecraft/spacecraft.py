@@ -1,7 +1,7 @@
 """File for the spacecraft object.
 """
 
-from typing import Dict
+from typing import Dict, Tuple
 
 from astropy import units as u
 from astropy.time import TimeDelta
@@ -51,7 +51,7 @@ class Spacecraft:
         com_window: bool,
         eclipse_status: bool,
         delta_t: TimeDelta,
-    ):
+    ) -> None:
         # Update each subsystem based on old mode, new mode, location, communication_window and eclispe_status boolean
         for subsystem in self.subsystems:
             subsystem.update(
@@ -59,11 +59,13 @@ class Spacecraft:
             )
 
         # get new cross section from ADCS change of orientation, and update related spacecraft attributes
-        self.cross_section = self.adcs_subsystem.get_cross_section(self.cross_section)
-        self.A_over_m = ((self.cross_section) / (self.mass)).to_value(
-            u.km**2 / u.kg
-        ) * (u.km**2 / u.kg)
-        self.B = self.C_D * self.A_over_m
+        new_cross_section = self.adcs_subsystem.get_cross_section(self.cross_section)
+        if new_cross_section != self.cross_section:
+            self.cross_section = new_cross_section
+            self.A_over_m = ((self.cross_section) / (self.mass)).to_value(
+                u.km**2 / u.kg
+            ) * (u.km**2 / u.kg)
+            self.B = self.C_D * self.A_over_m
 
         # Compute the power consumed by each subsystem at current timestep
         power_consumed = 0
@@ -71,7 +73,9 @@ class Spacecraft:
             power_consumed += subsystem.compute_power_consumed(new_mode)
 
         # Update EPS based on data gathered for all other subsystems
-        self.eps_subsystem.update_batteries(power_consumed, delta_t, eclipse_status)
+        self.eps_subsystem.update_batteries(
+            power_consumed, delta_t, eclipse_status, new_mode
+        )
 
     def __str__(self):
         string1 = "\n".join(
