@@ -44,6 +44,7 @@ def plot_1d(
     x_tick_labels: np.ndarray = None,
     save_filename: str = None,
     show: bool = True,
+    markersize_plot: int = 4,
 ) -> None:
     """Function for general plotting in 2d with x and y arrays as input."""
     # Downsample the x and y arrays
@@ -61,7 +62,7 @@ def plot_1d(
             marker=".",
             linestyle="-",
             color="blue",
-            markersize=4,
+            markersize=markersize_plot,
         )
 
     # Beautifying the plot

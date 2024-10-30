@@ -134,49 +134,49 @@ class Simulation:
             eph[t + 1, :3] = rv[:3]
             eph[t + 1, 3:] = rv[3:]
 
-            # 2. Calculate position based params: communication window, eclipse
-            visibility = self.propagator.calculate_vis_window(self.ground_stations)
-            eclipse_status = self.propagator.calculate_eclipse_status()
+            # # 2. Calculate position based params: communication window, eclipse
+            # visibility = self.propagator.calculate_vis_window(self.ground_stations)
+            # eclipse_status = self.propagator.calculate_eclipse_status()
 
-            # 3. Calculate user-scheduled params
-            measurement_session = (
-                True  # Assumption for now, later will depend on user-defined scheduler
-            )
-            com_window = visibility  # Assumption for now, later might depend on user-defined scheduler
+            # # 3. Calculate user-scheduled params
+            # measurement_session = (
+            #     True  # Assumption for now, later will depend on user-defined scheduler
+            # )
+            # com_window = visibility  # Assumption for now, later might depend on user-defined scheduler
 
-            # 3. Check for potential flags raised by OBS
-            safe_flag = False
+            # # 3. Check for potential flags raised by OBS
+            # safe_flag = False
 
-            # 4. Switch mode based on location, Eps and Telecom states
-            old_mode = self.switch_algo.operating_mode
-            self.switch_algo.switch_mode(
-                self.spacecraft.get_eps(),
-                self.spacecraft.get_telecom(),
-                self.spacecraft.get_payload(),
-                com_window,
-                eclipse_status,
-                measurement_session,
-                safe_flag,
-            )
-            new_mode = self.switch_algo.operating_mode
-            modes[t + 1] = new_mode
+            # # 4. Switch mode based on location, Eps and Telecom states
+            # old_mode = self.switch_algo.operating_mode
+            # self.switch_algo.switch_mode(
+            #     self.spacecraft.get_eps(),
+            #     self.spacecraft.get_telecom(),
+            #     self.spacecraft.get_payload(),
+            #     com_window,
+            #     eclipse_status,
+            #     measurement_session,
+            #     safe_flag,
+            # )
+            # new_mode = self.switch_algo.operating_mode
+            # modes[t + 1] = new_mode
 
-            # 5. Ask spacecraft to update all subsystems
-            self.spacecraft.update_subsystems(
-                old_mode, new_mode, rv, com_window, eclipse_status, self.delta_t
-            )
+            # # # 5. Ask spacecraft to update all subsystems
+            # self.spacecraft.update_subsystems(
+            #     old_mode, new_mode, rv, com_window, eclipse_status, self.delta_t
+            # )
 
-            # 6. Save data
-            vis_windows[t + 1] = np.array([int(vis) for vis in visibility])
-            eclipse_windows[t + 1] = int(eclipse_status)
-            battery_levels[t + 1] = self.spacecraft.get_eps().get_battery_level().value
-            power_consumption[t + 1] = (
-                self.spacecraft.get_eps().get_power_consumption().value
-            )
-            power_generation[t + 1] = (
-                self.spacecraft.get_eps().get_power_generation().value
-            )
-            data_storage[t + 1] = self.spacecraft.get_payload().get_data_storage().value
+            # # 6. Save data
+            # vis_windows[t + 1] = np.array([int(vis) for vis in visibility])
+            # eclipse_windows[t + 1] = int(eclipse_status)
+            # battery_levels[t + 1] = self.spacecraft.get_eps().get_battery_level().value
+            # power_consumption[t + 1] = (
+            #     self.spacecraft.get_eps().get_power_consumption().value
+            # )
+            # power_generation[t + 1] = (
+            #     self.spacecraft.get_eps().get_power_generation().value
+            # )
+            # data_storage[t + 1] = self.spacecraft.get_payload().get_data_storage().value
 
         end_for_loop = time.time()
         duration = end_for_loop - start_for_loop
@@ -279,45 +279,48 @@ class Simulation:
                 "Battery Level Over Time",
                 x_label,
                 r"Battery Level ($Wh$)",
-                step=step,
+                step=1,
                 fill_under=False,
                 remove_box=True,
                 scatter=False,
                 x_label_f=x_label_f,
                 show=False,
                 save_filename=self.report_params["folder"] + "battery_level.pdf",
+                markersize_plot=0,
             )
 
         if self.report_params["power_consumption"] == "yes":
             plot_1d(
-                data["tofs"].to_value("second"),
-                (data["consumption"] * (u.W * u.s)).to(u.W * u.h),
+                data["tofs"].to_value("second")[1:],
+                (data["consumption"][1:] * (u.W * u.s)).to(u.W * u.h),
                 "Power Consumption Over Time",
                 x_label,
                 r"Power Consumption ($Wh$)",
-                step=step,
+                step=1,  # no step because we want to capture small intervals of time
                 fill_under=False,
                 remove_box=True,
                 scatter=False,
                 x_label_f=x_label_f,
                 show=False,
                 save_filename=self.report_params["folder"] + "power_consumption.pdf",
+                markersize_plot=0,
             )
 
         if self.report_params["power_generation"] == "yes":
             plot_1d(
-                data["tofs"].to_value("second"),
-                (data["generation"] * (u.W * u.s)).to(u.W * u.h),
+                data["tofs"].to_value("second")[1:],
+                (data["generation"][1:] * (u.W * u.s)).to(u.W * u.h),
                 "Power Generation Over Time",
                 x_label,
                 r"Power Generation ($Wh$)",
-                step=step,
+                step=1,
                 fill_under=False,
                 remove_box=True,
                 scatter=False,
                 x_label_f=x_label_f,
                 show=False,
                 save_filename=self.report_params["folder"] + "power_generation.pdf",
+                markersize_plot=0,
             )
 
         if self.report_params["data_storage"] == "yes":
