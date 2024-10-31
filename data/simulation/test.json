@@ -2,7 +2,7 @@
     "units_delta_t": "second",
     "delta_t": 60,
     "units_duration_sim": "day",
-    "duration_sim": 1,
+    "duration_sim": 2,
     "init_operating_mode": 0,
     "report":{
         "folder": "../results/",
@@ -12,13 +12,12 @@
         "trajectory_3d": "yes",
         "groundtrack": "yes",
         "modes": "yes",
-        "battery_level": "yes",
+        "battery_energy": "yes",
         "power_consumption": "yes",
         "power_generation": "yes",
         "data_storage": "yes",
         "visibility_windows": "yes",
         "eclipse_windows": "yes",
         "save_numpy_arrays": "yes"
-
     }
 }

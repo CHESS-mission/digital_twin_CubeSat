@@ -67,7 +67,7 @@ class Eps(SubSystem):
             int(k): v * u.W for k, v in params["consumption"].items()
         }
 
-        self.capacity = (float(params["capacity"]) * (u.W * u.hour)).to(u.W * u.s)
+        self.energy = (float(params["total_energy"]) * (u.W * u.hour)).to(u.W * u.s)
         self.min_battery = (float(params["min_battery"]) * (u.W * u.hour)).to(u.W * u.s)
         self.max_battery = (float(params["max_battery"]) * (u.W * u.hour)).to(u.W * u.s)
         self.measure_threshold = (
@@ -81,7 +81,9 @@ class Eps(SubSystem):
         )
 
         # initialize battery level to maximum
-        self.battery_level = (float(params["capacity"]) * (u.W * u.hour)).to(u.W * u.s)
+        self.battery_level = (float(params["total_energy"]) * (u.W * u.hour)).to(
+            u.W * u.s
+        )
 
         # initialize solar panels
         self.solar_panels = SolarPanel(params["solar_panels"], init_operating_mode)
@@ -140,9 +142,9 @@ class Eps(SubSystem):
         self.battery_level += power_generated * delta_t
 
         # check physical limits
-        if self.battery_level > self.capacity:  # make sure it doesn't go above
+        if self.battery_level > self.energy:  # make sure it doesn't go above
             self.battery_level = copy.deepcopy(
-                self.capacity
+                self.energy
             )  # TODO: check correct way to do
         if self.battery_level < 0.0 * (u.W * u.s):
             self.battery_level = 0.0 * (u.W * u.s)
@@ -159,7 +161,7 @@ class Eps(SubSystem):
         )
         return f"EPS: \n{strings}"
 
-    def get_battery_level(self) -> Quantity:
+    def get_battery_energy(self) -> Quantity:
         return self.battery_level
 
     def get_power_consumption(self) -> Quantity:

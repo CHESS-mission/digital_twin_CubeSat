@@ -9,6 +9,7 @@ import astropy.units as u
 from astropy.units import Quantity
 import numpy as np
 
+from digital_twin.constants import earth_R
 from digital_twin.ground_station import GroundStation
 from digital_twin.mode_switch import ModeSwitch
 from digital_twin.orbit_propagator import OrbitPropagator
@@ -102,8 +103,8 @@ class Simulation:
         modes = np.zeros(self.n_timesteps + 1)
         modes[0] = self.switch_algo.operating_mode
 
-        battery_levels = np.zeros(self.n_timesteps + 1)
-        battery_levels[0] = self.spacecraft.get_eps().get_battery_level().value
+        battery_energies = np.zeros(self.n_timesteps + 1)
+        battery_energies[0] = self.spacecraft.get_eps().get_battery_energy().value
         power_consumption = np.zeros(self.n_timesteps + 1)
         power_consumption[0] = self.spacecraft.get_eps().get_power_consumption().value
         power_generation = np.zeros(self.n_timesteps + 1)
@@ -124,8 +125,6 @@ class Simulation:
         start_for_loop = time.time()
 
         for t in range(0, self.n_timesteps):
-            if t % 500 == 0:
-                print(t)  # TODO: remove
 
             # 1. propagate to next position and store the results
             rv = self.propagator.propagate(
@@ -134,49 +133,57 @@ class Simulation:
             eph[t + 1, :3] = rv[:3]
             eph[t + 1, 3:] = rv[3:]
 
-            # # 2. Calculate position based params: communication window, eclipse
-            # visibility = self.propagator.calculate_vis_window(self.ground_stations)
-            # eclipse_status = self.propagator.calculate_eclipse_status()
+            if t % 500 == 0:
+                print(t)  # TODO: remove
+                if np.linalg.norm(rv[:3] - earth_R.value) < 50:
+                    print("Altitude decay: deorbiting")
+                    break
 
-            # # 3. Calculate user-scheduled params
-            # measurement_session = (
-            #     True  # Assumption for now, later will depend on user-defined scheduler
-            # )
-            # com_window = visibility  # Assumption for now, later might depend on user-defined scheduler
+            # 2. Calculate position based params: communication window, eclipse
+            visibility = self.propagator.calculate_vis_window(self.ground_stations)
+            eclipse_status = self.propagator.calculate_eclipse_status()
 
-            # # 3. Check for potential flags raised by OBS
-            # safe_flag = False
+            # 3. Calculate user-scheduled params
+            measurement_session = (
+                True  # Assumption for now, later will depend on user-defined scheduler
+            )
+            com_window = visibility  # Assumption for now, later might depend on user-defined scheduler
 
-            # # 4. Switch mode based on location, Eps and Telecom states
-            # old_mode = self.switch_algo.operating_mode
-            # self.switch_algo.switch_mode(
-            #     self.spacecraft.get_eps(),
-            #     self.spacecraft.get_telecom(),
-            #     self.spacecraft.get_payload(),
-            #     com_window,
-            #     eclipse_status,
-            #     measurement_session,
-            #     safe_flag,
-            # )
-            # new_mode = self.switch_algo.operating_mode
-            # modes[t + 1] = new_mode
+            # 3. Check for potential flags raised by OBS
+            safe_flag = False
 
-            # # # 5. Ask spacecraft to update all subsystems
-            # self.spacecraft.update_subsystems(
-            #     old_mode, new_mode, rv, com_window, eclipse_status, self.delta_t
-            # )
+            # 4. Switch mode based on location, Eps and Telecom states
+            old_mode = self.switch_algo.operating_mode
+            self.switch_algo.switch_mode(
+                self.spacecraft.get_eps(),
+                self.spacecraft.get_telecom(),
+                self.spacecraft.get_payload(),
+                com_window,
+                eclipse_status,
+                measurement_session,
+                safe_flag,
+            )
+            new_mode = self.switch_algo.operating_mode
+            modes[t + 1] = new_mode
 
-            # # 6. Save data
-            # vis_windows[t + 1] = np.array([int(vis) for vis in visibility])
-            # eclipse_windows[t + 1] = int(eclipse_status)
-            # battery_levels[t + 1] = self.spacecraft.get_eps().get_battery_level().value
-            # power_consumption[t + 1] = (
-            #     self.spacecraft.get_eps().get_power_consumption().value
-            # )
-            # power_generation[t + 1] = (
-            #     self.spacecraft.get_eps().get_power_generation().value
-            # )
-            # data_storage[t + 1] = self.spacecraft.get_payload().get_data_storage().value
+            # # 5. Ask spacecraft to update all subsystems
+            self.spacecraft.update_subsystems(
+                old_mode, new_mode, rv, com_window, eclipse_status, self.delta_t
+            )
+
+            # 6. Save data
+            vis_windows[t + 1] = np.array([int(vis) for vis in visibility])
+            eclipse_windows[t + 1] = int(eclipse_status)
+            battery_energies[t + 1] = (
+                self.spacecraft.get_eps().get_battery_energy().value
+            )
+            power_consumption[t + 1] = (
+                self.spacecraft.get_eps().get_power_consumption().value
+            )
+            power_generation[t + 1] = (
+                self.spacecraft.get_eps().get_power_generation().value
+            )
+            data_storage[t + 1] = self.spacecraft.get_payload().get_data_storage().value
 
         end_for_loop = time.time()
         duration = end_for_loop - start_for_loop
@@ -201,7 +208,7 @@ class Simulation:
             "modes": modes,
             "vis": vis_windows,
             "eclipse": eclipse_windows,
-            "battery": battery_levels,
+            "battery": battery_energies,
             "consumption": power_consumption,
             "generation": power_generation,
             "storage": data_storage,
@@ -272,20 +279,20 @@ class Simulation:
         x_label, x_label_f = find_x_scale(self.duration_sim)
         step = int(len(data["tofs"]) / 100)
 
-        if self.report_params["battery_level"] == "yes":
+        if self.report_params["battery_energy"] == "yes":
             plot_1d(
                 data["tofs"].to_value("second"),
                 (data["battery"] * (u.W * u.s)).to(u.W * u.h),
-                "Battery Level Over Time",
+                "Battery Energy Over Time",
                 x_label,
-                r"Battery Level ($Wh$)",
+                r"Battery Energy ($Wh$)",
                 step=1,
                 fill_under=False,
                 remove_box=True,
                 scatter=False,
                 x_label_f=x_label_f,
                 show=False,
-                save_filename=self.report_params["folder"] + "battery_level.pdf",
+                save_filename=self.report_params["folder"] + "battery_energy.pdf",
                 markersize_plot=0,
             )
 
@@ -360,6 +367,13 @@ class Simulation:
                 save_filename=save_filename,
                 show=False,
             )
+        if self.report_params["save_numpy_arrays"] == "yes":
+            save_filename = self.report_params["folder"] + "altitudes.npy"
+            with open(save_filename, "wb") as f:
+                np.save(f, data["altitudes"])
+            # with open(save_filename, "rb") as f:
+            #     a = np.load(f)
+            #     print(a)
 
     def print_parameters(self) -> None:
         """Print a summary of the the simulation objects."""
