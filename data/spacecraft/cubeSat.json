@@ -9,9 +9,9 @@
         "total_energy": 76.32,
         "min_battery": 15.264,
         "max_battery": 61.056,
-        "measure_threshold": 27.38,
-        "com_threshold": 9.24,
-        "xb_threshold": 11.69,
+        "measure_threshold": 56.4,
+        "com_threshold": 16.10,
+        "xb_threshold": 18.55,
         "consumption": {
             "0": 0.24,
             "1": 0.24,
@@ -97,7 +97,8 @@
         "max_storage": 2097152,
         "max_duration": 10560,
         "max_duration_unit": "second",
-        "x_band_rate": 10
+        "x_band_rate": 10,
+        "nb_measurements_per_day": 1
     }
 }
 

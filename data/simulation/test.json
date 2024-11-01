@@ -1,8 +1,8 @@
 {
     "units_delta_t": "second",
-    "delta_t": 60,
-    "units_duration_sim": "day",
-    "duration_sim": 2,
+    "delta_t": 10,
+    "units_duration_sim": "hour",
+    "duration_sim": 7,
     "init_operating_mode": 0,
     "report":{
         "folder": "../results/",

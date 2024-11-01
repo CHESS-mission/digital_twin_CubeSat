@@ -1,6 +1,7 @@
 """File for the payload subsystem (gnss and tof together).
 """
 
+import math
 from typing import Dict
 
 from astropy import units as u
@@ -30,10 +31,22 @@ class Payload(SubSystem):
         measure_unit = get_astropy_unit_time(params["max_duration_unit"])
         self.measurement_max_duration = (params["max_duration"] * measure_unit).to(u.s)
         self.x_band_rate = float(params["x_band_rate"]) * (u.Mbit / u.s)
+        self.nb_measurement_per_day = int(params["nb_measurements_per_day"])
 
         self.measurement_duration = 0.0 * u.s
         self.data_storage = 0.0 * u.Mbit
         self.is_measuring = False
+        self.nb_measurement_windows = 0
+
+    def can_start_measuring(self, time_elapsed: Quantity) -> bool:
+        one_day = 86400 * u.s
+        if (
+            math.floor(self.nb_measurement_windows / self.nb_measurement_per_day)
+            < (time_elapsed / one_day).value
+        ):
+            return True
+        else:
+            return False
 
     def data_storage_full(self) -> bool:
         if self.data_storage >= self.max_storage:
@@ -65,12 +78,15 @@ class Payload(SubSystem):
         pass
         if new_mode == 4:  # X_BAND
             self.data_storage -= self.x_band_rate * delta_t
+            if self.data_storage.value < 0:
+                self.data_storage = 0.0 * u.Mbit
             self.measurement_duration = 0.0 * u.s
             self.is_measuring = False
         if new_mode == 5:  # MEASUREMENT
             self.data_storage += self.measurement_rate * delta_t
             if old_mode != new_mode:  # just switched to measurement mode
                 self.measurement_duration = 0.0 * u.s
+                self.nb_measurement_windows += 1
             self.measurement_duration += delta_t
             self.is_measuring = True
         else:

@@ -53,8 +53,10 @@ class SolarPanel:
                 * np.cos(np.deg2rad(self.incident_angle.value))
             )
         else:
-            incident_angle_random = np.random.rand() * np.pi / 2
-            return self.cell_surface * self.nb_cells * np.cos(incident_angle_random)
+            incident_angle_random = np.random.rand() * np.pi - np.pi / 2
+            intensity = np.cos(incident_angle_random) * 0.3
+            # incident_angle_random = np.deg2rad(self.incident_angle.value)
+            return self.cell_surface * self.nb_cells * intensity
 
 
 class Eps(SubSystem):

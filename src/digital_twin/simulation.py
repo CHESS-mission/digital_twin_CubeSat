@@ -147,6 +147,9 @@ class Simulation:
             measurement_session = (
                 True  # Assumption for now, later will depend on user-defined scheduler
             )
+            measurement_session = self.spacecraft.get_payload().can_start_measuring(
+                self.tofs[t + 1].to("second")
+            )
             com_window = visibility  # Assumption for now, later might depend on user-defined scheduler
 
             # 3. Check for potential flags raised by OBS
