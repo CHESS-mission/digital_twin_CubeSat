@@ -111,7 +111,12 @@ class Simulation:
         power_generation[0] = self.spacecraft.get_eps().get_power_generation().value
 
         data_storage = np.zeros(self.n_timesteps + 1)
-        data_storage[0] = self.spacecraft.get_payload().get_data_storage().value
+        data_storage_GNSS_TOF = np.zeros(self.n_timesteps + 1)
+        data_storage_HK = np.zeros(self.n_timesteps + 1)
+        all, GNSS_TOF, HK = self.spacecraft.get_payload().get_data_storage()
+        data_storage[0] = all.value
+        data_storage_GNSS_TOF[0] = GNSS_TOF.value
+        data_storage_HK[0] = HK.value
 
         vis_windows = np.zeros(
             (self.n_timesteps + 1, len(self.ground_stations))
@@ -135,7 +140,7 @@ class Simulation:
 
             if t % 500 == 0:
                 print(t)  # TODO: remove
-                if np.linalg.norm(rv[:3] - earth_R.value) < 50:
+                if np.linalg.norm(rv[:3] - earth_R.value) < 180:
                     print("Altitude decay: deorbiting")
                     break
 
@@ -186,7 +191,11 @@ class Simulation:
             power_generation[t + 1] = (
                 self.spacecraft.get_eps().get_power_generation().value
             )
-            data_storage[t + 1] = self.spacecraft.get_payload().get_data_storage().value
+            # data_storage[t + 1] = self.spacecraft.get_payload().get_data_storage().value
+            all, GNSS_TOF, HK = self.spacecraft.get_payload().get_data_storage()
+            data_storage[t + 1] = all.value
+            data_storage_GNSS_TOF[t + 1] = GNSS_TOF.value
+            data_storage_HK[t + 1] = HK.value
 
         end_for_loop = time.time()
         duration = end_for_loop - start_for_loop
@@ -215,6 +224,8 @@ class Simulation:
             "consumption": power_consumption,
             "generation": power_generation,
             "storage": data_storage,
+            "storage_GNSS_TOF": data_storage_GNSS_TOF,
+            "storage_HK": data_storage_HK,
         }
         # Produce report
         self.produce_report(data_results)
@@ -348,6 +359,35 @@ class Simulation:
                 show=False,
                 save_filename=self.report_params["folder"] + "data_storage.pdf",
             )
+            plot_1d(
+                data["tofs"].to_value("second"),
+                data["storage_GNSS_TOF"],
+                "Data Storage Over Time (GNSS and TOF)",
+                x_label,
+                r"GNSS/TOF Data Storage ($Mbit$)",
+                step=step,
+                fill_under=False,
+                remove_box=True,
+                scatter=False,
+                x_label_f=x_label_f,
+                show=False,
+                save_filename=self.report_params["folder"]
+                + "data_storage_GNSS_TOF.pdf",
+            )
+            plot_1d(
+                data["tofs"].to_value("second"),
+                data["storage_HK"],
+                "Data Storage Over Time (Housekeeping Data)",
+                x_label,
+                r"HK Data Storage ($Mbit$)",
+                step=step,
+                fill_under=False,
+                remove_box=True,
+                scatter=False,
+                x_label_f=x_label_f,
+                show=False,
+                save_filename=self.report_params["folder"] + "data_storage_HK.pdf",
+            )
 
         if self.report_params["visibility_windows"] == "yes":
             save_filename = self.report_params["folder"] + "visibility_windows.pdf"
@@ -370,13 +410,14 @@ class Simulation:
                 save_filename=save_filename,
                 show=False,
             )
-        if self.report_params["save_numpy_arrays"] == "yes":
-            save_filename = self.report_params["folder"] + "altitudes.npy"
-            with open(save_filename, "wb") as f:
-                np.save(f, data["altitudes"])
-            # with open(save_filename, "rb") as f:
-            #     a = np.load(f)
-            #     print(a)
+        if self.report_params["save_np_arrays_telecom_data"] == "yes":
+            folder = self.report_params["folder"]
+            with open(folder + "times.npy", "wb") as f:
+                np.save(f, data["tofs"].to_value("second"))
+            with open(folder + "visibility.npy", "wb") as f:
+                np.save(f, data["vis"])
+            with open(folder + "modes.npy", "wb") as f:
+                np.save(f, data["modes"])
 
     def print_parameters(self) -> None:
         """Print a summary of the the simulation objects."""

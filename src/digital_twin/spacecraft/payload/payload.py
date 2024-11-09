@@ -26,17 +26,29 @@ class Payload(SubSystem):
             int(k): v * u.W for k, v in params["consumption_tof"].items()
         }
 
-        self.measurement_rate = float(params["measurement_rate"]) * (u.Mbit / u.s)
+        self.measurement_TOF_rate = float(params["measurement_TOF_rate"]) * (
+            u.Mbit / u.s
+        )
+        self.measurement_GNSS_rate = float(params["measurement_GNSS_rate"]) * (
+            u.Mbit / u.s
+        )
+        self.HK_rate = float(params["housekeeping_data_rate"]) * (u.Mbit / u.s)
         self.max_storage = float(params["max_storage"]) * u.Mbit
         measure_unit = get_astropy_unit_time(params["max_duration_unit"])
         self.measurement_max_duration = (params["max_duration"] * measure_unit).to(u.s)
         self.x_band_rate = float(params["x_band_rate"]) * (u.Mbit / u.s)
+        self.uhf_rate = float(params["uhf_rate"]) * (u.Mbit / u.s)
         self.nb_measurement_per_day = int(params["nb_measurements_per_day"])
 
         self.measurement_duration = 0.0 * u.s
-        self.data_storage = 0.0 * u.Mbit
+
         self.is_measuring = False
         self.nb_measurement_windows = 0
+
+        # data_storage gathers all 3 types of data (TOF, GNSS, HK = Housekeeping)
+        self.data_storage = 0.0 * u.Mbit
+        self.data_TOF_GNSS = 0.0 * u.Mbit
+        self.data_HK = 0.0 * u.Mbit
 
     def can_start_measuring(self, time_elapsed: Quantity) -> bool:
         one_day = 86400 * u.s
@@ -60,9 +72,11 @@ class Payload(SubSystem):
 
     def campaign_finished(self) -> bool:
         if not self.is_measuring:
+            print("case 1")
             return True
         else:
             if self.measurement_duration >= self.measurement_max_duration:
+                print("case 2")
                 return True
             return False
 
@@ -78,20 +92,43 @@ class Payload(SubSystem):
         pass
         if new_mode == 4:  # X_BAND
             self.data_storage -= self.x_band_rate * delta_t
+            self.data_TOF_GNSS -= self.x_band_rate * delta_t
             if self.data_storage.value < 0:
                 self.data_storage = 0.0 * u.Mbit
+                self.data_TOF_GNSS = 0.0 * u.Mbit
+                self.data_HK = 0.0 * u.Mbit
             self.measurement_duration = 0.0 * u.s
             self.is_measuring = False
-        if new_mode == 5:  # MEASUREMENT
-            self.data_storage += self.measurement_rate * delta_t
+
+        elif new_mode == 5:  # MEASUREMENT
+            self.data_TOF_GNSS += self.measurement_TOF_rate * delta_t
+            self.data_storage += self.measurement_TOF_rate * delta_t
             if old_mode != new_mode:  # just switched to measurement mode
                 self.measurement_duration = 0.0 * u.s
                 self.nb_measurement_windows += 1
             self.measurement_duration += delta_t
             self.is_measuring = True
+
+        elif new_mode == 3:  # UHF
+            self.data_HK -= self.uhf_rate * delta_t
+            self.data_storage -= self.uhf_rate * delta_t
+            if self.data_storage.value < 0:
+                self.data_storage = 0.0 * u.Mbit
+                self.data_TOF_GNSS = 0.0 * u.Mbit
+                self.data_HK = 0.0 * u.Mbit
+            self.measurement_duration = 0.0 * u.s
+            self.is_measuring = False
+
         else:
             self.measurement_duration = 0.0 * u.s
             self.is_measuring = False
+
+        if new_mode != 1:  # if not in safe mode, GNSS continuously add data
+            self.data_TOF_GNSS += self.measurement_GNSS_rate * delta_t
+            self.data_storage += self.measurement_GNSS_rate * delta_t
+        # Housekeeping (HK) data also added in every mode
+        self.data_HK += self.HK_rate * delta_t
+        self.data_storage += self.HK_rate * delta_t
 
     def compute_power_consumed(self, mode: int) -> Quantity:
         return self.consumption_mean_gnss[mode] + self.consumption_mean_tof[mode]
@@ -100,4 +137,4 @@ class Payload(SubSystem):
         return f"Payload:"
 
     def get_data_storage(self) -> Quantity:
-        return self.data_storage
+        return self.data_storage, self.data_TOF_GNSS, self.data_HK

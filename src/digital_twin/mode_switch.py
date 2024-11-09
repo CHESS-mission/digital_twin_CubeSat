@@ -87,16 +87,10 @@ class ModeSwitch:
                 and (measurement_session)
             ):
                 self.operating_mode = 5
-                # eps.MeasurementDuration = 0
-                # eps.DownlinkComplete = false
-                # eps.CampaignFinished = false
             else:
                 # Else try to communicate
                 if (eps.battery_level >= eps.com_threshold) and (com_window):
                     self.operating_mode = 3
-                    # eps.OperatingMode = eps.UHF_COM
-                    # eps.ComFinished = false
-                    # eps.ComDuration = 0
                 else:
                     # Else try to charge (if possible)
                     if (not eclipse_status) and (eps.battery_level < eps.max_battery):
@@ -124,17 +118,11 @@ class ModeSwitch:
             and (measurement_session)
         ):
             self.operating_mode = 5
-            # eps.MeasurementDuration = 0
-            # eps.DownlinkComplete = false
-            # eps.CampaignFinished = false
 
         else:
             # Else try to communicate
             if (eps.battery_level >= eps.com_threshold) and (com_window):
                 self.operating_mode = 3
-                # eps.OperatingMode = eps.UHF_COM
-                # eps.ComFinished = false
-                # eps.ComDuration = 0
             else:
                 # Else stop charging if in eclipse or battery is full
                 if (eclipse_status) or (eps.battery_level >= eps.max_battery):
@@ -153,19 +141,12 @@ class ModeSwitch:
             and (not telecom.downlink_complete(payload))
         ):
             self.operating_mode = 4
-            # eps.data_storage_full() = False
         else:
             # Else try to go to idle
             if (not com_window) or (telecom.com_finished()):
                 self.operating_mode = 0
-                # eps.com_duration = 0
-                # eps.com_finished() = False
             else:
                 self.operating_mode = 3  # stays un current mode
-                # Increment communication duration
-                # eps.com_duration += dt
-                # if eps.com_duration >= eps.com_max_duration:
-                # eps.com_finished() = True
 
     def mode_switch_from_X_BAND_COM(
         self, telecom: Telecom, payload: Payload, com_window: bool
@@ -179,26 +160,10 @@ class ModeSwitch:
                 self.operating_mode = 0
             else:
                 self.operating_mode = 4
-                # decrement data storage
-                # eps.data_storage -= eps.x_band_rate * dt  # adapt to data rate
-                # if eps.data_storage <= 0:
-                # eps.downlink_complete() = True
-                # eps.campaign_finished() = False
-                # eps.data_storage = 0
 
     def mode_switch_from_MEASUREMENT(self, telecom: Telecom, payload: Payload):
         # Go to idle after measurement normally ends
         if payload.data_storage_full() or payload.campaign_finished():
             self.operating_mode = 0
-            # eps.measurement_duration = 0
         else:
             self.operating_mode = 5  # stay in measurement mode!
-            # Increment data stored
-            # eps.data_storage += eps.measure_rate * dt  # adapt to data rate of ScienceInstrument
-            # if eps.data_storage >= eps.max_storage:
-            # eps.data_storage_full() = True
-
-            # Increment campaign duration
-            # eps.measurement_duration += dt
-            # if eps.measurement_duration >= eps.science_max_duration:
-            # eps.campaign_finished() = True

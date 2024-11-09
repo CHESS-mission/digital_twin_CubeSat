@@ -2,7 +2,7 @@
     "general": {
         "name": "CubeSat EST",
         "C_D": 2.2,
-        "cross_section_area": 0.07487e-6,
+        "cross_section_area": 0.074865e-6,
         "mass": 5.284
     },
     "eps": {
@@ -93,11 +93,14 @@
             "4": 0,
             "5": 7.98
         },
-        "measurement_rate": 0.111,
+        "measurement_TOF_rate": 0.111,
+        "measurement_GNSS_rate": 0.00650,
+        "housekeeping_data_rate": 6.67e-5,
         "max_storage": 2097152,
         "max_duration": 10560,
         "max_duration_unit": "second",
         "x_band_rate": 10,
+        "uhf_rate": 0.0192,
         "nb_measurements_per_day": 1
     }
 }
