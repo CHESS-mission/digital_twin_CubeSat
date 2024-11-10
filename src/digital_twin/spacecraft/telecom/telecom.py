@@ -34,14 +34,27 @@ class Telecom(SubSystem):
         self.com_duration = 0.0 * u.s
         self.is_communicating = False
 
+        self.alternating = False  # bool which prevents from alternating between x-band-comm and uhf-comm mode during visibility window
+
     def handshake(self) -> bool:
         return True
 
     def downlink_xband_complete(self, payload: Payload) -> bool:
         # stop downlink when all data transferred
-        if payload.data_storage_empty(type="x_band"):
+        if payload.x_band_data_empty():
             return True
         return False
+
+    def data_to_downlink(self, payload: Payload) -> bool:
+        if payload.data_storage_empty(type="x_band"):
+            return False
+        else:
+            if (
+                self.alternating
+            ):  # prevents from alternating between uhf-comm and x-band-comm endlessly during visibility window
+                return False
+            else:
+                return True
 
     def com_finished(self) -> bool:
         if not self.is_communicating:
@@ -62,13 +75,20 @@ class Telecom(SubSystem):
         delta_t: TimeDelta,
     ) -> None:
         if new_mode == 3:  # UHF_COM
+
+            if old_mode == 4:  # Just passed from x band to uhf
+                # We want to prevent the satellite to go back to x-band directly bc of the little GNSS data added
+                self.alternating = True
+
             self.is_communicating = True
             if old_mode != new_mode:  # just switched to communication mode
                 self.com_duration = 0.0 * u.s
             self.com_duration += delta_t  # increase communication time
+
         else:
             self.is_communicating = False
             self.com_duration = 0.0 * u.s
+            self.alternating = False  # set back because we re not alternating between uhf-comm and x-band-comm anymore
 
     def compute_power_consumed(self, mode: int) -> Quantity:
         return self.consumption_mean_uhf[mode] + self.consumption_mean_x_band[mode]

@@ -138,7 +138,8 @@ class ModeSwitch:
             (eps.battery_level >= eps.xb_threshold)
             and (telecom.handshake())
             and (com_window)
-            and (not telecom.downlink_xband_complete(payload))
+            # and (not telecom.downlink_xband_complete(payload))
+            and (telecom.data_to_downlink(payload))
         ):
             self.operating_mode = 4
         else:

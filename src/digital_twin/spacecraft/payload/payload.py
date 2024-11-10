@@ -60,6 +60,8 @@ class Payload(SubSystem):
         self.data_TOF_GNSS = 0.0 * u.Mbit
         self.data_HK = 0.0 * u.Mbit
 
+        self.data_to_downlink = 0.0 * u.Mbit
+
     def can_start_measuring(self, time_elapsed: Quantity) -> bool:
         one_day = 86400 * u.s
         if (
@@ -94,6 +96,12 @@ class Payload(SubSystem):
         else:
             raise NotImplementedError("This type of data does not exist!")
 
+    def x_band_data_empty(self) -> bool:
+        if self.data_to_downlink <= 0:
+            return True
+        else:
+            return False
+
     def campaign_finished(self) -> bool:
         if not self.is_measuring:
             return True
@@ -113,12 +121,27 @@ class Payload(SubSystem):
     ) -> None:
         pass
         if new_mode == 4:  # X_BAND
-            self.data_storage -= self.x_band_rate * delta_t
-            self.data_TOF_GNSS -= self.x_band_rate * delta_t
-            if self.data_storage.value < 0:
-                self.data_storage = 0.0 * u.Mbit
-            if self.data_TOF_GNSS.value < 0:
+            if new_mode != old_mode:  # just switched to x_band_comm mode
+                # update how much data needs to be downlinked
+                self.data_to_downlink = (
+                    self.data_TOF_GNSS.value * u.Mbit
+                )  # not direct = or it does not do a deepcopy
+
+            # cannot remove more than what it has
+            if self.data_TOF_GNSS < (self.x_band_rate * delta_t):
+                self.data_storage -= self.data_TOF_GNSS
+                self.data_to_downlink -= self.data_TOF_GNSS
                 self.data_TOF_GNSS = 0.0 * u.Mbit
+
+            else:
+                self.data_storage -= self.x_band_rate * delta_t
+                self.data_TOF_GNSS -= self.x_band_rate * delta_t
+                self.data_to_downlink -= self.x_band_rate * delta_t
+
+            # if self.data_storage.value < 0:
+            #     self.data_storage = 0.0 * u.Mbit
+            # if self.data_TOF_GNSS.value < 0:
+            #     self.data_TOF_GNSS = 0.0 * u.Mbit
             self.measurement_duration = 0.0 * u.s
             self.is_measuring = False
 
@@ -138,12 +161,18 @@ class Payload(SubSystem):
             self.is_measuring = True
 
         elif new_mode == 3:  # UHF
-            self.data_HK -= self.uhf_rate * delta_t
-            self.data_storage -= self.uhf_rate * delta_t
-            if self.data_storage.value < 0:
-                self.data_storage = 0.0 * u.Mbit
-            if self.data_HK.value < 0:
+
+            if self.data_HK < (self.uhf_rate * delta_t):
+                self.data_storage -= self.data_HK
                 self.data_HK = 0.0 * u.Mbit
+            else:
+                self.data_HK -= self.uhf_rate * delta_t
+                self.data_storage -= self.uhf_rate * delta_t
+
+            # if self.data_storage.value < 0:
+            #     self.data_storage = 0.0 * u.Mbit
+            # if self.data_HK.value < 0:
+            #     self.data_HK = 0.0 * u.Mbit
             self.measurement_duration = 0.0 * u.s
             self.is_measuring = False
 
@@ -152,7 +181,7 @@ class Payload(SubSystem):
             self.is_measuring = False
 
         if (
-            new_mode != 1 and new_mode != 4 and new_mode != 3
+            new_mode != 1  # and new_mode != 4 and new_mode != 3
         ):  # if not in safe mode, GNSS continuously add data
             self.data_TOF_GNSS += self.measurement_GNSS_rate * delta_t
             self.data_storage += self.measurement_GNSS_rate * delta_t
