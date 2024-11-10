@@ -418,6 +418,12 @@ class Simulation:
                 np.save(f, data["vis"])
             with open(folder + "modes.npy", "wb") as f:
                 np.save(f, data["modes"])
+            with open(folder + "data.npy", "wb") as f:
+                np.save(f, data["storage"])
+            with open(folder + "data_GNSS_TOF.npy", "wb") as f:
+                np.save(f, data["storage_GNSS_TOF"])
+            with open(folder + "data_HK.npy", "wb") as f:
+                np.save(f, data["storage_HK"])
 
     def print_parameters(self) -> None:
         """Print a summary of the the simulation objects."""

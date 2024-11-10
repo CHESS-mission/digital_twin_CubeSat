@@ -101,7 +101,9 @@
         "max_duration_unit": "second",
         "x_band_rate": 10,
         "uhf_rate": 0.0192,
-        "nb_measurements_per_day": 1
+        "nb_measurements_per_day": 1,
+        "measurement_pre_conditioning_time": 1500,
+        "measurement_post_conditioning_time": 1860
     }
 }
 

@@ -37,9 +37,9 @@ class Telecom(SubSystem):
     def handshake(self) -> bool:
         return True
 
-    def downlink_complete(self, payload: Payload) -> bool:
+    def downlink_xband_complete(self, payload: Payload) -> bool:
         # stop downlink when all data transferred
-        if payload.data_storage_empty():
+        if payload.data_storage_empty(type="x_band"):
             return True
         return False
 

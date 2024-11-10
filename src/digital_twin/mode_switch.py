@@ -138,7 +138,7 @@ class ModeSwitch:
             (eps.battery_level >= eps.xb_threshold)
             and (telecom.handshake())
             and (com_window)
-            and (not telecom.downlink_complete(payload))
+            and (not telecom.downlink_xband_complete(payload))
         ):
             self.operating_mode = 4
         else:
@@ -152,14 +152,14 @@ class ModeSwitch:
         self, telecom: Telecom, payload: Payload, com_window: bool
     ):
         # Go back to UHF-COM if downlink is finished (if COM is still possible)
-        if com_window and telecom.downlink_complete(payload):
+        if com_window and telecom.downlink_xband_complete(payload):
             self.operating_mode = 3
         else:
             # Else try to go to idle
             if not com_window:
                 self.operating_mode = 0
             else:
-                self.operating_mode = 4
+                self.operating_mode = 4  # stay in x-band
 
     def mode_switch_from_MEASUREMENT(self, telecom: Telecom, payload: Payload):
         # Go to idle after measurement normally ends

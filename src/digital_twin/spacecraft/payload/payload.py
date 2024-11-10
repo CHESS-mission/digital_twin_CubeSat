@@ -40,6 +40,16 @@ class Payload(SubSystem):
         self.uhf_rate = float(params["uhf_rate"]) * (u.Mbit / u.s)
         self.nb_measurement_per_day = int(params["nb_measurements_per_day"])
 
+        self.start_measurement = (
+            float(params["measurement_pre_conditioning_time"]) * u.s
+        )
+        measurement_post_conditioning = (
+            float(params["measurement_post_conditioning_time"]) * u.s
+        )
+        self.stop_measurement = (
+            self.measurement_max_duration - measurement_post_conditioning
+        )
+
         self.measurement_duration = 0.0 * u.s
 
         self.is_measuring = False
@@ -65,18 +75,30 @@ class Payload(SubSystem):
             return True
         return False
 
-    def data_storage_empty(self) -> bool:
-        if self.data_storage <= 0:
-            return True
-        return False
+    def data_storage_empty(self, type="all") -> bool:
+        if type == "all":
+            if self.data_storage <= 0:
+                return True
+            else:
+                return False
+        elif type == "x_band":
+            if self.data_TOF_GNSS <= 0:
+                return True
+            else:
+                False
+        elif type == "uhf":  # housekeeping
+            if self.data_HK <= 0:
+                return True
+            else:
+                return False
+        else:
+            raise NotImplementedError("This type of data does not exist!")
 
     def campaign_finished(self) -> bool:
         if not self.is_measuring:
-            print("case 1")
             return True
         else:
             if self.measurement_duration >= self.measurement_max_duration:
-                print("case 2")
                 return True
             return False
 
@@ -95,17 +117,23 @@ class Payload(SubSystem):
             self.data_TOF_GNSS -= self.x_band_rate * delta_t
             if self.data_storage.value < 0:
                 self.data_storage = 0.0 * u.Mbit
+            if self.data_TOF_GNSS.value < 0:
                 self.data_TOF_GNSS = 0.0 * u.Mbit
-                self.data_HK = 0.0 * u.Mbit
             self.measurement_duration = 0.0 * u.s
             self.is_measuring = False
 
         elif new_mode == 5:  # MEASUREMENT
-            self.data_TOF_GNSS += self.measurement_TOF_rate * delta_t
-            self.data_storage += self.measurement_TOF_rate * delta_t
             if old_mode != new_mode:  # just switched to measurement mode
                 self.measurement_duration = 0.0 * u.s
                 self.nb_measurement_windows += 1
+            # only measures during 2 hours after the 25 min of conditioning and before the last 31 min prep for dasta transfer (look at power budget)
+            if (
+                self.measurement_duration >= self.start_measurement
+                and self.measurement_duration < self.stop_measurement
+            ):
+                self.data_TOF_GNSS += self.measurement_TOF_rate * delta_t
+                self.data_storage += self.measurement_TOF_rate * delta_t
+
             self.measurement_duration += delta_t
             self.is_measuring = True
 
@@ -114,7 +142,7 @@ class Payload(SubSystem):
             self.data_storage -= self.uhf_rate * delta_t
             if self.data_storage.value < 0:
                 self.data_storage = 0.0 * u.Mbit
-                self.data_TOF_GNSS = 0.0 * u.Mbit
+            if self.data_HK.value < 0:
                 self.data_HK = 0.0 * u.Mbit
             self.measurement_duration = 0.0 * u.s
             self.is_measuring = False
@@ -123,7 +151,9 @@ class Payload(SubSystem):
             self.measurement_duration = 0.0 * u.s
             self.is_measuring = False
 
-        if new_mode != 1:  # if not in safe mode, GNSS continuously add data
+        if (
+            new_mode != 1 and new_mode != 4 and new_mode != 3
+        ):  # if not in safe mode, GNSS continuously add data
             self.data_TOF_GNSS += self.measurement_GNSS_rate * delta_t
             self.data_storage += self.measurement_GNSS_rate * delta_t
         # Housekeeping (HK) data also added in every mode
