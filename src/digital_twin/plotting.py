@@ -17,6 +17,7 @@ from poliastro.plotting import OrbitPlotter3D
 from poliastro.twobody import Orbit
 from matplotlib import pyplot as plt
 from matplotlib.ticker import FuncFormatter
+import matplotlib.dates as mdates
 import numpy as np
 import plotly.graph_objects as go
 
@@ -45,6 +46,9 @@ def plot_1d(
     save_filename: str = None,
     show: bool = True,
     markersize_plot: int = 4,
+    date_x_axis: bool = False,
+    date_interval: int = 1,
+    date_format: str = "%d/%m/%Y",
 ) -> None:
     """Function for general plotting in 2d with x and y arrays as input."""
     # Downsample the x and y arrays
@@ -109,10 +113,20 @@ def plot_1d(
         ax.spines["left"].set_color((0.8, 0.8, 0.8))
         ax.spines["bottom"].set_color((0.8, 0.8, 0.8))
 
+    # if want to have dates as the x axis
+    if date_x_axis:
+        # Set major locator to show every other day (or adjust as needed)
+        ax.xaxis.set_major_locator(mdates.DayLocator(interval=date_interval))
+        ax.xaxis.set_major_formatter(
+            mdates.DateFormatter(date_format)
+        )  # display the year only
+        plt.xticks(rotation=45)
+
     # Show the plot
     plt.tight_layout()
     if save_filename is not None:
-        plt.savefig(save_filename)
+        plt.savefig(save_filename, dpi=300)
+
     if show:
         plt.show()
     else:
