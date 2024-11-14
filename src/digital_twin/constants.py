@@ -14,9 +14,6 @@ J2 = Earth.J2
 sun_R = Sun.R.to(u.km)
 solar_power = 1361 * (u.W / u.m**2)
 
-# ATMOSPHERIC MODEL
-atmosphere_model = COESA76()
-
 # SPACECRAFT MODES
 mode_dict = {
     0: "IDLE",

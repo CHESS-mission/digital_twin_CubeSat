@@ -133,6 +133,138 @@ def plot_1d(
         plt.close()
 
 
+# same as previous function but plots multiple graphs on the same ax, and adds a legend
+def plot_1d_multiple(
+    x: list,
+    y: list,
+    title: str,
+    xlabel: str,
+    ylabel: str,
+    colors: list,
+    labels: list,
+    step: list,
+    fill_under: bool = True,
+    remove_box: bool = True,
+    x_range: Tuple = None,
+    y_range: Tuple = None,
+    scatter: bool = False,
+    x_label_f: Callable = None,
+    custom_y_ticks: bool = False,
+    y_ticks: np.ndarray = None,
+    y_tick_labels: np.ndarray = None,
+    custom_x_ticks: bool = False,
+    x_ticks: np.ndarray = None,
+    x_tick_labels: np.ndarray = None,
+    save_filename: str = None,
+    show: bool = True,
+    markersize_plot: int = 4,
+    date_x_axis: bool = False,
+    date_interval: int = 1,
+    date_format: str = "%d/%m/%Y",
+) -> None:
+    """Function for general plotting in 2d with x and y arrays as input."""
+    nb_plots = len(y)  # = len(x)
+
+    # Downsample the x and y arrays
+    x_downsampled = []
+    y_downsampled = []
+    for i in range(nb_plots):
+        x_downsampled.append(x[i][:: step[i]])
+        y_downsampled.append(y[i][:: step[i]])
+
+    # Create the plot
+    plt.figure(figsize=(6, 4))
+    if scatter:
+        for i in range(nb_plots):
+            plt.scatter(
+                x_downsampled[i],
+                y_downsampled[i],
+                marker=".",
+                color=colors[i],
+                s=10,
+                label=labels[i],
+            )
+    else:
+        for i in range(nb_plots):
+            plt.plot(
+                x_downsampled[i],
+                y_downsampled[i],
+                marker=".",
+                linestyle="-",
+                color=colors[i],
+                markersize=markersize_plot,
+                label=labels[i],
+            )
+
+    # Beautifying the plot
+    plt.title(title, fontsize=13, fontweight="medium")
+    plt.xlabel(xlabel, fontsize=11)
+    plt.ylabel(ylabel, fontsize=11)
+    plt.grid(True, which="both", linestyle="--", linewidth=0.5)
+    plt.xticks(fontsize=10)
+    plt.yticks(fontsize=10)
+
+    # Setting x and y axis ranges if provided
+    if x_range is not None:
+        plt.xlim(x_range)  # Set the x-axis range (tuple)
+    if y_range is not None:
+        plt.ylim(y_range)  # Set the y-axis range (tuple)
+
+    # Adding customizations
+    ax = plt.gca()  # Get the current axis
+    if x_label_f is not None:
+        ax.xaxis.set_major_formatter(FuncFormatter(x_label_f))
+    if custom_y_ticks:
+        if y_ticks is None or y_tick_labels is None:
+            raise ValueError("Must provide y ticks and y tick labels")
+        ax.set_yticks(y_ticks)
+        ax.set_yticklabels(y_tick_labels)
+    if custom_x_ticks:
+        if x_ticks is None or x_tick_labels is None:
+            raise ValueError("Must provide x ticks and x tick labels")
+        ax.set_xticks(x_ticks)
+        ax.set_xticklabels(x_tick_labels)
+    if fill_under:
+        for i in range(nb_plots):
+            plt.fill_between(
+                x_downsampled[i], y_downsampled[i], color="light" + colors[i], alpha=0.3
+            )
+    if remove_box:
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.spines["left"].set_visible(False)
+        ax.spines["bottom"].set_visible(False)
+        # Remove ticks
+        ax.yaxis.set_ticks_position("none")
+        ax.xaxis.set_ticks_position("none")
+    else:
+        ax.spines["top"].set_color((0.8, 0.8, 0.8))
+        ax.spines["right"].set_color((0.8, 0.8, 0.8))
+        ax.spines["left"].set_color((0.8, 0.8, 0.8))
+        ax.spines["bottom"].set_color((0.8, 0.8, 0.8))
+
+    # if want to have dates as the x axis
+    if date_x_axis:
+        # Set major locator to show every other day (or adjust as needed)
+        ax.xaxis.set_major_locator(mdates.DayLocator(interval=date_interval))
+        ax.xaxis.set_major_formatter(
+            mdates.DateFormatter(date_format)
+        )  # display the year only
+        plt.xticks(rotation=45)
+
+    plt.legend()
+
+    # Show the plot
+    plt.tight_layout()
+    if save_filename is not None:
+        plt.savefig(save_filename, dpi=300)
+
+    if show:
+        plt.show()
+    else:
+        plt.close()
+
+
 def seconds_to_days(x: Any, pos: Any) -> Any:
     """Convert seconds to days."""
     return f"{x / 86400:.0f}"

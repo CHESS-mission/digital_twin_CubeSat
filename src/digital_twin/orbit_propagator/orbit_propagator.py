@@ -12,6 +12,8 @@ from astropy.coordinates import (
 )
 from astropy.time import Time
 from astropy.units import Quantity
+from numba import njit as jit
+import numpy as np
 from poliastro.core.events import eclipse_function
 from poliastro.core.perturbations import (
     J2_perturbation,
@@ -20,16 +22,19 @@ from poliastro.core.perturbations import (
 from poliastro.core.propagation import func_twobody
 from poliastro.twobody import Orbit
 from poliastro.twobody.propagation import CowellPropagator
-from numba import njit as jit
-import numpy as np
 
-from digital_twin.constants import atmosphere_model, earth_R, J2, sun_R, earth_k
+from digital_twin.constants import earth_R, J2, sun_R, earth_k
 from digital_twin.orbit_propagator.constants import (
     attractor,
     star_string,
     attractor_string,
 )
 from digital_twin.utils import angle_between_vectors
+from digital_twin.orbit_propagator import (
+    AtmosphereModelCOESA76,
+    AtmosphereModelNRLMSISE00,
+    AtmosphereModelSolarActivity,
+)
 
 
 class OrbitPropagator:
@@ -68,10 +73,20 @@ class OrbitPropagator:
 
         self.current_orbit = copy.deepcopy(self.init_orbit)
 
+        # Choose atmospheric model
+        if orbit_params["atmosphere_model"] == "nrlmsise00":
+            self.atmosphere_model = AtmosphereModelNRLMSISE00()
+        elif orbit_params["atmosphere_model"] == "solar_activity":
+            self.atmosphere_model = AtmosphereModelSolarActivity()
+        else:
+            self.atmosphere_model = AtmosphereModelCOESA76()
+
         # Approximation updated every 500 timesteps for now (TODO: update)
-        self.rho = atmosphere_model.density(init_SMA - earth_R).to_value(
-            u.kg / u.km**3
-        ) * (u.kg / u.km**3)
+        self.rho = self.atmosphere_model.get_density(
+            iso_date_str=str(self.current_orbit.epoch),
+            position=self.current_orbit.r.value,
+        ).to_value(u.kg / u.km**3) * (u.kg / u.km**3)
+
         self.countdown_rho = 500  # Rho will be updated when countdown reaches 0
 
         self.method = CowellPropagator(f=self.f)  # Numerical propagator
@@ -181,10 +196,9 @@ class OrbitPropagator:
         Args:
             position (np.ndarray): Position of the satellite.
         """
-        alt = (np.linalg.norm(position) - earth_R.value) * u.km
-        self.rho = atmosphere_model.density(alt).to_value(u.kg / u.km**3) * (
-            u.kg / u.km**3
-        )
+        self.rho = self.atmosphere_model.get_density(
+            iso_date_str=str(self.current_orbit.epoch), position=position
+        ).to_value(u.kg / u.km**3) * (u.kg / u.km**3)
 
     # Function used by f() to compute acceleration
     def a_d(self, t0, state, k, J2, R, C_D, A_over_m, rho):
