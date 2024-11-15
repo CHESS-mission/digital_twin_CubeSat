@@ -32,7 +32,7 @@
             "mean_solar_input": 0.207,
             "nb_cells": 28,
             "cell_surface": 0.0028355,
-            "efficiency": 0.30
+            "efficiency": 0.25
         }
     },
     "telecom": {
