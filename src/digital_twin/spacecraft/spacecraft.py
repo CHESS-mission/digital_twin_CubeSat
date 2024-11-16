@@ -10,7 +10,7 @@ import numpy as np
 
 from digital_twin.spacecraft.adcs import Adcs
 from digital_twin.spacecraft.eps import Eps
-from digital_twin.spacecraft.obc import Obc
+from digital_twin.spacecraft.obc import Obc, DataStorage
 from digital_twin.spacecraft.payload import Payload
 from digital_twin.spacecraft.telecom import Telecom
 
@@ -71,10 +71,27 @@ class Spacecraft:
         power_consumed = 0
         for subsystem in self.subsystems:
             power_consumed += subsystem.compute_power_consumed(new_mode)
-
         # Update EPS based on data gathered for all other subsystems
         self.eps_subsystem.update_batteries(
             power_consumed, delta_t, eclipse_status, new_mode
+        )
+
+        # Compute data change (generation or removal) at current timestep
+        data_update_TOF_GNSS = 0 * u.Mbit
+        data_update_HK = 0.0 * u.Mbit
+        TOF_GNSS_telecom, HK_telecom = self.telecom_subsystem.compute_data_update(
+            new_mode, delta_t
+        )
+        data_update_TOF_GNSS += TOF_GNSS_telecom
+        data_update_HK += HK_telecom
+
+        TOF_GNSS_payload, HK_payload = self.payload_subsystem.compute_data_update(
+            new_mode, delta_t
+        )
+        data_update_TOF_GNSS += TOF_GNSS_payload
+        data_update_HK += HK_payload
+        self.obc_subsystem.update_data_storage(
+            data_update_TOF_GNSS, data_update_HK, delta_t
         )
 
     def __str__(self):
@@ -115,3 +132,9 @@ class Spacecraft:
 
     def get_payload(self) -> Payload:
         return self.payload_subsystem
+
+    def get_obc(self) -> Obc:
+        return self.obc_subsystem
+
+    def get_data_storage(self) -> DataStorage:
+        return self.obc_subsystem.get_data_storage()

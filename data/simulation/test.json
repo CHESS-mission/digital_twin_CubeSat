@@ -1,8 +1,8 @@
 {
     "units_delta_t": "second",
-    "delta_t": 600,
+    "delta_t": 10,
     "units_duration_sim": "day",
-    "duration_sim": 3,
+    "duration_sim": 1,
     "init_operating_mode": 0,
     "report":{
         "folder": "../results/",
@@ -19,6 +19,6 @@
         "visibility_windows": "yes",
         "eclipse_windows": "yes",
         "save_np_arrays_telecom_data": "no",
-        "save_altitude_data": "yes"
+        "save_altitude_data": "no"
     }
 }

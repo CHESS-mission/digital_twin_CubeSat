@@ -1,1 +1,1 @@
-from digital_twin.spacecraft.obc.obc import Obc
+from digital_twin.spacecraft.obc.obc import Obc, DataStorage

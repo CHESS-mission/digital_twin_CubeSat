@@ -29,6 +29,8 @@ class Telecom(SubSystem):
         self.com_max_duration = (params["communication_max_duration"] * com_unit).to(
             u.s
         )
+        self.x_band_rate = float(params["x_band_rate"]) * (u.Mbit / u.s)
+        self.uhf_rate = float(params["uhf_rate"]) * (u.Mbit / u.s)
 
         # variables to track if communication is occuring and how much time (UHF_COM)
         self.com_duration = 0.0 * u.s
@@ -39,22 +41,13 @@ class Telecom(SubSystem):
     def handshake(self) -> bool:
         return True
 
-    def downlink_xband_complete(self, payload: Payload) -> bool:
-        # stop downlink when all data transferred
-        if payload.x_band_data_empty():
-            return True
-        return False
-
-    def data_to_downlink(self, payload: Payload) -> bool:
-        if payload.data_storage_empty(type="x_band"):
+    def can_downlink(self) -> bool:
+        if (
+            self.alternating
+        ):  # prevents from alternating between uhf-comm and x-band-comm endlessly during visibility window
             return False
         else:
-            if (
-                self.alternating
-            ):  # prevents from alternating between uhf-comm and x-band-comm endlessly during visibility window
-                return False
-            else:
-                return True
+            return True
 
     def com_finished(self) -> bool:
         if not self.is_communicating:
@@ -92,6 +85,14 @@ class Telecom(SubSystem):
 
     def compute_power_consumed(self, mode: int) -> Quantity:
         return self.consumption_mean_uhf[mode] + self.consumption_mean_x_band[mode]
+
+    def compute_data_update(self, new_mode: int, delta_t: TimeDelta) -> Quantity:
+        if new_mode == 4:  # X_BAND
+            return -1 * self.x_band_rate * delta_t, 0 * u.Mbit
+        elif new_mode == 3:  # UHF
+            return 0 * u.Mbit, -1 * self.uhf_rate * delta_t
+        else:
+            return 0.0 * u.Mbit, 0.0 * u.Mbit
 
     def __str__(self) -> str:
         return f"Telecom:"
