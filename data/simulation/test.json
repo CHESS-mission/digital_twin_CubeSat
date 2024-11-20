@@ -1,17 +1,18 @@
 {
     "units_delta_t": "second",
-    "delta_t": 10,
-    "units_duration_sim": "day",
-    "duration_sim": 1,
+    "delta_t": 60,
+    "units_duration_sim": "hour",
+    "duration_sim": 11,
     "init_operating_mode": 0,
     "report":{
         "folder": "../results/",
         "title_figures": "CHESS_1 test",
         "orbital_elem_evolution": "yes",
         "trajectory_2d": "no",
-        "trajectory_3d": "no",
+        "trajectory_3d": "yes",
         "groundtrack": "no",
         "modes": "yes",
+        "dashboard": "yes",
         "battery_energy": "yes",
         "power_consumption": "yes",
         "power_generation": "yes",
@@ -19,6 +20,7 @@
         "visibility_windows": "yes",
         "eclipse_windows": "yes",
         "save_np_arrays_telecom_data": "no",
-        "save_altitude_data": "no"
+        "save_altitude_data": "yes",
+        "save_eclipse_data": "yes"
     }
 }

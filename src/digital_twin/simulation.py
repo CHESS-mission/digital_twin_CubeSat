@@ -25,6 +25,7 @@ from digital_twin.plotting import (
     plot_operating_modes,
     find_x_scale,
     plot_boolean_bars,
+    plot_dashboard,
 )
 from digital_twin.spacecraft import Spacecraft
 from digital_twin.utils import (
@@ -291,6 +292,19 @@ class Simulation:
                 show=False,
             )
 
+        if self.report_params["dashboard"] == "yes":
+            save_filename = self.report_params["folder"] + "dashboard.pdf"
+            plot_dashboard(
+                data["modes"],
+                data["eclipse"],
+                data["vis"],
+                data["tofs"].to_value("second"),
+                self.duration_sim,
+                title="Operating Modes Over Time",
+                save_filename=save_filename,
+                show=False,
+            )
+
         x_label, x_label_f = find_x_scale(self.duration_sim)
         step = int(len(data["tofs"]) / 100)
 
@@ -432,6 +446,13 @@ class Simulation:
                 np.save(f, data["tofs"].to_value("second"))
             with open(folder + "altitude.npy", "wb") as f:
                 np.save(f, data["altitudes"])
+
+        if self.report_params["save_eclipse_data"] == "yes":
+            folder = self.report_params["folder"]
+            with open(folder + "times.npy", "wb") as f:
+                np.save(f, data["tofs"].to_value("second"))
+            with open(folder + "eclipse.npy", "wb") as f:
+                np.save(f, data["eclipse"])
 
     def print_parameters(self) -> None:
         """Print a summary of the the simulation objects."""

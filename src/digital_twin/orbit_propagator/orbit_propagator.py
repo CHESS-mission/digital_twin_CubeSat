@@ -1,6 +1,9 @@
 """Wrapper around poliastro orbit propagator.
 """
 
+from poliastro.earth.util import raan_from_ltan
+import astropy
+
 from typing import Dict
 import copy
 
@@ -128,6 +131,7 @@ class OrbitPropagator:
         self.drag_params["A_over_m"] = A_over_m
 
         new_orbit = self.current_orbit.propagate(delta_t, method=self.method)
+
         self.current_orbit = new_orbit
         rv = np.zeros(6)
         rv[:3] = self.current_orbit.r
@@ -183,12 +187,13 @@ class OrbitPropagator:
             r_sec,
             sun_R.value,
             earth_R.value,
-            umbra=False,
+            umbra=True,
         )
 
         return (
             eclipse <= 0.0
         )  # If <= 0, the satellite is in eclipse and doesn't get sunlight
+        # TODO: check that
 
     def update_rho(self, position: np.ndarray) -> None:
         """Update air density depending on satellite altitude.

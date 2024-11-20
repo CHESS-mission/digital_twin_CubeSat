@@ -3,11 +3,11 @@
         "SMA": 6878,
         "INC": 97.59254364,
         "ECC": 0.0001,
-        "RAAN": 110.0,
+        "RAAN":110,
         "AOP": 0.0,
         "TA": 0.0
     },
     "epoch": "2028-05-01 09:00:00",
-    "atmosphere_model" : "basic"
+    "atmosphere_model" : "nrlmsise00"
 }
 
