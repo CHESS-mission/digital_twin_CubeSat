@@ -94,6 +94,15 @@ class Spacecraft:
             data_update_TOF_GNSS, data_update_HK, delta_t
         )
 
+        # check if any safe flag is raised by subsystem and update OBC
+        safe_flag_raised = False
+        safe_flag_subsystem = None
+        for subsystem in self.subsystems:
+            if subsystem.raise_safe_flag():
+                safe_flag_raised = True
+                safe_flag_subsystem = subsystem.get_name()
+        self.obc_subsystem.update_safe_flag(safe_flag_raised, safe_flag_subsystem)
+
     def __str__(self):
         string1 = "\n".join(
             [

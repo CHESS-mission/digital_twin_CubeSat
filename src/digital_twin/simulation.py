@@ -150,16 +150,13 @@ class Simulation:
             eclipse_status = self.propagator.calculate_eclipse_status()
 
             # 3. Calculate user-scheduled params
-            measurement_session = (
-                True  # Assumption for now, later will depend on user-defined scheduler
-            )
             measurement_session = self.spacecraft.get_payload().can_start_measuring(
                 self.tofs[t + 1].to("second")
             )
             com_window = visibility  # Assumption for now, later might depend on user-defined scheduler
 
             # 3. Check for potential flags raised by OBS
-            safe_flag = False
+            safe_flag = self.spacecraft.get_obc().raise_spacecraft_safe_flag()
 
             # 4. Switch mode based on location, Eps and Telecom states
             old_mode = self.switch_algo.operating_mode

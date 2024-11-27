@@ -16,6 +16,7 @@ from digital_twin.utils import get_astropy_unit_time
 class Telecom(SubSystem):
     def __init__(self, params: Dict, init_operating_mode: int) -> None:
         print("Initializing Telecom subsystem... ")
+        self.name = "Telecom"
 
         super(Telecom, self).__init__()
 
@@ -32,11 +33,21 @@ class Telecom(SubSystem):
         self.x_band_rate = float(params["x_band_rate"]) * (u.Mbit / u.s)
         self.uhf_rate = float(params["uhf_rate"]) * (u.Mbit / u.s)
 
+        t_com_unit = get_astropy_unit_time(
+            params["max_time_without_communication_unit"]
+        )
+        self.t_max_no_com = (params["max_time_without_communication"] * t_com_unit).to(
+            u.s
+        )  # maximum time allowed without communicating to ground station
+        self.t_no_com = 0.0 * u.s
+
         # variables to track if communication is occuring and how much time (UHF_COM)
         self.com_duration = 0.0 * u.s
         self.is_communicating = False
 
         self.alternating = False  # bool which prevents from alternating between x-band-comm and uhf-comm mode during visibility window
+
+        self.safe_flag = False
 
     def handshake(self) -> bool:
         return True
@@ -76,12 +87,29 @@ class Telecom(SubSystem):
             self.is_communicating = True
             if old_mode != new_mode:  # just switched to communication mode
                 self.com_duration = 0.0 * u.s
+                self.t_no_com = 0.0 * u.s
             self.com_duration += delta_t  # increase communication time
 
         else:
             self.is_communicating = False
+            if new_mode != 4:
+                self.t_no_com += (
+                    delta_t  # X_BAND mode (4) is considered as communication
+                )
             self.com_duration = 0.0 * u.s
             self.alternating = False  # set back because we re not alternating between uhf-comm and x-band-comm anymore
+
+        # SAFE FLAG HANDLING
+        # check safe flag triggers (cannot generate a safe flag if already in safe mode)
+        if new_mode != 1 and self.safe_flag == False:
+            # there might be other safe flag triggers later
+            if self.t_no_com > self.t_max_no_com:
+                self.safe_flag = True
+
+        # check safe flag resolution
+        if self.safe_flag == True:
+            if com_window:
+                self.safe_flag = False
 
     def compute_power_consumed(self, mode: int) -> Quantity:
         return self.consumption_mean_uhf[mode] + self.consumption_mean_x_band[mode]
@@ -96,3 +124,9 @@ class Telecom(SubSystem):
 
     def __str__(self) -> str:
         return f"Telecom:"
+
+    def raise_safe_flag(self) -> bool:
+        return self.safe_flag
+
+    def get_name(self) -> str:
+        return self.name

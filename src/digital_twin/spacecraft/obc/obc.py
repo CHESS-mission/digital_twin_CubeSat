@@ -99,7 +99,8 @@ class DataStorage:
 
 class Obc(SubSystem):
     def __init__(self, params: Dict, init_operating_mode: int) -> None:
-        print("Initializing Obc subsystem... ")
+        print("Initializing OBC subsystem... ")
+        self.name = "OBC"
 
         super(Obc, self).__init__()
 
@@ -111,6 +112,16 @@ class Obc(SubSystem):
         self.HK_rate = float(params["housekeeping_data_rate"]) * (u.Mbit / u.s)
 
         self.data_storage = DataStorage(params["data_storage"])
+
+        # safe flag handling
+        self.safe_flag_spacecraft_raised = (
+            False  # if a safe flag was raised by ANY subsystem
+        )
+        self.safe_flag_spacecraft_subsystem = (
+            None  # which subsystem raised the same flag
+        )
+
+        self.safe_flag = False  # safe flag regarding own subsystem
 
     def update(
         self,
@@ -124,6 +135,14 @@ class Obc(SubSystem):
         self.data_storage.update(
             old_mode, new_mode, rv, com_window, eclipse_status, delta_t
         )
+
+        # SAFE FLAG HANDLING
+        # check safe flag triggers (cannot generate a safe flag if already in safe mode)
+        if new_mode != 1 and self.safe_flag == False:
+            pass  # not implemented yet for this subsystem
+        # check safe flag resolution
+        if self.safe_flag == True:
+            pass  # not implemented yet for this subsystem
 
     def compute_power_consumed(self, mode: int) -> Quantity:
         return self.consumption_mean[mode]
@@ -146,3 +165,23 @@ class Obc(SubSystem):
 
     def __str__(self) -> str:
         return f"Obc:"
+
+    # this is the method for OBC subsystem: was there an issue in the OBC subsystem itself
+    def raise_safe_flag(self) -> bool:
+        return self.safe_flag
+
+    def get_name(self) -> str:
+        return self.name
+
+    def update_safe_flag(
+        self, safe_flag_raised: bool, safe_flag_subsystem: str
+    ) -> None:
+        if safe_flag_raised:
+            self.safe_flag_spacecraft_raised = True
+            self.safe_flag_spacecraft_subsystem = safe_flag_subsystem
+        else:
+            self.safe_flag_spacecraft_raised = False
+            self.safe_flag_spacecraft_subsystem = None
+
+    def raise_spacecraft_safe_flag(self) -> bool:
+        return self.safe_flag_spacecraft_raised

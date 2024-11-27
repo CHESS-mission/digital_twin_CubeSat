@@ -14,12 +14,15 @@ from digital_twin.spacecraft import SubSystem
 class Adcs(SubSystem):
     def __init__(self, params: Dict, init_operating_mode: int) -> None:
         print("Initializing ADCS subsystem... ")
+        self.name = "ADCS"
 
         super(Adcs, self).__init__()
 
         self.consumption_mean = {
             int(k): v * u.W for k, v in params["consumption"].items()
         }
+
+        self.safe_flag = False
 
     def update(
         self,
@@ -30,7 +33,13 @@ class Adcs(SubSystem):
         eclipse_status: bool,
         delta_t: TimeDelta,
     ) -> None:
-        pass
+        # SAFE FLAG HANDLING
+        # check safe flag triggers (cannot generate a safe flag if already in safe mode)
+        if new_mode != 1 and self.safe_flag == False:
+            pass  # not implemented yet for this subsystem
+        # check safe flag resolution
+        if self.safe_flag == True:
+            pass  # not implemented yet for this subsystem
 
     def get_cross_section(self, old_cross_section: Quantity) -> Quantity:
         return old_cross_section  # TODO: update when dynamic cross section feature is implemented
@@ -40,3 +49,9 @@ class Adcs(SubSystem):
 
     def __str__(self) -> str:
         return f"ADCS:"
+
+    def raise_safe_flag(self) -> bool:
+        return self.safe_flag
+
+    def get_name(self) -> str:
+        return self.name

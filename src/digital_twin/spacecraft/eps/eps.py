@@ -19,6 +19,7 @@ from digital_twin.spacecraft.telecom import Telecom
 class SolarPanel:
     def __init__(self, params: Dict, init_operating_mode: int) -> None:
         print("Initializing the solar panels...")
+        self.name = "Solar Panel"
         self.consumption_mean = {
             int(k): v * u.W for k, v in params["consumption"].items()
         }
@@ -46,7 +47,7 @@ class SolarPanel:
         return self.consumption_mean[mode]
 
     def get_effective_surface(self, mode: int) -> Quantity:
-        if mode == 0 or mode == 2:
+        if mode == 0 or mode == 2 or mode == 1:
             return (
                 self.cell_surface
                 * self.nb_cells
@@ -62,6 +63,7 @@ class SolarPanel:
 class Eps(SubSystem):
     def __init__(self, params: Dict, init_operating_mode: int) -> None:
         print("Initializing EPS subsystem... ")
+        self.name = "EPS"
 
         super(Eps, self).__init__()
 
@@ -94,6 +96,8 @@ class Eps(SubSystem):
         self.power_consumption_last_step = 0.0 * (u.W * u.s)
         self.power_generation_last_step = 0.0 * (u.W * u.s)
 
+        self.safe_flag = False
+
     def update(
         self,
         old_mode: str,
@@ -104,7 +108,15 @@ class Eps(SubSystem):
         delta_t: TimeDelta,
     ) -> None:
         # TODO: battery thresholds for different modes are dynamic! They are updated at every timestep
-        pass
+        # SAFE FLAG HANDLING
+        # check safe flag triggers (cannot generate a safe flag if already in safe mode)
+        if new_mode != 1 and self.safe_flag == False:
+            if self.battery_level < self.min_battery:
+                self.safe_flag = True  # battery_level < battery_min?
+        # check safe flag resolution
+        if self.safe_flag == True:
+            if self.battery_level >= self.min_battery:
+                self.safe_flag = False
 
     def update_thresholds(self, telecom: Telecom, payload: Payload) -> None:
         self.update_measure_threshold(telecom, payload)
@@ -144,9 +156,6 @@ class Eps(SubSystem):
         else:
             self.power_generation_last_step = 0.0 * (u.W * u.s)
 
-        # self.battery_level += power_generated * delta_t
-        # self.power_generation_last_step = power_generated * delta_t
-
         # check physical limits
         if self.battery_level > self.energy:  # make sure it doesn't go above
             self.battery_level = copy.deepcopy(
@@ -175,3 +184,9 @@ class Eps(SubSystem):
 
     def get_power_generation(self) -> Quantity:
         return self.power_generation_last_step
+
+    def raise_safe_flag(self) -> bool:
+        return self.safe_flag
+
+    def get_name(self) -> str:
+        return self.name

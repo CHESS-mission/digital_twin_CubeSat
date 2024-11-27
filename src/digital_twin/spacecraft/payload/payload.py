@@ -16,6 +16,7 @@ from digital_twin.utils import get_astropy_unit_time
 class Payload(SubSystem):
     def __init__(self, params: Dict, init_operating_mode: int) -> None:
         print("Initializing Payload subsystem... ")
+        self.name = "Payload"
 
         super(Payload, self).__init__()
 
@@ -50,6 +51,8 @@ class Payload(SubSystem):
 
         self.is_measuring = False
         self.nb_measurement_windows = 0
+
+        self.safe_flag = False
 
     def can_start_measuring(self, time_elapsed: Quantity) -> bool:
         one_day = 86400 * u.s
@@ -89,6 +92,14 @@ class Payload(SubSystem):
             self.measurement_duration = 0.0 * u.s
             self.is_measuring = False
 
+        # SAFE FLAG HANDLING
+        # check safe flag triggers (cannot generate a safe flag if already in safe mode)
+        if new_mode != 1 and self.safe_flag == False:
+            pass  # not implemented yet for this subsystem
+        # check safe flag resolution
+        if self.safe_flag == True:
+            pass  # not implemented yet for this subsystem
+
     def compute_power_consumed(self, mode: int) -> Quantity:
         return self.consumption_mean_gnss[mode] + self.consumption_mean_tof[mode]
 
@@ -109,3 +120,9 @@ class Payload(SubSystem):
             data += self.measurement_GNSS_rate * delta_t
 
         return data, 0.0 * u.Mbit  # second term for HK data which is 0 in this case
+
+    def raise_safe_flag(self) -> bool:
+        return self.safe_flag
+
+    def get_name(self) -> str:
+        return self.name

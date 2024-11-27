@@ -27,5 +27,11 @@ class SubSystem:
     def compute_power_consumed(self, mode: int) -> Quantity:
         raise (NotImplementedError)
 
+    def raise_safe_flag(self) -> bool:
+        raise (NotImplementedError)
+
+    def get_name(self) -> str:
+        raise (NotImplementedError)
+
     def __str__(self) -> str:
         raise (NotImplementedError)

@@ -55,7 +55,9 @@
         "communication_max_duration": 500,
         "communication_max_duration_unit": "second",
         "x_band_rate": 10,
-        "uhf_rate": 0.0192
+        "uhf_rate": 0.0192,
+        "max_time_without_communication": 24,
+        "max_time_without_communication_unit": "hour"
     },
     "adcs": {
         "consumption": {
