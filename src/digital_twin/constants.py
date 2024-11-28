@@ -23,3 +23,21 @@ mode_dict = {
     4: "X_BAND_COM",
     5: "MEASUREMENT",
 }
+
+# SPACECRAFT ATTITUDES
+attitude_dict = {
+    0: "thomson spin",
+    1: "sun spin",
+    2: "nadir spin",
+    3: "ground tracking",
+    4: "nadir pointing",
+}
+
+attitude_mode_dict = {
+    0: 0,
+    1: 1,
+    2: 1,
+    3: 2,
+    4: 3,
+    5: 4,
+}  # key is mode, value is corresponding attitude

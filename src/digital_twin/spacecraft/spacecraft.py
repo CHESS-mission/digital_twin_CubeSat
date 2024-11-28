@@ -47,10 +47,12 @@ class Spacecraft:
         self,
         old_mode: str,
         new_mode: str,
-        rv: np.ndarray,
+        rv: np.ndarray[Quantity],
         com_window: bool,
         eclipse_status: bool,
         delta_t: TimeDelta,
+        r_earth_sun: Quantity,
+        gs_coords: Quantity,
     ) -> None:
         # Update each subsystem based on old mode, new mode, location, communication_window and eclispe_status boolean
         for subsystem in self.subsystems:
@@ -72,8 +74,15 @@ class Spacecraft:
         for subsystem in self.subsystems:
             power_consumed += subsystem.compute_power_consumed(new_mode)
         # Update EPS based on data gathered for all other subsystems
+        attitude = self.adcs_subsystem.get_attitude()
         self.eps_subsystem.update_batteries(
-            power_consumed, delta_t, eclipse_status, new_mode
+            power_consumed,
+            delta_t,
+            eclipse_status,
+            attitude,
+            r_earth_sun,
+            rv[:3] * u.km,
+            gs_coords,
         )
 
         # Compute data change (generation or removal) at current timestep

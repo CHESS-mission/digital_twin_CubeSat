@@ -9,6 +9,7 @@ from astropy.units import Quantity
 import numpy as np
 
 from digital_twin.spacecraft import SubSystem
+from digital_twin.constants import attitude_mode_dict, attitude_dict
 
 
 class Adcs(SubSystem):
@@ -24,6 +25,9 @@ class Adcs(SubSystem):
 
         self.safe_flag = False
 
+        self.attitude = attitude_mode_dict[init_operating_mode]
+        print("Initial attitude: ", attitude_dict[self.attitude])
+
     def update(
         self,
         old_mode: str,
@@ -33,11 +37,14 @@ class Adcs(SubSystem):
         eclipse_status: bool,
         delta_t: TimeDelta,
     ) -> None:
+        # Update the attitude
+        self.attitude = attitude_mode_dict[new_mode]
+
         # SAFE FLAG HANDLING
-        # check safe flag triggers (cannot generate a safe flag if already in safe mode)
+        # Check safe flag triggers (cannot generate a safe flag if already in safe mode)
         if new_mode != 1 and self.safe_flag == False:
             pass  # not implemented yet for this subsystem
-        # check safe flag resolution
+        # Check safe flag resolution
         if self.safe_flag == True:
             pass  # not implemented yet for this subsystem
 
@@ -55,3 +62,6 @@ class Adcs(SubSystem):
 
     def get_name(self) -> str:
         return self.name
+
+    def get_attitude(self) -> int:
+        return self.attitude

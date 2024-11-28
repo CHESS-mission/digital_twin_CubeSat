@@ -4,7 +4,7 @@
 from poliastro.earth.util import raan_from_ltan
 import astropy
 
-from typing import Dict
+from typing import Dict, Tuple
 import copy
 
 from astropy import units as u
@@ -138,7 +138,9 @@ class OrbitPropagator:
         rv[3:] = self.current_orbit.v
         return rv
 
-    def calculate_vis_window(self, ground_stations: np.ndarray) -> np.ndarray:
+    def calculate_vis_window(
+        self, ground_stations: np.ndarray
+    ) -> Tuple[np.ndarray, np.ndarray]:
         """For each ground station, check if the satellite is visible.
 
         Args:
@@ -148,6 +150,7 @@ class OrbitPropagator:
             np.ndarray: array of Boolean values for each ground station (visible: True).
         """
         visibility = []
+        gs_coords_array = []
         satellite_coords = np.reshape(np.array(self.current_orbit.r), (1, 3))
         obstime = self.current_orbit.epoch
 
@@ -156,6 +159,7 @@ class OrbitPropagator:
             itrs_object = ITRS(cartesian_coords, obstime=obstime)
             gcrs_object = itrs_object.transform_to(GCRS(obstime=obstime))
             gs_coords = np.reshape(np.array(gcrs_object.data.xyz.value), (1, 3))
+            gs_coords_array.append(gs_coords)
             distance_vec = satellite_coords - gs_coords
             angle = angle_between_vectors(distance_vec, gs_coords)
             if (
@@ -165,9 +169,9 @@ class OrbitPropagator:
             else:
                 visibility.append(True)
 
-        return np.array(visibility)
+        return np.array(visibility), np.array(gs_coords_array)
 
-    def calculate_eclipse_status(self) -> bool:
+    def calculate_eclipse_status(self) -> Tuple[bool, float]:
         """Calculates if the satellite receives light from the sun.
         If the return value is negative, the satellite is in eclipse and does not receive sunlight.
         """
@@ -179,7 +183,7 @@ class OrbitPropagator:
         # Position vector of Sun wrt Solar System Barycenter
         r_sec_ssb = get_body_barycentric_posvel("Sun", epoch)[0]
         r_pri_ssb = get_body_barycentric_posvel("Earth", epoch)[0]
-        r_sec = ((r_sec_ssb - r_pri_ssb).xyz << u.km).value
+        r_sec = ((r_sec_ssb - r_pri_ssb).xyz << u.km).value  # vector from earth to sun
 
         eclipse = eclipse_function(
             earth_k.value,
@@ -190,9 +194,11 @@ class OrbitPropagator:
             umbra=True,
         )
 
-        return (
-            eclipse <= 0.0
-        )  # If <= 0, the satellite is in eclipse and doesn't get sunlight
+        if eclipse <= 0:
+            return True, r_sec
+        else:
+            return False, r_sec
+        # If <= 0, the satellite is in eclipse and doesn't get sunlight
         # TODO: check that
 
     def update_rho(self, position: np.ndarray) -> None:

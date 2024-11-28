@@ -126,10 +126,12 @@ class Simulation:
         vis_windows = np.zeros(
             (self.n_timesteps + 1, len(self.ground_stations))
         )  # for each ground station
-        vis_windows[0] = self.propagator.calculate_vis_window(self.ground_stations)
+        vis, _ = self.propagator.calculate_vis_window(self.ground_stations)
+        vis_windows[0] = vis
 
         eclipse_windows = np.zeros(self.n_timesteps + 1)
-        eclipse_windows[0] = self.propagator.calculate_eclipse_status()
+        eclipse, _ = self.propagator.calculate_eclipse_status()
+        eclipse_windows[0] = eclipse
 
         print("Number of timesteps:", self.n_timesteps)
         start_for_loop = time.time()
@@ -150,14 +152,23 @@ class Simulation:
                     break
 
             # 2. Calculate position based params: communication window, eclipse
-            visibility = self.propagator.calculate_vis_window(self.ground_stations)
-            eclipse_status = self.propagator.calculate_eclipse_status()
+            visibility, gs_coords_array = self.propagator.calculate_vis_window(
+                self.ground_stations
+            )
+            eclipse_status, r_earth_sun = self.propagator.calculate_eclipse_status()
+            r_earth_sun = r_earth_sun * u.km
 
             # 3. Calculate user-scheduled params
             measurement_session = self.spacecraft.get_payload().can_start_measuring(
                 self.tofs[t + 1].to("second")
             )
-            com_window = visibility  # Assumption for now, later might depend on user-defined scheduler
+            com_window = False
+            gs_coords = None
+            for i, vis in enumerate(visibility):
+                if vis:
+                    com_window = True
+                    gs_coords = (gs_coords_array[i] * u.km).flatten()
+                    break  # right now, only consider the first ground station which is visible from satellite
 
             # 3. Check for potential flags raised by OBS
             safe_flag = self.spacecraft.get_obc().raise_spacecraft_safe_flag()
@@ -177,9 +188,16 @@ class Simulation:
             new_mode = self.switch_algo.operating_mode
             modes[t + 1] = new_mode
 
-            # # 5. Ask spacecraft to update all subsystems
+            # 5. Ask spacecraft to update all subsystems
             self.spacecraft.update_subsystems(
-                old_mode, new_mode, rv, com_window, eclipse_status, self.delta_t
+                old_mode,
+                new_mode,
+                rv,
+                com_window,
+                eclipse_status,
+                self.delta_t,
+                r_earth_sun,
+                gs_coords,
             )
 
             # 6. Save data
