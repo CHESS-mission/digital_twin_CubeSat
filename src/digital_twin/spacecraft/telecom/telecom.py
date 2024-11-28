@@ -48,6 +48,13 @@ class Telecom(SubSystem):
         self.alternating = False  # bool which prevents from alternating between x-band-comm and uhf-comm mode during visibility window
 
         self.safe_flag = False
+        self.safe_flag_reason = -1
+
+        # Is used to store uplink commands from GS to trigger/resolve safe mode
+        self.uplink_safe_mode = {}
+        self.is_visible = False  # Variable to track visibility windows
+        self.vis_window_count = 0
+        self.vis_window_triggered = -1
 
     def handshake(self) -> bool:
         return True
@@ -78,6 +85,7 @@ class Telecom(SubSystem):
         eclipse_status: bool,
         delta_t: TimeDelta,
     ) -> None:
+
         if new_mode == 3:  # UHF_COM
 
             if old_mode == 4:  # Just passed from x band to uhf
@@ -99,17 +107,49 @@ class Telecom(SubSystem):
             self.com_duration = 0.0 * u.s
             self.alternating = False  # set back because we re not alternating between uhf-comm and x-band-comm anymore
 
+        # track vis windows
+        if com_window and not self.is_visible:
+            self.vis_window_count += 1
+            self.is_visible = True
+        if not com_window:
+            self.is_visible = False
+
         # SAFE FLAG HANDLING
         # check safe flag triggers (cannot generate a safe flag if already in safe mode)
         if new_mode != 1 and self.safe_flag == False:
             # there might be other safe flag triggers later
             if self.t_no_com > self.t_max_no_com:
                 self.safe_flag = True
+                self.safe_flag_reason = 1
+            if (  # check if in UHF-COM mode + if a safe flag was asked to be triggered by GS
+                new_mode == 3
+                and old_mode != new_mode
+                and not self.alternating
+                and (self.vis_window_count in self.uplink_safe_mode.keys())
+                and (self.uplink_safe_mode[self.vis_window_count] == True)
+            ):
+                self.safe_flag = True
+                self.safe_flag_reason = 2
+                self.vis_window_triggered = self.vis_window_count
 
         # check safe flag resolution
         if self.safe_flag == True:
-            if com_window:
-                self.safe_flag = False
+            if self.safe_flag_reason == 1:
+                if com_window:
+                    self.safe_flag = False
+                    self.safe_flag_reason = -1
+            if self.safe_flag_reason == 2:
+                if (
+                    self.is_visible
+                    and new_mode == 1  # SAFE mode
+                    and self.vis_window_count
+                    != self.vis_window_triggered  # different vis window
+                    and (self.vis_window_count in self.uplink_safe_mode.keys())
+                    and (self.uplink_safe_mode[self.vis_window_count] == False)
+                ):
+                    self.safe_flag = False
+                    self.safe_flag_reason = -1
+                    self.vis_window_triggered = -1
 
     def compute_power_consumed(self, mode: int) -> Quantity:
         return self.consumption_mean_uhf[mode] + self.consumption_mean_x_band[mode]
@@ -130,3 +170,11 @@ class Telecom(SubSystem):
 
     def get_name(self) -> str:
         return self.name
+
+    def add_uplink_safe_mode(self, user_input: dict) -> None:
+        for visibility_window, action in user_input.items():
+            if action == "trigger":
+                self.uplink_safe_mode[int(visibility_window)] = True
+            else:  # action == "resolve"
+                self.uplink_safe_mode[int(visibility_window)] = False
+        print(self.uplink_safe_mode)

@@ -89,6 +89,10 @@ class Simulation:
         # PROPAGATOR INITIALIZATION
         self.propagator = OrbitPropagator(orbit_params, epoch)
 
+        # additional user input
+        user_input = simulation_params["user_input"]
+        self.handle_user_input(user_input)
+
         # data
         self.report_params = simulation_params["report"]
         self.print_parameters()
@@ -469,6 +473,14 @@ class Simulation:
         print(str(self.propagator))
         print("*******************")
         print("")
+
+    # this function is to handle additional user input
+    # handles each input differently for initialization
+    def handle_user_input(self, user_input) -> None:
+        if user_input["uplink_safe_mode"]:  # if dic is not empty
+            self.spacecraft.get_telecom().add_uplink_safe_mode(
+                user_input["uplink_safe_mode"]
+            )
 
 
 # Method not part of the class but not general enough to be in utils file

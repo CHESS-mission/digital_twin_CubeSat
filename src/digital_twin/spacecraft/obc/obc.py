@@ -113,7 +113,7 @@ class Obc(SubSystem):
 
         self.data_storage = DataStorage(params["data_storage"])
 
-        # safe flag handling
+        # Safe flag handling
         self.safe_flag_spacecraft_raised = (
             False  # if a safe flag was raised by ANY subsystem
         )
@@ -121,7 +121,8 @@ class Obc(SubSystem):
             None  # which subsystem raised the same flag
         )
 
-        self.safe_flag = False  # safe flag regarding own subsystem
+        # Safe flag regarding own subsystem
+        self.safe_flag = False
 
     def update(
         self,

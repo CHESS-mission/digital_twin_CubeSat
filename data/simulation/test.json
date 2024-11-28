@@ -1,8 +1,8 @@
 {
     "units_delta_t": "second",
-    "delta_t": 30,
+    "delta_t": 60,
     "units_duration_sim": "hour",
-    "duration_sim": 11,
+    "duration_sim": 24,
     "init_operating_mode": 0,
     "report":{
         "folder": "../results/",
@@ -22,5 +22,12 @@
         "save_np_arrays_telecom_data": "no",
         "save_altitude_data": "yes",
         "save_eclipse_data": "yes"
+    },
+    "user_input": {
+        "uplink_safe_mode": {
+            "1": "trigger",
+            "2": "resolve"
+        }
     }
+    
 }
