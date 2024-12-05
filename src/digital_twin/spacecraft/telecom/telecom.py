@@ -49,6 +49,8 @@ class Telecom(SubSystem):
 
         self.safe_flag = False
         self.safe_flag_reason = -1
+        self.safe_flag_duration_left_dict = {}
+        self.safe_flag_duration_left = None
 
         # Is used to store uplink commands from GS to trigger/resolve safe mode
         self.uplink_safe_mode = {}
@@ -131,9 +133,16 @@ class Telecom(SubSystem):
                 self.safe_flag = True
                 self.safe_flag_reason = 2
                 self.vis_window_triggered = self.vis_window_count
+                # now, check which kind of resolution is asked
+                if self.vis_window_count in self.safe_flag_duration_left_dict.keys():
+                    self.safe_flag_duration_left = self.safe_flag_duration_left_dict[
+                        self.vis_window_count
+                    ]
 
         # check safe flag resolution
         if self.safe_flag == True:
+            if self.safe_flag_duration_left is not None:
+                self.safe_flag_duration_left -= delta_t
             if self.safe_flag_reason == 1:
                 if com_window:
                     self.safe_flag = False
@@ -150,6 +159,14 @@ class Telecom(SubSystem):
                     self.safe_flag = False
                     self.safe_flag_reason = -1
                     self.vis_window_triggered = -1
+                elif (
+                    self.safe_flag_duration_left is not None
+                    and self.safe_flag_duration_left <= 0.0 * u.s
+                ):
+                    self.safe_flag = False
+                    self.safe_flag_reason = -1
+                    self.vis_window_triggered = -1
+                    self.safe_flag_duration_left = None
 
     def compute_power_consumed(self, mode: int) -> Quantity:
         return self.consumption_mean_uhf[mode] + self.consumption_mean_x_band[mode]
@@ -172,9 +189,11 @@ class Telecom(SubSystem):
         return self.name
 
     def add_uplink_safe_mode(self, user_input: dict) -> None:
-        for visibility_window, action in user_input.items():
-            if action == "trigger":
-                self.uplink_safe_mode[int(visibility_window)] = True
-            else:  # action == "resolve"
-                self.uplink_safe_mode[int(visibility_window)] = False
-        print(self.uplink_safe_mode)
+        for visibility_window, resolve in user_input.items():
+            self.uplink_safe_mode[int(visibility_window)] = True
+            if resolve["resolve_type"] == "com_window":
+                self.uplink_safe_mode[int(resolve["resolve_value"])] = False
+            if resolve["resolve_type"] == "duration":
+                self.safe_flag_duration_left_dict[int(visibility_window)] = float(
+                    resolve["resolve_value"]
+                ) * get_astropy_unit_time(resolve["unit"])

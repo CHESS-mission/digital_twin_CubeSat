@@ -1,8 +1,8 @@
 {
     "units_delta_t": "second",
-    "delta_t": 120,
+    "delta_t": 60,
     "units_duration_sim": "day",
-    "duration_sim": 1,
+    "duration_sim": 2,
     "init_operating_mode": 0,
     "report":{
         "folder": "../results/",
@@ -25,7 +25,17 @@
         "save_eclipse_data": "no"
     },
     "user_input": {
-        "uplink_safe_mode": {}
+        "uplink_safe_mode": {
+            "2": {
+                "resolve_type": "com_window",
+                "resolve_value": "3"
+            },
+            "5": {
+                "resolve_type": "duration",
+                "resolve_value": "4",
+                "unit": "hour"
+            }
+        }
     }
     
 }
