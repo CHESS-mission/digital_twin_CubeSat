@@ -14,8 +14,13 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import numpy as np
 from poliastro.earth.atmosphere import COESA76
-from pyatmos import download_sw_nrlmsise00, read_sw_nrlmsise00
-from pyatmos import nrlmsise00
+from pyatmos import (
+    download_sw_nrlmsise00,
+    read_sw_nrlmsise00,
+    download_sw_jb2008,
+    read_sw_jb2008,
+)
+from pyatmos import nrlmsise00, jb2008
 
 from digital_twin.constants import earth_R
 
@@ -117,3 +122,38 @@ class AtmosphereModelNRLMSISE00(AtmosphereModel):
 
         nrl00 = nrlmsise00(t, (lat, lon, alt), self.swdata)
         return nrl00.rho * (u.kg / u.m**3)
+
+
+class AtmosphereModelJB2008(AtmosphereModel):
+    def __init__(self):
+        super(AtmosphereModelJB2008, self).__init__()
+        swfile = download_sw_jb2008("../data/atmosphere_data/JB2008/")
+        # Read the space weather data
+        self.swdata = read_sw_jb2008(swfile)
+        self.t_max = datetime.strptime(
+            "2024-12-01 00:00:00.000", "%Y-%m-%d %H:%M:%S.%f"
+        )  # Maximum time for space weather data
+        self.cycle = relativedelta(years=11)  # solar activity cycle duration
+
+    def get_density(self, iso_date_str: str, position: np.ndarray) -> Quantity:
+        t_wanted = datetime.strptime(iso_date_str, "%Y-%m-%d %H:%M:%S.%f")
+
+        # go back in time with solar cycles
+        t = t_wanted
+        while t > self.t_max:
+            t = t - self.cycle
+        epoch = t.strftime("%Y-%m-%d %H:%M:%S.%f")
+
+        raw_xyz = CartesianRepresentation(position)
+        raw_obstime = epoch
+        gcrs_xyz = GCRS(
+            raw_xyz, obstime=raw_obstime, representation_type=CartesianRepresentation
+        )
+        itrs_xyz = gcrs_xyz.transform_to(ITRS(obstime=raw_obstime))
+        itrs_latlon = itrs_xyz.represent_as(SphericalRepresentation)
+        lat = itrs_latlon.lat.to_value(u.deg)
+        lon = itrs_latlon.lon.to_value(u.deg)
+        alt = np.linalg.norm(position) - earth_R.value
+
+        jc08 = jb2008(t, (lat, lon, alt), self.swdata)
+        return jc08.rho * (u.kg / u.m**3)

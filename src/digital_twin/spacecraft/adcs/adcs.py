@@ -26,7 +26,7 @@ class Adcs(SubSystem):
         self.safe_flag = False
 
         self.attitude = attitude_mode_dict[init_operating_mode]
-        print("Initial attitude: ", attitude_dict[self.attitude])
+        # print("Initial attitude: ", attitude_dict[self.attitude])
 
     def update(
         self,

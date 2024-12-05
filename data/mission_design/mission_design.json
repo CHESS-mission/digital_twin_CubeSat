@@ -1,0 +1,29 @@
+{
+    "report":{
+        "folder": "../results/",
+        "figures" : {
+            "title_figures": "CHESS_1 test",
+            "orbital_elem_evolution": "yes",
+            "trajectory_2d": "no",
+            "trajectory_3d": "no",
+            "groundtrack": "no",
+            "modes": "no",
+            "dashboard": "yes",
+            "battery_energy": "no",
+            "power_consumption": "no",
+            "power_generation": "no",
+            "data_storage": "no",
+            "visibility_windows": "no",
+            "eclipse_windows": "no"
+        },
+        "data" : {
+            "telecom_data": "no",
+            "altitude_data": "no",
+            "orbital_element_data": "yes",
+            "eclipse_data": "no"
+        }
+    },
+    "user_input": {
+        "uplink_safe_mode": {}
+    }
+}

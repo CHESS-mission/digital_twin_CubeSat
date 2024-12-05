@@ -911,3 +911,109 @@ def plot_dashboard(
         plt.show()
     else:
         plt.close()
+
+
+def plot_orbital_elem_evolution(
+    tofs: np.ndarray,
+    RAANs: np.ndarray,
+    AOPs: np.ndarray,
+    ECCs: np.ndarray,
+    INCs: np.ndarray,
+    altitudes: np.ndarray,
+    folder: str,
+    duration_sim: Quantity["time"],
+):
+    """Plot the evolution of RAAN, AOP, ECC, INC, and altitude during the simulation."""
+    ticks_angle = np.array([0, 1 / 2 * np.pi, np.pi, 3 / 2 * np.pi, 2 * np.pi])
+    tick_labels_angle = np.array([r"$0$", r"$\pi/2$", r"$\pi$", r"$3\pi/2$", r"$2\pi$"])
+
+    x_label, x_label_f = find_x_scale(duration_sim)
+
+    # update how many values to step to obtain clear plotting (approximately 100 points)
+    step = int(len(tofs) / 100)
+
+    plot_1d(
+        tofs.to_value("second"),
+        RAANs,
+        "RAAN Over Time",
+        x_label,
+        r"RAAN ($rad$)",
+        step=step,
+        fill_under=False,
+        remove_box=True,
+        y_range=(min(RAANs) - 0.2, max(RAANs) + 0.2),
+        scatter=True,
+        custom_y_ticks=True,
+        y_ticks=ticks_angle,
+        y_tick_labels=tick_labels_angle,
+        x_label_f=x_label_f,
+        show=False,
+        save_filename=folder + "RAAN.pdf",
+    )
+
+    plot_1d(
+        tofs.to_value("second"),
+        AOPs,
+        "Argument of Periapsis Over Time",
+        x_label,
+        r"Argp ($rad$)",
+        step=step,
+        fill_under=False,
+        remove_box=True,
+        y_range=(min(AOPs) - 0.2, max(AOPs) + 0.2),
+        custom_y_ticks=True,
+        y_ticks=ticks_angle,
+        y_tick_labels=tick_labels_angle,
+        x_label_f=x_label_f,
+        show=False,
+        save_filename=folder + "AOP.pdf",
+    )
+
+    plot_1d(
+        tofs.to_value("second"),
+        ECCs,
+        "Eccentricity Over Time",
+        x_label,
+        r"Ecc",
+        step=step,
+        fill_under=False,
+        remove_box=True,
+        y_range=(min(ECCs) - 0.1, max(ECCs) + 0.1),
+        scatter=True,
+        x_label_f=x_label_f,
+        show=False,
+        save_filename=folder + "ECC.pdf",
+    )
+
+    plot_1d(
+        tofs.to_value("second"),
+        INCs,
+        "Inclination over time",
+        x_label,
+        r"Inc ($rad$)",
+        step=step,
+        fill_under=False,
+        remove_box=True,
+        y_range=(min(INCs) - 0.2, max(INCs) + 0.2),
+        custom_y_ticks=True,
+        y_ticks=ticks_angle,
+        y_tick_labels=tick_labels_angle,
+        x_label_f=x_label_f,
+        show=False,
+        save_filename=folder + "INC.pdf",
+    )
+
+    plot_1d(
+        tofs.to_value("second"),
+        altitudes,
+        "Spacecraft Altitude Over Time",
+        x_label,
+        r"Altitude ($km$)",
+        step=step,
+        fill_under=False,
+        remove_box=True,
+        y_range=(min(altitudes) - 20, max(altitudes) + 20),
+        x_label_f=x_label_f,
+        show=False,
+        save_filename=folder + "altitude.pdf",
+    )

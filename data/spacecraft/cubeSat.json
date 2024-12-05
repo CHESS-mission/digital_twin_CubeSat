@@ -2,7 +2,7 @@
     "general": {
         "name": "CubeSat EST",
         "C_D": 2.2,
-        "cross_section_area": 0.075e-6,
+        "cross_section_area": 0.084e-6,
         "mass": 5.3
     },
     "eps": {

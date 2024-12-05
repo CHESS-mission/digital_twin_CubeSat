@@ -4,9 +4,8 @@
 import time
 from typing import Dict
 
+from astropy import units as u
 from astropy.time import Time, TimeDelta
-import astropy.units as u
-from astropy.units import Quantity
 import numpy as np
 
 from digital_twin.constants import earth_R
@@ -14,25 +13,14 @@ from digital_twin.ground_station import GroundStation
 from digital_twin.mode_switch import ModeSwitch
 from digital_twin.orbit_propagator import OrbitPropagator
 from digital_twin.orbit_propagator.constants import attractor_string
-from digital_twin.plotting import (
-    plot_1d,
-    seconds_to_days,
-    seconds_to_minutes,
-    seconds_to_hours,
-    plot_orbit_trajectory_3d,
-    plot_orbit_2d,
-    plot_groundtrack,
-    plot_operating_modes,
-    find_x_scale,
-    plot_boolean_bars,
-    plot_dashboard,
-)
+
 from digital_twin.spacecraft import Spacecraft
 from digital_twin.utils import (
     get_astropy_unit_time,
-    check_and_empty_folder,
     extract_propagation_data_from_ephemeris,
 )
+
+from digital_twin.report import produce_report
 
 
 class Simulation:
@@ -44,6 +32,7 @@ class Simulation:
         orbit_params: Dict,
         spacecraft_params: Dict,
         station_params: Dict,
+        mission_design_params: Dict,
     ) -> None:
 
         # TIME INITIALIZATION
@@ -87,14 +76,15 @@ class Simulation:
         self.ground_stations = np.array(self.ground_stations)
 
         # PROPAGATOR INITIALIZATION
-        self.propagator = OrbitPropagator(orbit_params, epoch)
+        atmosphere_model = simulation_params["atmosphere_model"]
+        self.propagator = OrbitPropagator(orbit_params, epoch, atmosphere_model)
 
         # additional user input
-        user_input = simulation_params["user_input"]
+        user_input = mission_design_params["user_input"]
         self.handle_user_input(user_input)
 
         # data
-        self.report_params = simulation_params["report"]
+        self.report_params = mission_design_params["report"]
         self.print_parameters()
 
     def run(self) -> None:
@@ -212,7 +202,6 @@ class Simulation:
             power_generation[t + 1] = (
                 self.spacecraft.get_eps().get_power_generation().value
             )
-            # data_storage[t + 1] = self.spacecraft.get_payload().get_data_storage().value
             all, GNSS_TOF, HK = self.spacecraft.get_obc().get_data()
             data_storage[t + 1] = all.value
             data_storage_GNSS_TOF[t + 1] = GNSS_TOF.value
@@ -247,246 +236,13 @@ class Simulation:
             "storage": data_storage,
             "storage_GNSS_TOF": data_storage_GNSS_TOF,
             "storage_HK": data_storage_HK,
+            "duration_sim": self.duration_sim,
+            "epochs_array": self.epochs_array,
+            "initial_orbit": self.propagator.get_initial_orbit(),
+            "ground_stations": self.ground_stations,
         }
         # Produce report
-        self.produce_report(data_results)
-
-    def produce_report(self, data: Dict) -> None:
-        """Produce plots and other report data."""
-        check_and_empty_folder(self.report_params["folder"])
-        if self.report_params["orbital_elem_evolution"] == "yes":
-            plot_orbital_elem_evolution(
-                data["tofs"],
-                data["RAANs"],
-                data["AOPs"],
-                data["ECCs"],
-                data["INCs"],
-                data["altitudes"],
-                self.report_params["folder"],
-                self.duration_sim,
-            )
-        if self.report_params["trajectory_2d"] == "yes":
-            plot_orbit_2d(
-                self.report_params["title_figures"],
-                attractor_string,
-                self.report_params["folder"],
-                "initial orbit",
-                orbit=self.propagator.get_initial_orbit(),
-            )
-        if self.report_params["trajectory_3d"] == "yes":
-            plot_orbit_trajectory_3d(
-                self.report_params["title_figures"],
-                attractor_string,
-                self.report_params["folder"],
-                orbit=self.propagator.get_initial_orbit(),
-                label_orbit="initial orbit",
-                label_traj="trajectory",
-                traj=data["rr"],
-            )
-
-        stations_coords = []
-        stations_names = []
-        for station in self.ground_stations:
-            name, pos = station.get_name_pos()
-            stations_coords.append(pos)
-            stations_names.append(name)
-        if self.report_params["groundtrack"] == "yes":
-            plot_groundtrack(
-                self.report_params["title_figures"],
-                data["rr"],
-                self.epochs_array,
-                "CHESS_1 cubeSat",
-                self.report_params["folder"],
-                stations_coords=np.array(stations_coords),
-                stations_name=np.array(stations_names),
-            )
-
-        if self.report_params["modes"] == "yes":
-            save_filename = self.report_params["folder"] + "modes.pdf"
-            plot_operating_modes(
-                data["modes"],
-                data["tofs"].to_value("second"),
-                self.duration_sim,
-                save_filename=save_filename,
-                show=False,
-            )
-
-        if self.report_params["dashboard"] == "yes":
-            save_filename = self.report_params["folder"] + "dashboard.pdf"
-            plot_dashboard(
-                data["modes"],
-                data["eclipse"],
-                data["vis"],
-                data["tofs"].to_value("second"),
-                self.duration_sim,
-                title="Operating Modes Over Time",
-                save_filename=save_filename,
-                show=False,
-            )
-
-        x_label, x_label_f = find_x_scale(self.duration_sim)
-        step = int(len(data["tofs"]) / 100)
-
-        if self.report_params["battery_energy"] == "yes":
-            plot_1d(
-                data["tofs"].to_value("second"),
-                (data["battery"] * (u.W * u.s)).to(u.W * u.h),
-                "Battery Energy Over Time",
-                x_label,
-                r"Battery Energy ($Wh$)",
-                step=1,
-                fill_under=False,
-                remove_box=True,
-                scatter=False,
-                x_label_f=x_label_f,
-                show=False,
-                save_filename=self.report_params["folder"] + "battery_energy.pdf",
-                markersize_plot=0,
-            )
-
-        if self.report_params["power_consumption"] == "yes":
-            plot_1d(
-                data["tofs"].to_value("second")[1:],
-                (data["consumption"][1:] * (u.W * u.s)).to(u.W * u.h),
-                "Power Consumption Over Time",
-                x_label,
-                r"Power Consumption ($Wh$)",
-                step=1,  # no step because we want to capture small intervals of time
-                fill_under=False,
-                remove_box=True,
-                scatter=False,
-                x_label_f=x_label_f,
-                show=False,
-                save_filename=self.report_params["folder"] + "power_consumption.pdf",
-                markersize_plot=0,
-            )
-
-        if self.report_params["power_generation"] == "yes":
-            plot_1d(
-                data["tofs"].to_value("second")[1:],
-                (data["generation"][1:] * (u.W * u.s)).to(u.W * u.h),
-                "Power Generation Over Time",
-                x_label,
-                r"Power Generation ($Wh$)",
-                step=1,
-                fill_under=False,
-                remove_box=True,
-                scatter=False,
-                x_label_f=x_label_f,
-                show=False,
-                save_filename=self.report_params["folder"] + "power_generation.pdf",
-                markersize_plot=0,
-            )
-
-        if self.report_params["data_storage"] == "yes":
-            plot_1d(
-                data["tofs"].to_value("second"),
-                data["storage"],
-                "Data Storage Over Time",
-                x_label,
-                r"Data Storage ($Mbit$)",
-                step=step,
-                fill_under=False,
-                remove_box=True,
-                scatter=False,
-                x_label_f=x_label_f,
-                show=False,
-                save_filename=self.report_params["folder"] + "data_storage.pdf",
-            )
-            plot_1d(
-                data["tofs"].to_value("second"),
-                data["storage_GNSS_TOF"],
-                "Data Storage Over Time (GNSS and TOF)",
-                x_label,
-                r"GNSS/TOF Data Storage ($Mbit$)",
-                step=step,
-                fill_under=False,
-                remove_box=True,
-                scatter=False,
-                x_label_f=x_label_f,
-                show=False,
-                save_filename=self.report_params["folder"]
-                + "data_storage_GNSS_TOF.pdf",
-            )
-            plot_1d(
-                data["tofs"].to_value("second"),
-                data["storage_HK"],
-                "Data Storage Over Time (Housekeeping Data)",
-                x_label,
-                r"HK Data Storage ($Mbit$)",
-                step=step,
-                fill_under=False,
-                remove_box=True,
-                scatter=False,
-                x_label_f=x_label_f,
-                show=False,
-                save_filename=self.report_params["folder"] + "data_storage_HK.pdf",
-            )
-
-        if self.report_params["visibility_windows"] == "yes":
-            save_filename = self.report_params["folder"] + "visibility_windows.pdf"
-            plot_boolean_bars(
-                data["vis"],
-                data["tofs"].to_value("second"),
-                self.duration_sim,
-                "Visibility Windows",
-                save_filename=save_filename,
-                show=False,
-            )
-
-        if self.report_params["eclipse_windows"] == "yes":
-            save_filename = self.report_params["folder"] + "eclipse_windows.pdf"
-            plot_boolean_bars(
-                data["eclipse"],
-                data["tofs"].to_value("second"),
-                self.duration_sim,
-                "Eclipse Windows",
-                save_filename=save_filename,
-                show=False,
-            )
-        if self.report_params["save_np_arrays_telecom_data"] == "yes":
-            folder = self.report_params["folder"]
-            with open(folder + "times.npy", "wb") as f:
-                np.save(f, data["tofs"].to_value("second"))
-            with open(folder + "visibility.npy", "wb") as f:
-                np.save(f, data["vis"])
-            with open(folder + "modes.npy", "wb") as f:
-                np.save(f, data["modes"])
-            with open(folder + "data.npy", "wb") as f:
-                np.save(f, data["storage"])
-            with open(folder + "data_GNSS_TOF.npy", "wb") as f:
-                np.save(f, data["storage_GNSS_TOF"])
-            with open(folder + "data_HK.npy", "wb") as f:
-                np.save(f, data["storage_HK"])
-
-        if self.report_params["save_altitude_data"] == "yes":
-            folder = self.report_params["folder"]
-            with open(folder + "times.npy", "wb") as f:
-                np.save(f, data["tofs"].to_value("second"))
-            with open(folder + "altitude.npy", "wb") as f:
-                np.save(f, data["altitudes"])
-
-        if self.report_params["save_orbital_element_data"] == "yes":
-            folder = self.report_params["folder"]
-            with open(folder + "times.npy", "wb") as f:
-                np.save(f, data["tofs"].to_value("second"))
-            with open(folder + "altitude.npy", "wb") as f:
-                np.save(f, data["altitudes"])
-            with open(folder + "RAAN.npy", "wb") as f:
-                np.save(f, data["RAANs"])
-            with open(folder + "AOP.npy", "wb") as f:
-                np.save(f, data["AOPs"])
-            with open(folder + "ECC.npy", "wb") as f:
-                np.save(f, data["ECCs"])
-            with open(folder + "INC.npy", "wb") as f:
-                np.save(f, data["INCs"])
-
-        if self.report_params["save_eclipse_data"] == "yes":
-            folder = self.report_params["folder"]
-            with open(folder + "times.npy", "wb") as f:
-                np.save(f, data["tofs"].to_value("second"))
-            with open(folder + "eclipse.npy", "wb") as f:
-                np.save(f, data["eclipse"])
+        produce_report(data_results, self.report_params)
 
     def print_parameters(self) -> None:
         """Print a summary of the the simulation objects."""
@@ -514,110 +270,3 @@ class Simulation:
             self.spacecraft.get_telecom().add_uplink_safe_mode(
                 user_input["uplink_safe_mode"]
             )
-
-
-# Method not part of the class but not general enough to be in utils file
-def plot_orbital_elem_evolution(
-    tofs: np.ndarray,
-    RAANs: np.ndarray,
-    AOPs: np.ndarray,
-    ECCs: np.ndarray,
-    INCs: np.ndarray,
-    altitudes: np.ndarray,
-    folder: str,
-    duration_sim: Quantity["time"],
-):
-    """Plot the evolution of RAAN, AOP, ECC, INC, and altitude during the simulation."""
-    ticks_angle = np.array([0, 1 / 2 * np.pi, np.pi, 3 / 2 * np.pi, 2 * np.pi])
-    tick_labels_angle = np.array([r"$0$", r"$\pi/2$", r"$\pi$", r"$3\pi/2$", r"$2\pi$"])
-
-    x_label, x_label_f = find_x_scale(duration_sim)
-
-    # update how many values to step to obtain clear plotting (approximately 100 points)
-    step = int(len(tofs) / 100)
-
-    plot_1d(
-        tofs.to_value("second"),
-        RAANs,
-        "RAAN Over Time",
-        x_label,
-        r"RAAN ($rad$)",
-        step=step,
-        fill_under=False,
-        remove_box=True,
-        y_range=(min(RAANs) - 0.2, max(RAANs) + 0.2),
-        scatter=True,
-        custom_y_ticks=True,
-        y_ticks=ticks_angle,
-        y_tick_labels=tick_labels_angle,
-        x_label_f=x_label_f,
-        show=False,
-        save_filename=folder + "RAAN.pdf",
-    )
-
-    plot_1d(
-        tofs.to_value("second"),
-        AOPs,
-        "Argument of Periapsis Over Time",
-        x_label,
-        r"Argp ($rad$)",
-        step=step,
-        fill_under=False,
-        remove_box=True,
-        y_range=(min(AOPs) - 0.2, max(AOPs) + 0.2),
-        custom_y_ticks=True,
-        y_ticks=ticks_angle,
-        y_tick_labels=tick_labels_angle,
-        x_label_f=x_label_f,
-        show=False,
-        save_filename=folder + "AOP.pdf",
-    )
-
-    plot_1d(
-        tofs.to_value("second"),
-        ECCs,
-        "Eccentricity Over Time",
-        x_label,
-        r"Ecc",
-        step=step,
-        fill_under=False,
-        remove_box=True,
-        y_range=(min(ECCs) - 0.1, max(ECCs) + 0.1),
-        scatter=True,
-        x_label_f=x_label_f,
-        show=False,
-        save_filename=folder + "ECC.pdf",
-    )
-
-    plot_1d(
-        tofs.to_value("second"),
-        INCs,
-        "Inclination over time",
-        x_label,
-        r"Inc ($rad$)",
-        step=step,
-        fill_under=False,
-        remove_box=True,
-        y_range=(min(INCs) - 0.2, max(INCs) + 0.2),
-        custom_y_ticks=True,
-        y_ticks=ticks_angle,
-        y_tick_labels=tick_labels_angle,
-        x_label_f=x_label_f,
-        show=False,
-        save_filename=folder + "INC.pdf",
-    )
-
-    plot_1d(
-        tofs.to_value("second"),
-        altitudes,
-        "Spacecraft Altitude Over Time",
-        x_label,
-        r"Altitude ($km$)",
-        step=step,
-        fill_under=False,
-        remove_box=True,
-        y_range=(min(altitudes) - 20, max(altitudes) + 20),
-        x_label_f=x_label_f,
-        show=False,
-        save_filename=folder + "altitude.pdf",
-    )

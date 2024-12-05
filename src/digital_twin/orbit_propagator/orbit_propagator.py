@@ -37,11 +37,12 @@ from digital_twin.orbit_propagator import (
     AtmosphereModelCOESA76,
     AtmosphereModelNRLMSISE00,
     AtmosphereModelSolarActivity,
+    AtmosphereModelJB2008,
 )
 
 
 class OrbitPropagator:
-    def __init__(self, orbit_params: Dict, epoch: Time) -> None:
+    def __init__(self, orbit_params: Dict, epoch: Time, atmosphere_model: str) -> None:
         print("Initializing the propagator...")
 
         # INITAL CHECKS
@@ -77,20 +78,21 @@ class OrbitPropagator:
         self.current_orbit = copy.deepcopy(self.init_orbit)
 
         # Choose atmospheric model
-        if orbit_params["atmosphere_model"] == "nrlmsise00":
+        if atmosphere_model == "nrlmsise00":
             self.atmosphere_model = AtmosphereModelNRLMSISE00()
-        elif orbit_params["atmosphere_model"] == "solar_activity":
+        elif atmosphere_model == "solar_activity":
             self.atmosphere_model = AtmosphereModelSolarActivity()
+        elif atmosphere_model == "jb2008":
+            self.atmosphere_model = AtmosphereModelJB2008()
         else:
             self.atmosphere_model = AtmosphereModelCOESA76()
 
-        # Approximation updated every 500 timesteps for now (TODO: update)
+        # Approximation updated every __ timesteps for now (TODO: update)
+        self.countdown_rho = 75  # Rho will be updated when countdown reaches 0
         self.rho = self.atmosphere_model.get_density(
             iso_date_str=str(self.current_orbit.epoch),
             position=self.current_orbit.r.value,
         ).to_value(u.kg / u.km**3) * (u.kg / u.km**3)
-
-        self.countdown_rho = 500  # Rho will be updated when countdown reaches 0
 
         self.method = CowellPropagator(f=self.f)  # Numerical propagator
 
