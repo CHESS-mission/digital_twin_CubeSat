@@ -1,8 +1,8 @@
 {
     "units_delta_t": "second",
-    "delta_t": 5676,
+    "delta_t": 120,
     "units_duration_sim": "day",
-    "duration_sim": 365,
+    "duration_sim": 1,
     "init_operating_mode": 0,
     "report":{
         "folder": "../results/",
@@ -12,7 +12,7 @@
         "trajectory_3d": "no",
         "groundtrack": "no",
         "modes": "no",
-        "dashboard": "no",
+        "dashboard": "yes",
         "battery_energy": "no",
         "power_consumption": "no",
         "power_generation": "no",
