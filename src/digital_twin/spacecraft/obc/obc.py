@@ -16,12 +16,16 @@ class DataStorage:
         self.max_storage = float(params["max_storage"]) * u.Mbit
 
         # data_storage gathers all 3 types of data (TOF, GNSS, HK = Housekeeping)
-        self.data_storage = 0.0 * u.Mbit
-        self.data_TOF_GNSS = 0.0 * u.Mbit
-        self.data_HK = 0.0 * u.Mbit
+        self.data_storage = float(params["init_data"]) * u.Mbit
+        self.data_TOF_GNSS = float(params["init_data_TOF_GNSS"]) * u.Mbit
+        self.data_HK = float(params["init_data_HK"]) * u.Mbit
+
+        # We need data_TOF_GNSS + data_HK = data_storage
+        if abs(self.data_TOF_GNSS + self.data_HK - self.data_storage).to_value() > 1e-6:
+            raise (RuntimeError)
 
         self.data_to_downlink = (
-            0.0 * u.Mbit
+            float(params["init_data_to_downlink"]) * u.Mbit
         )  # Updated at the start of an X-band comm window
 
     def update_data_storage(
@@ -96,6 +100,9 @@ class DataStorage:
                     self.data_TOF_GNSS.value * u.Mbit
                 )  # not direct = or it does not do a deepcopy
 
+    def get_data_to_downlink(self) -> Quantity:
+        return self.data_to_downlink
+
 
 class Obc(SubSystem):
     def __init__(self, params: Dict, init_operating_mode: int) -> None:
@@ -114,6 +121,7 @@ class Obc(SubSystem):
         self.data_storage = DataStorage(params["data_storage"])
 
         # Safe flag handling
+        # these 2 will be automatically updated at initialization since the Spacecraft calls update_safe_flag()
         self.safe_flag_spacecraft_raised = (
             False  # if a safe flag was raised by ANY subsystem
         )
@@ -122,7 +130,7 @@ class Obc(SubSystem):
         )
 
         # Safe flag regarding own subsystem
-        self.safe_flag = False
+        self.safe_flag = False if params["init_safe_flag"] == "false" else True
 
     def update(
         self,

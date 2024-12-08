@@ -47,12 +47,11 @@ class Payload(SubSystem):
             self.measurement_max_duration - measurement_post_conditioning
         )
 
-        self.measurement_duration = 0.0 * u.s
-
-        self.is_measuring = False
+        self.measurement_duration = float(params["init_measurement_duration"]) * u.s
+        self.is_measuring = False if params["init_is_measuring"] == "false" else True
         self.nb_measurement_windows = 0
 
-        self.safe_flag = False
+        self.safe_flag = False if params["init_safe_flag"] == "false" else True
 
     def can_start_measuring(self, time_elapsed: Quantity) -> bool:
         one_day = 86400 * u.s
@@ -126,3 +125,6 @@ class Payload(SubSystem):
 
     def get_name(self) -> str:
         return self.name
+
+    def get_measurement_variables(self) -> tuple:
+        return self.measurement_duration, self.is_measuring

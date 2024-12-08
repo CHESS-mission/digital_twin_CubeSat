@@ -39,22 +39,42 @@ class Telecom(SubSystem):
         self.t_max_no_com = (params["max_time_without_communication"] * t_com_unit).to(
             u.s
         )  # maximum time allowed without communicating to ground station
-        self.t_no_com = 0.0 * u.s
+        self.t_no_com = float(params["init_time_no_com"]) * u.s
 
         # variables to track if communication is occuring and how much time (UHF_COM)
-        self.com_duration = 0.0 * u.s
-        self.is_communicating = False
+        self.com_duration = float(params["init_com_duration"]) * u.s
+        self.is_communicating = (
+            False if params["init_is_communicating"] == "false" else True
+        )
 
-        self.alternating = False  # bool which prevents from alternating between x-band-comm and uhf-comm mode during visibility window
+        self.alternating = (
+            False if params["init_is_alternating"] == "false" else True
+        )  # bool which prevents from alternating between x-band-comm and uhf-comm mode during visibility window
 
-        self.safe_flag = False
-        self.safe_flag_reason = -1
+        self.safe_flag = (
+            False if params["init_safe_flag"] == "false" else True
+        )  # Default should be False
+        self.safe_flag_reason = float(
+            params["init_safe_flag_reason"]
+        )  # Default should be -1
         self.safe_flag_duration_left_dict = {}
-        self.safe_flag_duration_left = None
 
-        # Is used to store uplink commands from GS to trigger/resolve safe mode
-        self.uplink_safe_mode = {}
-        self.is_visible = False  # Variable to track visibility windows
+        self.safe_flag_duration_left = (
+            None
+            if params["init_safe_flag_duration_left"] == "none"
+            else float(params["init_safe_flag_duration_left"]) * u.s
+        )
+        # if a safe mode is active at initialization and not stopped by a duration, need to have a condition to resolve it
+        if self.safe_flag and self.safe_flag_duration_left == "none":
+            self.uplink_safe_mode = {int(params["uplink_safe_mode"]): False}
+        else:
+            # Is used to store uplink commands from GS to trigger/resolve safe mode
+            self.uplink_safe_mode = {}
+
+        self.is_visible = (
+            False if params["init_is_visible"] == "false" else True
+        )  # Variable to track visibility windows
+
         self.vis_window_count = 0
         self.vis_window_triggered = -1
 
@@ -194,6 +214,17 @@ class Telecom(SubSystem):
             if resolve["resolve_type"] == "com_window":
                 self.uplink_safe_mode[int(resolve["resolve_value"])] = False
             if resolve["resolve_type"] == "duration":
-                self.safe_flag_duration_left_dict[int(visibility_window)] = float(
-                    resolve["resolve_value"]
-                ) * get_astropy_unit_time(resolve["unit"])
+                self.safe_flag_duration_left_dict[int(visibility_window)] = (
+                    float(resolve["resolve_value"]) * u.s
+                )
+
+    def get_telecom_variables(self) -> tuple:
+        return (
+            self.t_no_com,
+            self.com_duration,
+            self.is_communicating,
+            self.alternating,
+            self.safe_flag_reason,
+            self.safe_flag_duration_left,
+            self.is_visible,
+        )

@@ -63,7 +63,7 @@ class Simulation:
 
         # MODE SWITCH ALGORITHM INITIALIZATION
         self.switch_algo = ModeSwitch(
-            init_mode=simulation_params["init_operating_mode"]
+            init_mode=spacecraft_params["general"]["init_operating_mode"]
         )
 
         # SPACECRAFT INITIALIZATION
@@ -76,8 +76,13 @@ class Simulation:
         self.ground_stations = np.array(self.ground_stations)
 
         # PROPAGATOR INITIALIZATION
+        update_air_density_timestep = simulation_params[
+            "update_air_density_timestep"
+        ] * get_astropy_unit_time(simulation_params["update_air_density_timestep_unit"])
         atmosphere_model = simulation_params["atmosphere_model"]
-        self.propagator = OrbitPropagator(orbit_params, epoch, atmosphere_model)
+        self.propagator = OrbitPropagator(
+            orbit_params, epoch, atmosphere_model, update_air_density_timestep
+        )
 
         # additional user input
         user_input = mission_design_params["user_input"]
@@ -216,6 +221,13 @@ class Simulation:
         rr, vv, SMAs, ECCs, INCs, RAANs, AOPs, TAs, altitudes = (
             extract_propagation_data_from_ephemeris(eph)
         )
+        # extract orbit and spacecraft states
+        orbit_state = self.propagator.save_state()
+        spacecraft_state = self.spacecraft.save_state()
+        spacecraft_state["general"][
+            "init_operating_mode"
+        ] = self.switch_algo.operating_mode
+
         data_results = {
             "tofs": self.tofs,
             "rr": rr,
@@ -240,6 +252,8 @@ class Simulation:
             "epochs_array": self.epochs_array,
             "initial_orbit": self.propagator.get_initial_orbit(),
             "ground_stations": self.ground_stations,
+            "orbit_state": orbit_state,
+            "spacecraft_state": spacecraft_state,
         }
         # Produce report
         produce_report(data_results, self.report_params)

@@ -97,7 +97,7 @@ class AtmosphereModelNRLMSISE00(AtmosphereModel):
         self.swdata = read_sw_nrlmsise00(swfile)
         self.t_max = datetime.strptime(
             "2024-12-01 00:00:00.000", "%Y-%m-%d %H:%M:%S.%f"
-        )  # Maximum time for space weather data
+        )  # Maximum time for space weather data (checked experimentally)
         self.cycle = relativedelta(years=11)  # solar activity cycle duration
 
     def get_density(self, iso_date_str: str, position: np.ndarray) -> Quantity:

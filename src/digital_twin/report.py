@@ -1,7 +1,9 @@
 from typing import Dict
+import json
 
 import astropy.units as u
 import numpy as np
+
 
 from digital_twin.orbit_propagator.constants import attractor_string
 from digital_twin.plotting import (
@@ -264,3 +266,15 @@ def save_data(data: Dict, data_params: Dict, folder: str) -> None:
             np.save(f, data["tofs"].to_value("second"))
         with open(folder + "eclipse.npy", "wb") as f:
             np.save(f, data["eclipse"])
+
+    if data_params["orbit_state"] == "yes":
+        with open(folder + "orbit_state.json", "w") as f:
+            json.dump(
+                data["orbit_state"], f, indent=4
+            )  # Save with indentation for readability
+
+    if data_params["spacecraft_state"] == "yes":
+        with open(folder + "spacecraft_state.json", "w") as f:
+            json.dump(
+                data["spacecraft_state"], f, indent=4
+            )  # Save with indentation for readability

@@ -23,10 +23,9 @@ class Adcs(SubSystem):
             int(k): v * u.W for k, v in params["consumption"].items()
         }
 
-        self.safe_flag = False
+        self.safe_flag = False if params["init_safe_flag"] == "false" else True
 
         self.attitude = attitude_mode_dict[init_operating_mode]
-        # print("Initial attitude: ", attitude_dict[self.attitude])
 
     def update(
         self,

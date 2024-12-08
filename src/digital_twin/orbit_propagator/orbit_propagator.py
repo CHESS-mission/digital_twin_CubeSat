@@ -42,7 +42,13 @@ from digital_twin.orbit_propagator import (
 
 
 class OrbitPropagator:
-    def __init__(self, orbit_params: Dict, epoch: Time, atmosphere_model: str) -> None:
+    def __init__(
+        self,
+        orbit_params: Dict,
+        epoch: Time,
+        atmosphere_model: str,
+        update_air_density_timestep: Quantity,
+    ) -> None:
         print("Initializing the propagator...")
 
         # INITAL CHECKS
@@ -87,8 +93,12 @@ class OrbitPropagator:
         else:
             self.atmosphere_model = AtmosphereModelCOESA76()
 
+        # rho is air density
         # Approximation updated every __ timesteps for now (TODO: update)
-        self.countdown_rho = 75  # Rho will be updated when countdown reaches 0
+        self.update_rho_timestep = update_air_density_timestep
+        self.countdown_rho = copy.deepcopy(
+            self.update_rho_timestep
+        )  # Rho will be updated when countdown reaches 0
         self.rho = self.atmosphere_model.get_density(
             iso_date_str=str(self.current_orbit.epoch),
             position=self.current_orbit.r.value,
@@ -128,9 +138,20 @@ class OrbitPropagator:
         Returns:
             np.ndarray: New position of the satellite.
         """
-        # Update grad parameters
+        # Update drag parameters
         self.drag_params["C_D"] = C_D
         self.drag_params["A_over_m"] = A_over_m
+        # Update air density
+        if self.countdown_rho > 0 * u.s:
+            self.countdown_rho -= delta_t
+            # print(self.countdown_rho)
+        else:
+            self.update_rho(
+                self.current_orbit.r.to(u.km).to_value()
+            )  # update air density based on current altitude
+            self.countdown_rho = copy.deepcopy(
+                self.update_rho_timestep
+            )  # restart countdown
 
         new_orbit = self.current_orbit.propagate(delta_t, method=self.method)
 
@@ -223,12 +244,6 @@ class OrbitPropagator:
     def f(self, t0, state, k):
         du_kep = func_twobody(t0, state, k)
 
-        if self.countdown_rho > 0:
-            self.countdown_rho -= 1
-        else:
-            self.update_rho(state[:3])  # update air density based on current altitude
-            self.countdown_rho = 500  # restart countdown
-
         ax, ay, az = self.a_d(
             t0,
             state,
@@ -242,3 +257,26 @@ class OrbitPropagator:
         du_ad = np.array([0, 0, 0, ax, ay, az])
 
         return du_kep + du_ad
+
+    def save_state(self) -> Dict:
+        save_orbit_params = {}
+        save_orbit_params["orbital_elements"] = {}
+        save_orbit_params["orbital_elements"]["SMA"] = self.current_orbit.a.to(
+            u.km
+        ).to_value()
+        save_orbit_params["orbital_elements"]["INC"] = self.current_orbit.inc.to(
+            u.deg
+        ).to_value()
+        save_orbit_params["orbital_elements"]["ECC"] = self.current_orbit.ecc.to_value()
+        save_orbit_params["orbital_elements"]["RAAN"] = self.current_orbit.raan.to(
+            u.deg
+        ).to_value()
+        save_orbit_params["orbital_elements"]["AOP"] = self.current_orbit.argp.to(
+            u.deg
+        ).to_value()
+        save_orbit_params["orbital_elements"]["TA"] = self.current_orbit.nu.to(
+            u.deg
+        ).to_value()
+        save_orbit_params["epoch"] = str(self.current_orbit.epoch)
+
+        return save_orbit_params

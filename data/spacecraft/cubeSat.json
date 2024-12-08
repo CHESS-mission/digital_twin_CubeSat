@@ -3,12 +3,14 @@
         "name": "CubeSat EST",
         "C_D": 2.2,
         "cross_section_area": 0.084e-6,
-        "mass": 5.3
+        "mass": 5.3,
+        "init_operating_mode": 0
     },
     "eps": {
         "total_energy": 76.32,
         "min_battery": 15.264,
         "max_battery": 61.056,
+        "init_battery_level": 76.32,
         "measure_threshold": 56.4,
         "com_threshold": 16.10,
         "xb_threshold": 18.55,
@@ -33,7 +35,8 @@
             "nb_cells": 28,
             "cell_surface": 0.0028355,
             "efficiency": 0.25
-        }
+        },
+        "init_safe_flag": "false"
     },
     "telecom": {
         "consumption_uhf": {
@@ -57,7 +60,15 @@
         "x_band_rate": 10,
         "uhf_rate": 0.0192,
         "max_time_without_communication": 24,
-        "max_time_without_communication_unit": "hour"
+        "max_time_without_communication_unit": "hour",
+        "init_safe_flag": "false",
+        "init_time_no_com": 0,
+        "init_com_duration": 0,
+        "init_is_communicating": "false",
+        "init_is_alternating": "false",
+        "init_safe_flag_reason": -1,
+        "init_safe_flag_duration_left": "none",
+        "init_is_visible": "false"
     },
     "adcs": {
         "consumption": {
@@ -67,7 +78,8 @@
             "3": 1.6,
             "4": 1.6,
             "5": 1.6
-        }
+        },
+        "init_safe_flag": "false"
     },
     "obc": {
         "consumption": {
@@ -80,8 +92,13 @@
         },
         "housekeeping_data_rate": 6.67e-5,
         "data_storage": {
-            "max_storage": 2097152
-        }
+            "max_storage": 2097152, 
+            "init_data": 0,
+            "init_data_TOF_GNSS": 0,
+            "init_data_HK": 0,
+            "init_data_to_downlink": 0
+        },
+        "init_safe_flag": "false"
     },
     "payload" : {
         "consumption_gnss": {
@@ -106,7 +123,10 @@
         "max_duration_unit": "second",
         "nb_measurements_per_day": 1,
         "measurement_pre_conditioning_time": 1500,
-        "measurement_post_conditioning_time": 1860
+        "measurement_post_conditioning_time": 1860,
+        "init_safe_flag": "false",
+        "init_measurement_duration": 0,
+        "init_is_measuring": "false"
     }
 }
 

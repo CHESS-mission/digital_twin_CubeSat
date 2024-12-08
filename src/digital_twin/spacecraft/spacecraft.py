@@ -18,6 +18,7 @@ from digital_twin.spacecraft.telecom import Telecom
 class Spacecraft:
     def __init__(self, params: Dict, init_operating_mode: int) -> None:
         print("Initializing the spacecraft...")
+        self.params = params
         self.name = params["general"]["name"]
         self.C_D = params["general"]["C_D"] * u.one
         init_cross_section = params["general"]["cross_section_area"] * u.km**2
@@ -42,6 +43,15 @@ class Spacecraft:
             self.payload_subsystem,
             self.obc_subsystem,
         ]
+
+        # check if any safe flag is raised by subsystem and update OBC
+        safe_flag_raised = False
+        safe_flag_subsystem = None
+        for subsystem in self.subsystems:
+            if subsystem.raise_safe_flag():
+                safe_flag_raised = True
+                safe_flag_subsystem = subsystem.get_name()
+        self.obc_subsystem.update_safe_flag(safe_flag_raised, safe_flag_subsystem)
 
     def update_subsystems(
         self,
@@ -156,3 +166,71 @@ class Spacecraft:
 
     def get_data_storage(self) -> DataStorage:
         return self.obc_subsystem.get_data_storage()
+
+    def save_state(self) -> Dict:
+        spacecraft_state = self.params  # the initial one, which is now updated
+
+        spacecraft_state["eps"]["init_safe_flag"] = (
+            "true" if self.eps_subsystem.raise_safe_flag() else "false"
+        )
+        spacecraft_state["adcs"]["init_safe_flag"] = (
+            "true" if self.adcs_subsystem.raise_safe_flag() else "false"
+        )
+        spacecraft_state["obc"]["init_safe_flag"] = (
+            "true" if self.obc_subsystem.raise_safe_flag() else "false"
+        )
+        spacecraft_state["payload"]["init_safe_flag"] = (
+            "true" if self.payload_subsystem.raise_safe_flag() else "false"
+        )
+        spacecraft_state["telecom"]["init_safe_flag"] = (
+            "true" if self.telecom_subsystem.raise_safe_flag() else "false"
+        )
+
+        spacecraft_state["eps"]["init_battery_level"] = (
+            self.eps_subsystem.get_battery_energy().to(u.W * u.hour).to_value()
+        )
+
+        full, TOF_GNSS, HK = self.obc_subsystem.get_data()
+        spacecraft_state["obc"]["data_storage"]["init_data"] = full.to_value()
+        spacecraft_state["obc"]["data_storage"][
+            "init_data_TOF_GNSS"
+        ] = TOF_GNSS.to_value()
+        spacecraft_state["obc"]["data_storage"]["init_data_HK"] = HK.to_value()
+        spacecraft_state["obc"]["data_storage"]["init_data_to_downlink"] = (
+            self.obc_subsystem.get_data_storage().get_data_to_downlink().to_value()
+        )
+
+        dur, is_measuring = self.payload_subsystem.get_measurement_variables()
+        spacecraft_state["payload"]["init_measurement_duration"] = dur.to_value()
+        spacecraft_state["payload"]["init_is_measuring"] = (
+            "true" if is_measuring else "false"
+        )
+
+        (
+            t_no_com,
+            com_duration,
+            is_communicating,
+            alternating,
+            safe_flag_reason,
+            safe_flag_duration_left,
+            is_visible,
+        ) = self.telecom_subsystem.get_telecom_variables()
+
+        spacecraft_state["telecom"]["init_time_no_com"] = t_no_com.to_value()
+        spacecraft_state["telecom"]["init_com_duration"] = com_duration.to_value()
+        spacecraft_state["telecom"]["init_is_communicating"] = (
+            "true" if is_communicating else "false"
+        )
+        spacecraft_state["telecom"]["init_is_alternating"] = (
+            "true" if alternating else "false"
+        )
+        spacecraft_state["telecom"]["init_safe_flag_reason"] = safe_flag_reason
+        spacecraft_state["telecom"]["init_safe_flag_duration_left"] = (
+            "none"
+            if safe_flag_duration_left is None
+            else safe_flag_duration_left.to_value()
+        )
+        spacecraft_state["telecom"]["init_is_visible"] = (
+            "true" if is_visible else "false"
+        )
+        return spacecraft_state

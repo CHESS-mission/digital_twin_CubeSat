@@ -121,8 +121,8 @@ class Eps(SubSystem):
             u.W * u.s
         )
 
-        # initialize battery level to maximum
-        self.battery_level = (float(params["total_energy"]) * (u.W * u.hour)).to(
+        # initialize battery level
+        self.battery_level = (float(params["init_battery_level"]) * (u.W * u.hour)).to(
             u.W * u.s
         )
 
@@ -133,7 +133,7 @@ class Eps(SubSystem):
         self.power_consumption_last_step = 0.0 * (u.W * u.s)
         self.power_generation_last_step = 0.0 * (u.W * u.s)
 
-        self.safe_flag = False
+        self.safe_flag = False if params["init_safe_flag"] == "false" else True
 
     def update(
         self,
