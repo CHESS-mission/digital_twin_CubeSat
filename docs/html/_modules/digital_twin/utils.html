@@ -1,0 +1,240 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>digital_twin.utils &mdash; Digital Twin of the CHESS CubeSat 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Digital Twin of the CHESS CubeSat
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">digital_twin</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Digital Twin of the CHESS CubeSat</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">digital_twin.utils</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for digital_twin.utils</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Util functions used everywhere in the code.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+<span class="kn">from</span> <span class="nn">astropy.units</span> <span class="kn">import</span> <span class="n">Unit</span>
+<span class="kn">from</span> <span class="nn">poliastro.core.elements</span> <span class="kn">import</span> <span class="n">rv2coe</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">digital_twin.constants</span> <span class="kn">import</span> <span class="n">earth_R</span><span class="p">,</span> <span class="n">earth_k</span>
+
+
+<div class="viewcode-block" id="get_astropy_unit_time">
+<a class="viewcode-back" href="../../digital_twin.html#digital_twin.utils.get_astropy_unit_time">[docs]</a>
+<span class="k">def</span> <span class="nf">get_astropy_unit_time</span><span class="p">(</span><span class="n">unit_string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Unit</span><span class="p">:</span>
+    <span class="n">units</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;second&quot;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="p">,</span> <span class="s2">&quot;hour&quot;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">h</span><span class="p">,</span> <span class="s2">&quot;day&quot;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">day</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">year</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">units</span><span class="p">[</span><span class="n">unit_string</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="get_astropy_units_angle">
+<a class="viewcode-back" href="../../digital_twin.html#digital_twin.utils.get_astropy_units_angle">[docs]</a>
+<span class="k">def</span> <span class="nf">get_astropy_units_angle</span><span class="p">(</span><span class="n">unit_string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Unit</span><span class="p">:</span>
+    <span class="n">units</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;degree&quot;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="s2">&quot;radian&quot;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">units</span><span class="p">[</span><span class="n">unit_string</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="check_and_empty_folder">
+<a class="viewcode-back" href="../../digital_twin.html#digital_twin.utils.check_and_empty_folder">[docs]</a>
+<span class="k">def</span> <span class="nf">check_and_empty_folder</span><span class="p">(</span><span class="n">folder_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># If the folder does not exist, create it</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">folder_path</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">folder_path</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Check if the folder is empty</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">folder_path</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Remove all files and subdirectories in the folder</span>
+            <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">folder_path</span><span class="p">):</span>
+                <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder_path</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">islink</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+                    <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+                    <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="extract_propagation_data_from_ephemeris">
+<a class="viewcode-back" href="../../digital_twin.html#digital_twin.utils.extract_propagation_data_from_ephemeris">[docs]</a>
+<span class="k">def</span> <span class="nf">extract_propagation_data_from_ephemeris</span><span class="p">(</span><span class="n">eph</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Uses Poliastro rv2coe() function to extract orbital elements at each timestep using position data.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        eph (np.ndarray): Position data</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        np.array (9): Orbital elements</span>
+<span class="sd">            rr: position</span>
+<span class="sd">            vv: velocity</span>
+<span class="sd">            SMAs: semi-major aixs</span>
+<span class="sd">            ECCs: eccentricity</span>
+<span class="sd">            INCs: inclination</span>
+<span class="sd">            RAANs: right ascension of the ascending node</span>
+<span class="sd">            AOPs: Argument of Periapsis</span>
+<span class="sd">            TAs: True Anomaly</span>
+<span class="sd">            altitudes: altitude from attractor&#39;s surface</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rr</span> <span class="o">=</span> <span class="n">eph</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+    <span class="n">vv</span> <span class="o">=</span> <span class="n">eph</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">:]</span>
+    <span class="n">orbital_params</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">rv2coe</span><span class="p">(</span><span class="n">earth_k</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">rr</span><span class="p">,</span> <span class="n">vv</span><span class="p">)])</span>
+    <span class="n">ps</span> <span class="o">=</span> <span class="n">orbital_params</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">ECCs</span> <span class="o">=</span> <span class="n">orbital_params</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">INCs</span> <span class="o">=</span> <span class="n">orbital_params</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span>
+    <span class="n">RAANs</span> <span class="o">=</span> <span class="n">orbital_params</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span>
+    <span class="n">AOPs</span> <span class="o">=</span> <span class="n">orbital_params</span><span class="p">[:,</span> <span class="mi">4</span><span class="p">]</span>
+    <span class="n">TAs</span> <span class="o">=</span> <span class="n">orbital_params</span><span class="p">[:,</span> <span class="mi">5</span><span class="p">]</span>
+    <span class="n">SMAs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span>
+        <span class="n">ps</span><span class="p">,</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">ECCs</span><span class="p">,</span> <span class="n">ECCs</span><span class="p">)</span>
+    <span class="p">)</span>  <span class="c1"># Formula linking semi-latus rectum to semi-major axis</span>
+    <span class="n">altitudes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">eph</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">earth_R</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="k">return</span> <span class="n">rr</span><span class="p">,</span> <span class="n">vv</span><span class="p">,</span> <span class="n">SMAs</span><span class="p">,</span> <span class="n">ECCs</span><span class="p">,</span> <span class="n">INCs</span><span class="p">,</span> <span class="n">RAANs</span><span class="p">,</span> <span class="n">AOPs</span><span class="p">,</span> <span class="n">TAs</span><span class="p">,</span> <span class="n">altitudes</span></div>
+
+
+
+<div class="viewcode-block" id="angle_between_vectors">
+<a class="viewcode-back" href="../../digital_twin.html#digital_twin.utils.angle_between_vectors">[docs]</a>
+<span class="k">def</span> <span class="nf">angle_between_vectors</span><span class="p">(</span><span class="n">A</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">B</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the angle (in degrees) between corresponding 3D vectors</span>
+<span class="sd">    in matrices A and B. Each row represents a vector in 3D space.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">    A : (np.ndarray): Matrix of shape (n, 3) representing n 3D vectors.</span>
+<span class="sd">    B : (np.ndarray): Matrix of shape (n, 3) representing n 3D vectors.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        np.ndarray: A vector of shape (n,) containing the angles (in degrees) between corresponding vectors.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Dot product of corresponding rows in A and B</span>
+    <span class="n">dot_product</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;ij,ij-&gt;i&quot;</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">)</span>
+
+    <span class="c1"># Norm (magnitude) of vectors in A and B</span>
+    <span class="n">norm_A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">norm_B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Cosine of the angle</span>
+    <span class="n">cos_theta</span> <span class="o">=</span> <span class="n">dot_product</span> <span class="o">/</span> <span class="p">(</span><span class="n">norm_A</span> <span class="o">*</span> <span class="n">norm_B</span><span class="p">)</span>
+
+    <span class="c1"># Clip to avoid numerical errors leading to values outside the range [-1, 1]</span>
+    <span class="n">cos_theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">cos_theta</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+
+    <span class="c1"># Calculate the angle in radians and then convert to degrees</span>
+    <span class="n">angle_rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arccos</span><span class="p">(</span><span class="n">cos_theta</span><span class="p">)</span>  <span class="c1"># KEEP values between 0 and pi/2</span>
+    <span class="n">angle_deg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">angle_rad</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">angle_deg</span></div>
+
+
+
+<div class="viewcode-block" id="parse_data_file">
+<a class="viewcode-back" href="../../digital_twin.html#digital_twin.utils.parse_data_file">[docs]</a>
+<span class="k">def</span> <span class="nf">parse_data_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse JSON file provided by user</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        file_path (str): path to JSON file</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Dict: data from file in a dictionary</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Mathilde Simoni.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

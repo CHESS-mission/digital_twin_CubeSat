@@ -1,0 +1,258 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>digital_twin.spacecraft.payload.payload &mdash; Digital Twin of the CHESS CubeSat 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            Digital Twin of the CHESS CubeSat
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../modules.html">digital_twin</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">Digital Twin of the CHESS CubeSat</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">digital_twin.spacecraft.payload.payload</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for digital_twin.spacecraft.payload.payload</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;File for the payload subsystem (gnss and tof together).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
+
+<span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+<span class="kn">from</span> <span class="nn">astropy.time</span> <span class="kn">import</span> <span class="n">TimeDelta</span>
+<span class="kn">from</span> <span class="nn">astropy.units</span> <span class="kn">import</span> <span class="n">Quantity</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">digital_twin.spacecraft</span> <span class="kn">import</span> <span class="n">SubSystem</span>
+<span class="kn">from</span> <span class="nn">digital_twin.utils</span> <span class="kn">import</span> <span class="n">get_astropy_unit_time</span>
+
+
+<div class="viewcode-block" id="Payload">
+<a class="viewcode-back" href="../../../../digital_twin.spacecraft.payload.html#digital_twin.spacecraft.payload.payload.Payload">[docs]</a>
+<span class="k">class</span> <span class="nc">Payload</span><span class="p">(</span><span class="n">SubSystem</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">init_operating_mode</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Initializing Payload subsystem... &quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Payload&quot;</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">Payload</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">consumption_mean_gnss</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="n">v</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">W</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;consumption_gnss&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">consumption_mean_tof</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="n">v</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">W</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;consumption_tof&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">measurement_TOF_rate</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;measurement_TOF_rate&quot;</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span>
+            <span class="n">u</span><span class="o">.</span><span class="n">Mbit</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">measurement_GNSS_rate</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;measurement_GNSS_rate&quot;</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span>
+            <span class="n">u</span><span class="o">.</span><span class="n">Mbit</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span>
+        <span class="p">)</span>
+        <span class="n">measure_unit</span> <span class="o">=</span> <span class="n">get_astropy_unit_time</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;max_duration_unit&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">measurement_max_duration</span> <span class="o">=</span> <span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;max_duration&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">measure_unit</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nb_measurement_per_day</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;nb_measurements_per_day&quot;</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_measurement</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;measurement_pre_conditioning_time&quot;</span><span class="p">])</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span>
+        <span class="p">)</span>
+        <span class="n">measurement_post_conditioning</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;measurement_post_conditioning_time&quot;</span><span class="p">])</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stop_measurement</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">measurement_max_duration</span> <span class="o">-</span> <span class="n">measurement_post_conditioning</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">measurement_duration</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;init_measurement_duration&quot;</span><span class="p">])</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_measuring</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;init_is_measuring&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;false&quot;</span> <span class="k">else</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nb_measurement_windows</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">safe_flag</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;init_safe_flag&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;false&quot;</span> <span class="k">else</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="Payload.can_start_measuring">
+<a class="viewcode-back" href="../../../../digital_twin.spacecraft.payload.html#digital_twin.spacecraft.payload.payload.Payload.can_start_measuring">[docs]</a>
+    <span class="k">def</span> <span class="nf">can_start_measuring</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_elapsed</span><span class="p">:</span> <span class="n">Quantity</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="n">one_day</span> <span class="o">=</span> <span class="mi">86400</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nb_measurement_windows</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">nb_measurement_per_day</span><span class="p">)</span>
+            <span class="o">&lt;</span> <span class="p">(</span><span class="n">time_elapsed</span> <span class="o">/</span> <span class="n">one_day</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="Payload.campaign_finished">
+<a class="viewcode-back" href="../../../../digital_twin.spacecraft.payload.html#digital_twin.spacecraft.payload.payload.Payload.campaign_finished">[docs]</a>
+    <span class="k">def</span> <span class="nf">campaign_finished</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_measuring</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">measurement_duration</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">measurement_max_duration</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="Payload.update">
+<a class="viewcode-back" href="../../../../digital_twin.spacecraft.payload.html#digital_twin.spacecraft.payload.payload.Payload.update">[docs]</a>
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">old_mode</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">new_mode</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">rv</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">com_window</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="n">eclipse_status</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="n">delta_t</span><span class="p">:</span> <span class="n">TimeDelta</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">new_mode</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>  <span class="c1"># MEASUREMENT</span>
+            <span class="k">if</span> <span class="n">old_mode</span> <span class="o">!=</span> <span class="n">new_mode</span><span class="p">:</span>  <span class="c1"># just switched to measurement mode</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">measurement_duration</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">nb_measurement_windows</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">measurement_duration</span> <span class="o">+=</span> <span class="n">delta_t</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_measuring</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">measurement_duration</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_measuring</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># SAFE FLAG HANDLING</span>
+        <span class="c1"># check safe flag triggers (cannot generate a safe flag if already in safe mode)</span>
+        <span class="k">if</span> <span class="n">new_mode</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">safe_flag</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="k">pass</span>  <span class="c1"># not implemented yet for this subsystem</span>
+        <span class="c1"># check safe flag resolution</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">safe_flag</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">pass</span>  <span class="c1"># not implemented yet for this subsystem</span></div>
+
+
+<div class="viewcode-block" id="Payload.compute_power_consumed">
+<a class="viewcode-back" href="../../../../digital_twin.spacecraft.payload.html#digital_twin.spacecraft.payload.payload.Payload.compute_power_consumed">[docs]</a>
+    <span class="k">def</span> <span class="nf">compute_power_consumed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Quantity</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">consumption_mean_gnss</span><span class="p">[</span><span class="n">mode</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">consumption_mean_tof</span><span class="p">[</span><span class="n">mode</span><span class="p">]</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Payload:&quot;</span>
+
+<div class="viewcode-block" id="Payload.compute_data_update">
+<a class="viewcode-back" href="../../../../digital_twin.spacecraft.payload.html#digital_twin.spacecraft.payload.payload.Payload.compute_data_update">[docs]</a>
+    <span class="k">def</span> <span class="nf">compute_data_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_mode</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">delta_t</span><span class="p">:</span> <span class="n">TimeDelta</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Quantity</span><span class="p">:</span>
+        <span class="c1"># only measures during 2 hours after the 25 min of conditioning and before the last 31 min prep for dasta transfer (look at power budget)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">Mbit</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">new_mode</span> <span class="o">==</span> <span class="mi">5</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">measurement_duration</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_measurement</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">measurement_duration</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop_measurement</span>
+        <span class="p">):</span>
+            <span class="n">data</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">measurement_TOF_rate</span> <span class="o">*</span> <span class="n">delta_t</span>
+
+        <span class="k">if</span> <span class="n">new_mode</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># if not in safe mode, GNSS continuously add data</span>
+            <span class="n">data</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">measurement_GNSS_rate</span> <span class="o">*</span> <span class="n">delta_t</span>
+
+        <span class="k">return</span> <span class="n">data</span><span class="p">,</span> <span class="mf">0.0</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">Mbit</span>  <span class="c1"># second term for HK data which is 0 in this case</span></div>
+
+
+<div class="viewcode-block" id="Payload.raise_safe_flag">
+<a class="viewcode-back" href="../../../../digital_twin.spacecraft.payload.html#digital_twin.spacecraft.payload.payload.Payload.raise_safe_flag">[docs]</a>
+    <span class="k">def</span> <span class="nf">raise_safe_flag</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">safe_flag</span></div>
+
+
+<div class="viewcode-block" id="Payload.get_name">
+<a class="viewcode-back" href="../../../../digital_twin.spacecraft.payload.html#digital_twin.spacecraft.payload.payload.Payload.get_name">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span></div>
+
+
+<div class="viewcode-block" id="Payload.get_measurement_variables">
+<a class="viewcode-back" href="../../../../digital_twin.spacecraft.payload.html#digital_twin.spacecraft.payload.payload.Payload.get_measurement_variables">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_measurement_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">measurement_duration</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_measuring</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Mathilde Simoni.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,448 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>digital_twin.simulation &mdash; Digital Twin of the CHESS CubeSat 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Digital Twin of the CHESS CubeSat
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">digital_twin</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Digital Twin of the CHESS CubeSat</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">digital_twin.simulation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for digital_twin.simulation</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Main file to run the simulation</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
+
+<span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+<span class="kn">from</span> <span class="nn">astropy.time</span> <span class="kn">import</span> <span class="n">Time</span><span class="p">,</span> <span class="n">TimeDelta</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">digital_twin.constants</span> <span class="kn">import</span> <span class="n">earth_R</span>
+<span class="kn">from</span> <span class="nn">digital_twin.ground_station</span> <span class="kn">import</span> <span class="n">GroundStation</span>
+<span class="kn">from</span> <span class="nn">digital_twin.mode_switch</span> <span class="kn">import</span> <span class="n">ModeSwitch</span>
+<span class="kn">from</span> <span class="nn">digital_twin.orbit_propagator</span> <span class="kn">import</span> <span class="n">OrbitPropagator</span>
+<span class="kn">from</span> <span class="nn">digital_twin.orbit_propagator.constants</span> <span class="kn">import</span> <span class="n">attractor_string</span>
+
+<span class="kn">from</span> <span class="nn">digital_twin.spacecraft</span> <span class="kn">import</span> <span class="n">Spacecraft</span>
+<span class="kn">from</span> <span class="nn">digital_twin.utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_astropy_unit_time</span><span class="p">,</span>
+    <span class="n">extract_propagation_data_from_ephemeris</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">digital_twin.report</span> <span class="kn">import</span> <span class="n">produce_report</span>
+
+
+<div class="viewcode-block" id="Simulation">
+<a class="viewcode-back" href="../../digital_twin.html#digital_twin.simulation.Simulation">[docs]</a>
+<span class="k">class</span> <span class="nc">Simulation</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manager class which gathers simulation objects and runs the main simulation loop.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">simulation_params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
+        <span class="n">orbit_params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
+        <span class="n">spacecraft_params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
+        <span class="n">station_params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
+        <span class="n">mission_design_params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+        <span class="c1"># TIME INITIALIZATION</span>
+        <span class="k">if</span> <span class="n">simulation_params</span><span class="p">[</span><span class="s2">&quot;units_delta_t&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;second&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Simulation no implemented for timesteps not expressed in seconds&quot;</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sim_unit</span> <span class="o">=</span> <span class="n">get_astropy_unit_time</span><span class="p">(</span><span class="n">simulation_params</span><span class="p">[</span><span class="s2">&quot;units_delta_t&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">delta_t</span> <span class="o">=</span> <span class="n">simulation_params</span><span class="p">[</span><span class="s2">&quot;delta_t&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_unit</span>
+        <span class="n">init_time_local</span> <span class="o">=</span> <span class="mi">0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_unit</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">duration_sim</span> <span class="o">=</span> <span class="n">simulation_params</span><span class="p">[</span><span class="s2">&quot;duration_sim&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">get_astropy_unit_time</span><span class="p">(</span>
+            <span class="n">simulation_params</span><span class="p">[</span><span class="s2">&quot;units_duration_sim&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">duration_sim</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sim_unit</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_t</span><span class="o">.</span><span class="n">value</span>
+        <span class="p">)</span>
+        <span class="n">end_time_local</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_t</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_unit</span>
+
+        <span class="n">epoch</span> <span class="o">=</span> <span class="n">Time</span><span class="p">(</span><span class="n">orbit_params</span><span class="p">[</span><span class="s2">&quot;epoch&quot;</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;iso&quot;</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="s2">&quot;utc&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_time</span> <span class="o">=</span> <span class="n">init_time_local</span> <span class="o">+</span> <span class="n">epoch</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end_time</span> <span class="o">=</span> <span class="n">end_time_local</span> <span class="o">+</span> <span class="n">epoch</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">tofs</span> <span class="o">=</span> <span class="n">TimeDelta</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">init_time_local</span><span class="p">,</span> <span class="n">end_time_local</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>  <span class="c1"># gives the results in days</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epochs_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">epoch</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tofs</span><span class="p">)</span>
+
+        <span class="c1"># MODE SWITCH ALGORITHM INITIALIZATION</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">switch_algo</span> <span class="o">=</span> <span class="n">ModeSwitch</span><span class="p">(</span>
+            <span class="n">init_mode</span><span class="o">=</span><span class="n">spacecraft_params</span><span class="p">[</span><span class="s2">&quot;general&quot;</span><span class="p">][</span><span class="s2">&quot;init_operating_mode&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="c1"># SPACECRAFT INITIALIZATION</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span> <span class="o">=</span> <span class="n">Spacecraft</span><span class="p">(</span><span class="n">spacecraft_params</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">switch_algo</span><span class="o">.</span><span class="n">operating_mode</span><span class="p">)</span>
+
+        <span class="c1"># GROUND STATION INITIALIZATION</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ground_stations</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">station_params</span><span class="p">[</span><span class="s2">&quot;stations&quot;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ground_stations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">GroundStation</span><span class="p">(</span><span class="n">param</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ground_stations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ground_stations</span><span class="p">)</span>
+
+        <span class="c1"># PROPAGATOR INITIALIZATION</span>
+        <span class="n">update_air_density_timestep</span> <span class="o">=</span> <span class="n">simulation_params</span><span class="p">[</span>
+            <span class="s2">&quot;update_air_density_timestep&quot;</span>
+        <span class="p">]</span> <span class="o">*</span> <span class="n">get_astropy_unit_time</span><span class="p">(</span><span class="n">simulation_params</span><span class="p">[</span><span class="s2">&quot;update_air_density_timestep_unit&quot;</span><span class="p">])</span>
+        <span class="n">atmosphere_model</span> <span class="o">=</span> <span class="n">simulation_params</span><span class="p">[</span><span class="s2">&quot;atmosphere_model&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">propagator</span> <span class="o">=</span> <span class="n">OrbitPropagator</span><span class="p">(</span>
+            <span class="n">orbit_params</span><span class="p">,</span> <span class="n">epoch</span><span class="p">,</span> <span class="n">atmosphere_model</span><span class="p">,</span> <span class="n">update_air_density_timestep</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Additional user input</span>
+        <span class="n">user_input</span> <span class="o">=</span> <span class="n">mission_design_params</span><span class="p">[</span><span class="s2">&quot;user_input&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handle_user_input</span><span class="p">(</span><span class="n">user_input</span><span class="p">)</span>
+
+        <span class="c1"># Print user parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">report_params</span> <span class="o">=</span> <span class="n">mission_design_params</span><span class="p">[</span><span class="s2">&quot;report&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">print_parameters</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Simulation.run">
+<a class="viewcode-back" href="../../digital_twin.html#digital_twin.simulation.Simulation.run">[docs]</a>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Main simulation loop.&quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Simulation running...&quot;</span><span class="p">)</span>
+
+        <span class="c1"># INITIALIZATION</span>
+        <span class="n">eph</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+        <span class="n">eph</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">propagator</span><span class="o">.</span><span class="n">r</span>
+        <span class="n">eph</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">propagator</span><span class="o">.</span><span class="n">v</span>
+
+        <span class="c1"># Data to store</span>
+        <span class="n">modes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">modes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">switch_algo</span><span class="o">.</span><span class="n">operating_mode</span>
+
+        <span class="n">battery_energies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">battery_energies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_eps</span><span class="p">()</span><span class="o">.</span><span class="n">get_battery_energy</span><span class="p">()</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">power_consumption</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">power_consumption</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_eps</span><span class="p">()</span><span class="o">.</span><span class="n">get_power_consumption</span><span class="p">()</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">power_generation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">power_generation</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_eps</span><span class="p">()</span><span class="o">.</span><span class="n">get_power_generation</span><span class="p">()</span><span class="o">.</span><span class="n">value</span>
+
+        <span class="n">data_storage</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">data_storage_GNSS_TOF</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">data_storage_HK</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="nb">all</span><span class="p">,</span> <span class="n">GNSS_TOF</span><span class="p">,</span> <span class="n">HK</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_obc</span><span class="p">()</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+        <span class="n">data_storage</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">all</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">data_storage_GNSS_TOF</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">GNSS_TOF</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">data_storage_HK</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">HK</span><span class="o">.</span><span class="n">value</span>
+
+        <span class="n">vis_windows</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ground_stations</span><span class="p">))</span>
+        <span class="p">)</span>  <span class="c1"># for each ground station</span>
+        <span class="n">vis</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">propagator</span><span class="o">.</span><span class="n">calculate_vis_window</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ground_stations</span><span class="p">)</span>
+        <span class="n">vis_windows</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">vis</span>
+
+        <span class="n">eclipse_windows</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">eclipse</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">propagator</span><span class="o">.</span><span class="n">calculate_eclipse_status</span><span class="p">()</span>
+        <span class="n">eclipse_windows</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">eclipse</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of timesteps:&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span><span class="p">)</span>
+
+        <span class="n">start_for_loop</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span><span class="p">):</span>
+
+            <span class="c1"># 1. propagate to next position and store the results</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">rv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">propagator</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">delta_t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">C_D</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">A_over_m</span>
+                <span class="p">)</span>
+            <span class="k">except</span> <span class="p">(</span>
+                <span class="ne">RuntimeError</span>
+            <span class="p">):</span>  <span class="c1"># spacefract cannot be propagated anymore (usually because altitude is too low)</span>
+                <span class="k">break</span>
+
+            <span class="n">eph</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">rv</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+            <span class="n">eph</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">:]</span> <span class="o">=</span> <span class="n">rv</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span>
+
+            <span class="k">if</span> <span class="n">t</span> <span class="o">%</span> <span class="mi">1000</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;iter &quot;</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">rv</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">earth_R</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">180</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Altitude decay: deorbiting&quot;</span><span class="p">)</span>
+                    <span class="k">break</span>
+
+            <span class="c1"># 2. Calculate position based params: communication window, eclipse</span>
+            <span class="n">visibility</span><span class="p">,</span> <span class="n">gs_coords_array</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">propagator</span><span class="o">.</span><span class="n">calculate_vis_window</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ground_stations</span>
+            <span class="p">)</span>
+            <span class="n">eclipse_status</span><span class="p">,</span> <span class="n">r_earth_sun</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">propagator</span><span class="o">.</span><span class="n">calculate_eclipse_status</span><span class="p">()</span>
+            <span class="n">r_earth_sun</span> <span class="o">=</span> <span class="n">r_earth_sun</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span>
+
+            <span class="c1"># 3. Calculate user-scheduled params</span>
+            <span class="n">measurement_session</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_payload</span><span class="p">()</span><span class="o">.</span><span class="n">can_start_measuring</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tofs</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;second&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">com_window</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">gs_coords</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">vis</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">visibility</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">vis</span><span class="p">:</span>
+                    <span class="n">com_window</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">gs_coords</span> <span class="o">=</span> <span class="p">(</span><span class="n">gs_coords_array</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+                    <span class="k">break</span>  <span class="c1"># Right now, we only consider the first ground station which is visible from satellite</span>
+
+            <span class="c1"># 3. Check for potential flags raised by OBS</span>
+            <span class="n">safe_flag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_obc</span><span class="p">()</span><span class="o">.</span><span class="n">raise_spacecraft_safe_flag</span><span class="p">()</span>
+
+            <span class="c1"># 4. Switch mode based on current state</span>
+            <span class="n">old_mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">switch_algo</span><span class="o">.</span><span class="n">operating_mode</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">switch_algo</span><span class="o">.</span><span class="n">switch_mode</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_eps</span><span class="p">(),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_telecom</span><span class="p">(),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_payload</span><span class="p">(),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_data_storage</span><span class="p">(),</span>
+                <span class="n">com_window</span><span class="p">,</span>
+                <span class="n">eclipse_status</span><span class="p">,</span>
+                <span class="n">measurement_session</span><span class="p">,</span>
+                <span class="n">safe_flag</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">new_mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">switch_algo</span><span class="o">.</span><span class="n">operating_mode</span>
+            <span class="n">modes</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_mode</span>
+
+            <span class="c1"># 5. Ask spacecraft to update all subsystems</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">update_subsystems</span><span class="p">(</span>
+                <span class="n">old_mode</span><span class="p">,</span>
+                <span class="n">new_mode</span><span class="p">,</span>
+                <span class="n">rv</span><span class="p">,</span>
+                <span class="n">com_window</span><span class="p">,</span>
+                <span class="n">eclipse_status</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">delta_t</span><span class="p">,</span>
+                <span class="n">r_earth_sun</span><span class="p">,</span>
+                <span class="n">gs_coords</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="c1"># 6. Save data</span>
+            <span class="n">vis_windows</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">vis</span><span class="p">)</span> <span class="k">for</span> <span class="n">vis</span> <span class="ow">in</span> <span class="n">visibility</span><span class="p">])</span>
+            <span class="n">eclipse_windows</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">eclipse_status</span><span class="p">)</span>
+            <span class="n">battery_energies</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_eps</span><span class="p">()</span><span class="o">.</span><span class="n">get_battery_energy</span><span class="p">()</span><span class="o">.</span><span class="n">value</span>
+            <span class="p">)</span>
+            <span class="n">power_consumption</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_eps</span><span class="p">()</span><span class="o">.</span><span class="n">get_power_consumption</span><span class="p">()</span><span class="o">.</span><span class="n">value</span>
+            <span class="p">)</span>
+            <span class="n">power_generation</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_eps</span><span class="p">()</span><span class="o">.</span><span class="n">get_power_generation</span><span class="p">()</span><span class="o">.</span><span class="n">value</span>
+            <span class="p">)</span>
+            <span class="nb">all</span><span class="p">,</span> <span class="n">GNSS_TOF</span><span class="p">,</span> <span class="n">HK</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_obc</span><span class="p">()</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+            <span class="n">data_storage</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">all</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">data_storage_GNSS_TOF</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">GNSS_TOF</span><span class="o">.</span><span class="n">value</span>
+            <span class="n">data_storage_HK</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">HK</span><span class="o">.</span><span class="n">value</span>
+
+        <span class="n">end_for_loop</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">duration</span> <span class="o">=</span> <span class="n">end_for_loop</span> <span class="o">-</span> <span class="n">start_for_loop</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Simulation ended!&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Time: </span><span class="si">{</span><span class="n">duration</span><span class="si">}</span><span class="s2"> s&quot;</span><span class="p">)</span>
+
+        <span class="c1"># If the simulation finished earlier than planned</span>
+        <span class="k">if</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WARNING: simulation couldn&#39;t end because of propagation error&quot;</span><span class="p">)</span>
+            <span class="n">eph</span> <span class="o">=</span> <span class="n">eph</span><span class="p">[:</span> <span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># Extract the orbital elements data</span>
+        <span class="n">rr</span><span class="p">,</span> <span class="n">vv</span><span class="p">,</span> <span class="n">SMAs</span><span class="p">,</span> <span class="n">ECCs</span><span class="p">,</span> <span class="n">INCs</span><span class="p">,</span> <span class="n">RAANs</span><span class="p">,</span> <span class="n">AOPs</span><span class="p">,</span> <span class="n">TAs</span><span class="p">,</span> <span class="n">altitudes</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">extract_propagation_data_from_ephemeris</span><span class="p">(</span><span class="n">eph</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="c1"># Remove data if propagation continued below altitude 0</span>
+        <span class="n">neg_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">altitudes</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">neg_index</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">last_ind</span> <span class="o">=</span> <span class="n">neg_index</span> <span class="k">if</span> <span class="n">neg_index</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">t</span>
+
+            <span class="n">altitudes</span> <span class="o">=</span> <span class="n">altitudes</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
+            <span class="n">rr</span> <span class="o">=</span> <span class="n">rr</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
+            <span class="n">vv</span> <span class="o">=</span> <span class="n">vv</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
+            <span class="n">SMAs</span> <span class="o">=</span> <span class="n">SMAs</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
+            <span class="n">ECCs</span> <span class="o">=</span> <span class="n">ECCs</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
+            <span class="n">INCs</span> <span class="o">=</span> <span class="n">INCs</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
+            <span class="n">RAANs</span> <span class="o">=</span> <span class="n">RAANs</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
+            <span class="n">AOPs</span> <span class="o">=</span> <span class="n">AOPs</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
+            <span class="n">TAs</span> <span class="o">=</span> <span class="n">TAs</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
+
+            <span class="n">eph</span> <span class="o">=</span> <span class="n">eph</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
+            <span class="n">vis_windows</span> <span class="o">=</span> <span class="n">vis_windows</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
+            <span class="n">modes</span> <span class="o">=</span> <span class="n">modes</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
+            <span class="n">battery_energies</span> <span class="o">=</span> <span class="n">battery_energies</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
+            <span class="n">power_consumption</span> <span class="o">=</span> <span class="n">power_consumption</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
+            <span class="n">power_generation</span> <span class="o">=</span> <span class="n">power_generation</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
+            <span class="n">data_storage</span> <span class="o">=</span> <span class="n">data_storage</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
+            <span class="n">data_storage_GNSS_TOF</span> <span class="o">=</span> <span class="n">data_storage_GNSS_TOF</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
+            <span class="n">data_storage_HK</span> <span class="o">=</span> <span class="n">data_storage_HK</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
+            <span class="n">eclipse_windows</span> <span class="o">=</span> <span class="n">eclipse_windows</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">duration_sim</span> <span class="o">=</span> <span class="n">last_ind</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_t</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tofs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tofs</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">epochs_array</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">epochs_array</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
+
+        <span class="c1"># Extract orbit and spacecraft states</span>
+        <span class="n">orbit_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">propagator</span><span class="o">.</span><span class="n">save_state</span><span class="p">()</span>
+        <span class="n">spacecraft_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">save_state</span><span class="p">()</span>
+        <span class="n">spacecraft_state</span><span class="p">[</span><span class="s2">&quot;general&quot;</span><span class="p">][</span>
+            <span class="s2">&quot;init_operating_mode&quot;</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">switch_algo</span><span class="o">.</span><span class="n">operating_mode</span>
+
+        <span class="n">data_results</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;tofs&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tofs</span><span class="p">,</span>
+            <span class="s2">&quot;rr&quot;</span><span class="p">:</span> <span class="n">rr</span><span class="p">,</span>
+            <span class="s2">&quot;vv&quot;</span><span class="p">:</span> <span class="n">vv</span><span class="p">,</span>
+            <span class="s2">&quot;SMAs&quot;</span><span class="p">:</span> <span class="n">SMAs</span><span class="p">,</span>
+            <span class="s2">&quot;ECCs&quot;</span><span class="p">:</span> <span class="n">ECCs</span><span class="p">,</span>
+            <span class="s2">&quot;INCs&quot;</span><span class="p">:</span> <span class="n">INCs</span><span class="p">,</span>
+            <span class="s2">&quot;RAANs&quot;</span><span class="p">:</span> <span class="n">RAANs</span><span class="p">,</span>
+            <span class="s2">&quot;AOPs&quot;</span><span class="p">:</span> <span class="n">AOPs</span><span class="p">,</span>
+            <span class="s2">&quot;TAs&quot;</span><span class="p">:</span> <span class="n">TAs</span><span class="p">,</span>
+            <span class="s2">&quot;altitudes&quot;</span><span class="p">:</span> <span class="n">altitudes</span><span class="p">,</span>
+            <span class="s2">&quot;modes&quot;</span><span class="p">:</span> <span class="n">modes</span><span class="p">,</span>
+            <span class="s2">&quot;vis&quot;</span><span class="p">:</span> <span class="n">vis_windows</span><span class="p">,</span>
+            <span class="s2">&quot;eclipse&quot;</span><span class="p">:</span> <span class="n">eclipse_windows</span><span class="p">,</span>
+            <span class="s2">&quot;battery&quot;</span><span class="p">:</span> <span class="n">battery_energies</span><span class="p">,</span>
+            <span class="s2">&quot;consumption&quot;</span><span class="p">:</span> <span class="n">power_consumption</span><span class="p">,</span>
+            <span class="s2">&quot;generation&quot;</span><span class="p">:</span> <span class="n">power_generation</span><span class="p">,</span>
+            <span class="s2">&quot;storage&quot;</span><span class="p">:</span> <span class="n">data_storage</span><span class="p">,</span>
+            <span class="s2">&quot;storage_GNSS_TOF&quot;</span><span class="p">:</span> <span class="n">data_storage_GNSS_TOF</span><span class="p">,</span>
+            <span class="s2">&quot;storage_HK&quot;</span><span class="p">:</span> <span class="n">data_storage_HK</span><span class="p">,</span>
+            <span class="s2">&quot;duration_sim&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">duration_sim</span><span class="p">,</span>
+            <span class="s2">&quot;epochs_array&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">epochs_array</span><span class="p">,</span>
+            <span class="s2">&quot;initial_orbit&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">propagator</span><span class="o">.</span><span class="n">get_initial_orbit</span><span class="p">(),</span>
+            <span class="s2">&quot;ground_stations&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">ground_stations</span><span class="p">,</span>
+            <span class="s2">&quot;orbit_state&quot;</span><span class="p">:</span> <span class="n">orbit_state</span><span class="p">,</span>
+            <span class="s2">&quot;spacecraft_state&quot;</span><span class="p">:</span> <span class="n">spacecraft_state</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="c1"># Produce report</span>
+        <span class="n">produce_report</span><span class="p">(</span><span class="n">data_results</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">report_params</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Average Power Generation [W]:&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">power_generation</span><span class="p">))</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Time to print results: &quot;</span><span class="p">,</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Simulation.print_parameters">
+<a class="viewcode-back" href="../../digital_twin.html#digital_twin.simulation.Simulation.print_parameters">[docs]</a>
+    <span class="k">def</span> <span class="nf">print_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Print a summary of the the simulation objects.&quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;*******************&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;INITIAL PARAMETERS:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Simulation:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- init time: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">init_time</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- end time: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">end_time</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- init operating mode: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">switch_algo</span><span class="o">.</span><span class="n">print_operating_mode</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Ground Stations:&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ground_station</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ground_stations</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;- &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ground_station</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">propagator</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;*******************&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span></div>
+
+
+    <span class="c1"># This function is to handle additional user input</span>
+    <span class="c1"># Only implemented for uplink safe mode trigger</span>
+<div class="viewcode-block" id="Simulation.handle_user_input">
+<a class="viewcode-back" href="../../digital_twin.html#digital_twin.simulation.Simulation.handle_user_input">[docs]</a>
+    <span class="k">def</span> <span class="nf">handle_user_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_input</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">user_input</span><span class="p">[</span><span class="s2">&quot;uplink_safe_mode&quot;</span><span class="p">]:</span>  <span class="c1"># if dic is not empty</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_telecom</span><span class="p">()</span><span class="o">.</span><span class="n">add_uplink_safe_mode</span><span class="p">(</span>
+                <span class="n">user_input</span><span class="p">[</span><span class="s2">&quot;uplink_safe_mode&quot;</span><span class="p">]</span>
+            <span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Mathilde Simoni.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

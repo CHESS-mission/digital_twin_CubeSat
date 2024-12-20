@@ -1,0 +1,361 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>digital_twin.spacecraft.spacecraft &mdash; Digital Twin of the CHESS CubeSat 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Digital Twin of the CHESS CubeSat
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">digital_twin</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Digital Twin of the CHESS CubeSat</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">digital_twin.spacecraft.spacecraft</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for digital_twin.spacecraft.spacecraft</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;File for the spacecraft object.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+<span class="kn">from</span> <span class="nn">astropy.time</span> <span class="kn">import</span> <span class="n">TimeDelta</span>
+<span class="kn">from</span> <span class="nn">astropy.units</span> <span class="kn">import</span> <span class="n">Quantity</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">digital_twin.spacecraft.adcs</span> <span class="kn">import</span> <span class="n">Adcs</span>
+<span class="kn">from</span> <span class="nn">digital_twin.spacecraft.eps</span> <span class="kn">import</span> <span class="n">Eps</span>
+<span class="kn">from</span> <span class="nn">digital_twin.spacecraft.obc</span> <span class="kn">import</span> <span class="n">Obc</span><span class="p">,</span> <span class="n">DataStorage</span>
+<span class="kn">from</span> <span class="nn">digital_twin.spacecraft.payload</span> <span class="kn">import</span> <span class="n">Payload</span>
+<span class="kn">from</span> <span class="nn">digital_twin.spacecraft.telecom</span> <span class="kn">import</span> <span class="n">Telecom</span>
+
+
+<div class="viewcode-block" id="Spacecraft">
+<a class="viewcode-back" href="../../../digital_twin.spacecraft.html#digital_twin.spacecraft.spacecraft.Spacecraft">[docs]</a>
+<span class="k">class</span> <span class="nc">Spacecraft</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">init_operating_mode</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Initializing the spacecraft...&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;general&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">C_D</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;general&quot;</span><span class="p">][</span><span class="s2">&quot;C_D&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">one</span>
+        <span class="n">init_cross_section</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;general&quot;</span><span class="p">][</span><span class="s2">&quot;cross_section_area&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="o">**</span><span class="mi">2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cross_section</span> <span class="o">=</span> <span class="n">init_cross_section</span>  <span class="c1"># NOTE: will have to update this when I implement ADCS module!</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;general&quot;</span><span class="p">][</span><span class="s2">&quot;mass&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">kg</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">A_over_m</span> <span class="o">=</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">cross_section</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mass</span><span class="p">))</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span>
+            <span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">kg</span>
+        <span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">kg</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">B</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">C_D</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">A_over_m</span>  <span class="c1"># Approximation of the ballistic coefficient</span>
+
+        <span class="c1"># SUBSYSTEMS INITIALIZATION (main ones)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eps_subsystem</span> <span class="o">=</span> <span class="n">Eps</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;eps&quot;</span><span class="p">],</span> <span class="n">init_operating_mode</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">telecom_subsystem</span> <span class="o">=</span> <span class="n">Telecom</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;telecom&quot;</span><span class="p">],</span> <span class="n">init_operating_mode</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adcs_subsystem</span> <span class="o">=</span> <span class="n">Adcs</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;adcs&quot;</span><span class="p">],</span> <span class="n">init_operating_mode</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">payload_subsystem</span> <span class="o">=</span> <span class="n">Payload</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;payload&quot;</span><span class="p">],</span> <span class="n">init_operating_mode</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">obc_subsystem</span> <span class="o">=</span> <span class="n">Obc</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;obc&quot;</span><span class="p">],</span> <span class="n">init_operating_mode</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">subsystems</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eps_subsystem</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">telecom_subsystem</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">adcs_subsystem</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">payload_subsystem</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">obc_subsystem</span><span class="p">,</span>
+        <span class="p">]</span>
+
+        <span class="c1"># check if any safe flag is raised by subsystem and update OBC</span>
+        <span class="n">safe_flag_raised</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">safe_flag_subsystem</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">subsystem</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">subsystems</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">subsystem</span><span class="o">.</span><span class="n">raise_safe_flag</span><span class="p">():</span>
+                <span class="n">safe_flag_raised</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">safe_flag_subsystem</span> <span class="o">=</span> <span class="n">subsystem</span><span class="o">.</span><span class="n">get_name</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">obc_subsystem</span><span class="o">.</span><span class="n">update_safe_flag</span><span class="p">(</span><span class="n">safe_flag_raised</span><span class="p">,</span> <span class="n">safe_flag_subsystem</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Spacecraft.update_subsystems">
+<a class="viewcode-back" href="../../../digital_twin.spacecraft.html#digital_twin.spacecraft.spacecraft.Spacecraft.update_subsystems">[docs]</a>
+    <span class="k">def</span> <span class="nf">update_subsystems</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">old_mode</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">new_mode</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">rv</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">[</span><span class="n">Quantity</span><span class="p">],</span>
+        <span class="n">com_window</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="n">eclipse_status</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="n">delta_t</span><span class="p">:</span> <span class="n">TimeDelta</span><span class="p">,</span>
+        <span class="n">r_earth_sun</span><span class="p">:</span> <span class="n">Quantity</span><span class="p">,</span>
+        <span class="n">gs_coords</span><span class="p">:</span> <span class="n">Quantity</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Update each subsystem based on old mode, new mode, location, communication_window and eclispe_status boolean</span>
+        <span class="k">for</span> <span class="n">subsystem</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">subsystems</span><span class="p">:</span>
+            <span class="n">subsystem</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                <span class="n">old_mode</span><span class="p">,</span> <span class="n">new_mode</span><span class="p">,</span> <span class="n">rv</span><span class="p">,</span> <span class="n">com_window</span><span class="p">,</span> <span class="n">eclipse_status</span><span class="p">,</span> <span class="n">delta_t</span>
+            <span class="p">)</span>
+
+        <span class="c1"># get new cross section from ADCS change of orientation, and update related spacecraft attributes</span>
+        <span class="n">new_cross_section</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adcs_subsystem</span><span class="o">.</span><span class="n">get_cross_section</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cross_section</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">new_cross_section</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cross_section</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cross_section</span> <span class="o">=</span> <span class="n">new_cross_section</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">A_over_m</span> <span class="o">=</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">cross_section</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mass</span><span class="p">))</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span>
+                <span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">kg</span>
+            <span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">kg</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">B</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">C_D</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">A_over_m</span>
+
+        <span class="c1"># Compute the power consumed by each subsystem at current timestep</span>
+        <span class="n">power_consumed</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">subsystem</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">subsystems</span><span class="p">:</span>
+            <span class="n">power_consumed</span> <span class="o">+=</span> <span class="n">subsystem</span><span class="o">.</span><span class="n">compute_power_consumed</span><span class="p">(</span><span class="n">new_mode</span><span class="p">)</span>
+        <span class="c1"># Update EPS based on data gathered for all other subsystems</span>
+        <span class="n">attitude</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adcs_subsystem</span><span class="o">.</span><span class="n">get_attitude</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eps_subsystem</span><span class="o">.</span><span class="n">update_batteries</span><span class="p">(</span>
+            <span class="n">power_consumed</span><span class="p">,</span>
+            <span class="n">delta_t</span><span class="p">,</span>
+            <span class="n">eclipse_status</span><span class="p">,</span>
+            <span class="n">attitude</span><span class="p">,</span>
+            <span class="n">r_earth_sun</span><span class="p">,</span>
+            <span class="n">rv</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="p">,</span>
+            <span class="n">gs_coords</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Compute data change (generation or removal) at current timestep</span>
+        <span class="n">data_update_TOF_GNSS</span> <span class="o">=</span> <span class="mi">0</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">Mbit</span>
+        <span class="n">data_update_HK</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">Mbit</span>
+        <span class="n">TOF_GNSS_telecom</span><span class="p">,</span> <span class="n">HK_telecom</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">telecom_subsystem</span><span class="o">.</span><span class="n">compute_data_update</span><span class="p">(</span>
+            <span class="n">new_mode</span><span class="p">,</span> <span class="n">delta_t</span>
+        <span class="p">)</span>
+        <span class="n">data_update_TOF_GNSS</span> <span class="o">+=</span> <span class="n">TOF_GNSS_telecom</span>
+        <span class="n">data_update_HK</span> <span class="o">+=</span> <span class="n">HK_telecom</span>
+
+        <span class="n">TOF_GNSS_payload</span><span class="p">,</span> <span class="n">HK_payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">payload_subsystem</span><span class="o">.</span><span class="n">compute_data_update</span><span class="p">(</span>
+            <span class="n">new_mode</span><span class="p">,</span> <span class="n">delta_t</span>
+        <span class="p">)</span>
+        <span class="n">data_update_TOF_GNSS</span> <span class="o">+=</span> <span class="n">TOF_GNSS_payload</span>
+        <span class="n">data_update_HK</span> <span class="o">+=</span> <span class="n">HK_payload</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">obc_subsystem</span><span class="o">.</span><span class="n">update_data_storage</span><span class="p">(</span>
+            <span class="n">data_update_TOF_GNSS</span><span class="p">,</span> <span class="n">data_update_HK</span><span class="p">,</span> <span class="n">delta_t</span>
+        <span class="p">)</span>
+
+        <span class="c1"># check if any safe flag is raised by subsystem and update OBC</span>
+        <span class="n">safe_flag_raised</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">safe_flag_subsystem</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">subsystem</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">subsystems</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">subsystem</span><span class="o">.</span><span class="n">raise_safe_flag</span><span class="p">():</span>
+                <span class="n">safe_flag_raised</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">safe_flag_subsystem</span> <span class="o">=</span> <span class="n">subsystem</span><span class="o">.</span><span class="n">get_name</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">obc_subsystem</span><span class="o">.</span><span class="n">update_safe_flag</span><span class="p">(</span><span class="n">safe_flag_raised</span><span class="p">,</span> <span class="n">safe_flag_subsystem</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">string1</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="sa">f</span><span class="s2">&quot;- mass: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mass</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;- ballistic coeff: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;- cross section: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cross_section</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">subsystem</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">subsystems</span><span class="p">:</span>
+            <span class="n">tmp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">subsystem</span><span class="p">))</span>
+        <span class="n">string2</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;Spacecraft &quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&quot;:</span><span class="se">\n</span><span class="si">{</span><span class="n">string1</span><span class="si">}</span><span class="s1"> </span><span class="se">\n</span><span class="s1">With subsystems:</span><span class="se">\n</span><span class="si">{</span><span class="n">string2</span><span class="si">}</span><span class="s1">&#39;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">C_D</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Quantity</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_C_D</span>
+
+    <span class="nd">@C_D</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">C_D</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">C_D</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_C_D</span> <span class="o">=</span> <span class="n">C_D</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">A_over_m</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Quantity</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_A_over_m</span>
+
+    <span class="nd">@A_over_m</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">A_over_m</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">A_over_m</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_A_over_m</span> <span class="o">=</span> <span class="n">A_over_m</span>
+
+<div class="viewcode-block" id="Spacecraft.get_eps">
+<a class="viewcode-back" href="../../../digital_twin.spacecraft.html#digital_twin.spacecraft.spacecraft.Spacecraft.get_eps">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_eps</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Eps</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps_subsystem</span></div>
+
+
+<div class="viewcode-block" id="Spacecraft.get_telecom">
+<a class="viewcode-back" href="../../../digital_twin.spacecraft.html#digital_twin.spacecraft.spacecraft.Spacecraft.get_telecom">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_telecom</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Telecom</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">telecom_subsystem</span></div>
+
+
+<div class="viewcode-block" id="Spacecraft.get_payload">
+<a class="viewcode-back" href="../../../digital_twin.spacecraft.html#digital_twin.spacecraft.spacecraft.Spacecraft.get_payload">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_payload</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Payload</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">payload_subsystem</span></div>
+
+
+<div class="viewcode-block" id="Spacecraft.get_obc">
+<a class="viewcode-back" href="../../../digital_twin.spacecraft.html#digital_twin.spacecraft.spacecraft.Spacecraft.get_obc">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_obc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Obc</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">obc_subsystem</span></div>
+
+
+<div class="viewcode-block" id="Spacecraft.get_data_storage">
+<a class="viewcode-back" href="../../../digital_twin.spacecraft.html#digital_twin.spacecraft.spacecraft.Spacecraft.get_data_storage">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_data_storage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataStorage</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">obc_subsystem</span><span class="o">.</span><span class="n">get_data_storage</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Spacecraft.save_state">
+<a class="viewcode-back" href="../../../digital_twin.spacecraft.html#digital_twin.spacecraft.spacecraft.Spacecraft.save_state">[docs]</a>
+    <span class="k">def</span> <span class="nf">save_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+        <span class="n">spacecraft_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span>  <span class="c1"># the initial one, which is now updated</span>
+
+        <span class="n">spacecraft_state</span><span class="p">[</span><span class="s2">&quot;eps&quot;</span><span class="p">][</span><span class="s2">&quot;init_safe_flag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;true&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps_subsystem</span><span class="o">.</span><span class="n">raise_safe_flag</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;false&quot;</span>
+        <span class="p">)</span>
+        <span class="n">spacecraft_state</span><span class="p">[</span><span class="s2">&quot;adcs&quot;</span><span class="p">][</span><span class="s2">&quot;init_safe_flag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;true&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">adcs_subsystem</span><span class="o">.</span><span class="n">raise_safe_flag</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;false&quot;</span>
+        <span class="p">)</span>
+        <span class="n">spacecraft_state</span><span class="p">[</span><span class="s2">&quot;obc&quot;</span><span class="p">][</span><span class="s2">&quot;init_safe_flag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;true&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">obc_subsystem</span><span class="o">.</span><span class="n">raise_safe_flag</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;false&quot;</span>
+        <span class="p">)</span>
+        <span class="n">spacecraft_state</span><span class="p">[</span><span class="s2">&quot;payload&quot;</span><span class="p">][</span><span class="s2">&quot;init_safe_flag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;true&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">payload_subsystem</span><span class="o">.</span><span class="n">raise_safe_flag</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;false&quot;</span>
+        <span class="p">)</span>
+        <span class="n">spacecraft_state</span><span class="p">[</span><span class="s2">&quot;telecom&quot;</span><span class="p">][</span><span class="s2">&quot;init_safe_flag&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;true&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">telecom_subsystem</span><span class="o">.</span><span class="n">raise_safe_flag</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;false&quot;</span>
+        <span class="p">)</span>
+
+        <span class="n">spacecraft_state</span><span class="p">[</span><span class="s2">&quot;eps&quot;</span><span class="p">][</span><span class="s2">&quot;init_battery_level&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eps_subsystem</span><span class="o">.</span><span class="n">get_battery_energy</span><span class="p">()</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">W</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">hour</span><span class="p">)</span><span class="o">.</span><span class="n">to_value</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="n">full</span><span class="p">,</span> <span class="n">TOF_GNSS</span><span class="p">,</span> <span class="n">HK</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">obc_subsystem</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+        <span class="n">spacecraft_state</span><span class="p">[</span><span class="s2">&quot;obc&quot;</span><span class="p">][</span><span class="s2">&quot;data_storage&quot;</span><span class="p">][</span><span class="s2">&quot;init_data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">full</span><span class="o">.</span><span class="n">to_value</span><span class="p">()</span>
+        <span class="n">spacecraft_state</span><span class="p">[</span><span class="s2">&quot;obc&quot;</span><span class="p">][</span><span class="s2">&quot;data_storage&quot;</span><span class="p">][</span>
+            <span class="s2">&quot;init_data_TOF_GNSS&quot;</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="n">TOF_GNSS</span><span class="o">.</span><span class="n">to_value</span><span class="p">()</span>
+        <span class="n">spacecraft_state</span><span class="p">[</span><span class="s2">&quot;obc&quot;</span><span class="p">][</span><span class="s2">&quot;data_storage&quot;</span><span class="p">][</span><span class="s2">&quot;init_data_HK&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">HK</span><span class="o">.</span><span class="n">to_value</span><span class="p">()</span>
+        <span class="n">spacecraft_state</span><span class="p">[</span><span class="s2">&quot;obc&quot;</span><span class="p">][</span><span class="s2">&quot;data_storage&quot;</span><span class="p">][</span><span class="s2">&quot;init_data_to_downlink&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">obc_subsystem</span><span class="o">.</span><span class="n">get_data_storage</span><span class="p">()</span><span class="o">.</span><span class="n">get_data_to_downlink</span><span class="p">()</span><span class="o">.</span><span class="n">to_value</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="n">dur</span><span class="p">,</span> <span class="n">is_measuring</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">payload_subsystem</span><span class="o">.</span><span class="n">get_measurement_variables</span><span class="p">()</span>
+        <span class="n">spacecraft_state</span><span class="p">[</span><span class="s2">&quot;payload&quot;</span><span class="p">][</span><span class="s2">&quot;init_measurement_duration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dur</span><span class="o">.</span><span class="n">to_value</span><span class="p">()</span>
+        <span class="n">spacecraft_state</span><span class="p">[</span><span class="s2">&quot;payload&quot;</span><span class="p">][</span><span class="s2">&quot;init_is_measuring&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;true&quot;</span> <span class="k">if</span> <span class="n">is_measuring</span> <span class="k">else</span> <span class="s2">&quot;false&quot;</span>
+        <span class="p">)</span>
+
+        <span class="p">(</span>
+            <span class="n">t_no_com</span><span class="p">,</span>
+            <span class="n">com_duration</span><span class="p">,</span>
+            <span class="n">is_communicating</span><span class="p">,</span>
+            <span class="n">alternating</span><span class="p">,</span>
+            <span class="n">safe_flag_reason</span><span class="p">,</span>
+            <span class="n">safe_flag_duration_left</span><span class="p">,</span>
+            <span class="n">is_visible</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">telecom_subsystem</span><span class="o">.</span><span class="n">get_telecom_variables</span><span class="p">()</span>
+
+        <span class="n">spacecraft_state</span><span class="p">[</span><span class="s2">&quot;telecom&quot;</span><span class="p">][</span><span class="s2">&quot;init_time_no_com&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">t_no_com</span><span class="o">.</span><span class="n">to_value</span><span class="p">()</span>
+        <span class="n">spacecraft_state</span><span class="p">[</span><span class="s2">&quot;telecom&quot;</span><span class="p">][</span><span class="s2">&quot;init_com_duration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">com_duration</span><span class="o">.</span><span class="n">to_value</span><span class="p">()</span>
+        <span class="n">spacecraft_state</span><span class="p">[</span><span class="s2">&quot;telecom&quot;</span><span class="p">][</span><span class="s2">&quot;init_is_communicating&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;true&quot;</span> <span class="k">if</span> <span class="n">is_communicating</span> <span class="k">else</span> <span class="s2">&quot;false&quot;</span>
+        <span class="p">)</span>
+        <span class="n">spacecraft_state</span><span class="p">[</span><span class="s2">&quot;telecom&quot;</span><span class="p">][</span><span class="s2">&quot;init_is_alternating&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;true&quot;</span> <span class="k">if</span> <span class="n">alternating</span> <span class="k">else</span> <span class="s2">&quot;false&quot;</span>
+        <span class="p">)</span>
+        <span class="n">spacecraft_state</span><span class="p">[</span><span class="s2">&quot;telecom&quot;</span><span class="p">][</span><span class="s2">&quot;init_safe_flag_reason&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">safe_flag_reason</span>
+        <span class="n">spacecraft_state</span><span class="p">[</span><span class="s2">&quot;telecom&quot;</span><span class="p">][</span><span class="s2">&quot;init_safe_flag_duration_left&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;none&quot;</span>
+            <span class="k">if</span> <span class="n">safe_flag_duration_left</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="n">safe_flag_duration_left</span><span class="o">.</span><span class="n">to_value</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="n">spacecraft_state</span><span class="p">[</span><span class="s2">&quot;telecom&quot;</span><span class="p">][</span><span class="s2">&quot;init_is_visible&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;true&quot;</span> <span class="k">if</span> <span class="n">is_visible</span> <span class="k">else</span> <span class="s2">&quot;false&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">spacecraft_state</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Mathilde Simoni.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

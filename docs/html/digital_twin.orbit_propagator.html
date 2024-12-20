@@ -1,0 +1,304 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>digital_twin.orbit_propagator package &mdash; Digital Twin of the CHESS CubeSat 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="digital_twin.spacecraft package" href="digital_twin.spacecraft.html" />
+    <link rel="prev" title="digital_twin.ground_station package" href="digital_twin.ground_station.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Digital Twin of the CHESS CubeSat
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">digital_twin</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="digital_twin.html">digital_twin package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="digital_twin.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="digital_twin.ground_station.html">digital_twin.ground_station package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">digital_twin.orbit_propagator package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="digital_twin.spacecraft.html">digital_twin.spacecraft package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="digital_twin.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="digital_twin.html#module-digital_twin.constants">digital_twin.constants module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="digital_twin.html#module-digital_twin.mode_switch">digital_twin.mode_switch module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="digital_twin.html#module-digital_twin.plotting">digital_twin.plotting module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="digital_twin.html#module-digital_twin.report">digital_twin.report module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="digital_twin.html#module-digital_twin.simulation">digital_twin.simulation module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="digital_twin.html#module-digital_twin.utils">digital_twin.utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="digital_twin.html#module-digital_twin">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Digital Twin of the CHESS CubeSat</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">digital_twin</a></li>
+          <li class="breadcrumb-item"><a href="digital_twin.html">digital_twin package</a></li>
+      <li class="breadcrumb-item active">digital_twin.orbit_propagator package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/digital_twin.orbit_propagator.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="digital-twin-orbit-propagator-package">
+<h1>digital_twin.orbit_propagator package<a class="headerlink" href="#digital-twin-orbit-propagator-package" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-digital_twin.orbit_propagator.atmosphere_model">
+<span id="digital-twin-orbit-propagator-atmosphere-model-module"></span><h2>digital_twin.orbit_propagator.atmosphere_model module<a class="headerlink" href="#module-digital_twin.orbit_propagator.atmosphere_model" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="digital_twin.orbit_propagator.atmosphere_model.AtmosphereModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">digital_twin.orbit_propagator.atmosphere_model.</span></span><span class="sig-name descname"><span class="pre">AtmosphereModel</span></span><a class="reference internal" href="_modules/digital_twin/orbit_propagator/atmosphere_model.html#AtmosphereModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModel" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Interface for atmosphere models.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="digital_twin.orbit_propagator.atmosphere_model.AtmosphereModel.get_density">
+<span class="sig-name descname"><span class="pre">get_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iso_date_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Quantity</span></span></span><a class="reference internal" href="_modules/digital_twin/orbit_propagator/atmosphere_model.html#AtmosphereModel.get_density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModel.get_density" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelCOESA76">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">digital_twin.orbit_propagator.atmosphere_model.</span></span><span class="sig-name descname"><span class="pre">AtmosphereModelCOESA76</span></span><a class="reference internal" href="_modules/digital_twin/orbit_propagator/atmosphere_model.html#AtmosphereModelCOESA76"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelCOESA76" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModel" title="digital_twin.orbit_propagator.atmosphere_model.AtmosphereModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">AtmosphereModel</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelCOESA76.get_density">
+<span class="sig-name descname"><span class="pre">get_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iso_date_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Quantity</span></span></span><a class="reference internal" href="_modules/digital_twin/orbit_propagator/atmosphere_model.html#AtmosphereModelCOESA76.get_density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelCOESA76.get_density" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelJB2008">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">digital_twin.orbit_propagator.atmosphere_model.</span></span><span class="sig-name descname"><span class="pre">AtmosphereModelJB2008</span></span><a class="reference internal" href="_modules/digital_twin/orbit_propagator/atmosphere_model.html#AtmosphereModelJB2008"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelJB2008" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModel" title="digital_twin.orbit_propagator.atmosphere_model.AtmosphereModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">AtmosphereModel</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelJB2008.get_density">
+<span class="sig-name descname"><span class="pre">get_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iso_date_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Quantity</span></span></span><a class="reference internal" href="_modules/digital_twin/orbit_propagator/atmosphere_model.html#AtmosphereModelJB2008.get_density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelJB2008.get_density" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelNRLMSISE00">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">digital_twin.orbit_propagator.atmosphere_model.</span></span><span class="sig-name descname"><span class="pre">AtmosphereModelNRLMSISE00</span></span><a class="reference internal" href="_modules/digital_twin/orbit_propagator/atmosphere_model.html#AtmosphereModelNRLMSISE00"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelNRLMSISE00" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModel" title="digital_twin.orbit_propagator.atmosphere_model.AtmosphereModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">AtmosphereModel</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelNRLMSISE00.get_density">
+<span class="sig-name descname"><span class="pre">get_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iso_date_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Quantity</span></span></span><a class="reference internal" href="_modules/digital_twin/orbit_propagator/atmosphere_model.html#AtmosphereModelNRLMSISE00.get_density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelNRLMSISE00.get_density" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelSolarActivity">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">digital_twin.orbit_propagator.atmosphere_model.</span></span><span class="sig-name descname"><span class="pre">AtmosphereModelSolarActivity</span></span><a class="reference internal" href="_modules/digital_twin/orbit_propagator/atmosphere_model.html#AtmosphereModelSolarActivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelSolarActivity" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModel" title="digital_twin.orbit_propagator.atmosphere_model.AtmosphereModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">AtmosphereModel</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelSolarActivity.calculate_density">
+<span class="sig-name descname"><span class="pre">calculate_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">F10_7</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/digital_twin/orbit_propagator/atmosphere_model.html#AtmosphereModelSolarActivity.calculate_density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelSolarActivity.calculate_density" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelSolarActivity.get_density">
+<span class="sig-name descname"><span class="pre">get_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iso_date_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Quantity</span></span></span><a class="reference internal" href="_modules/digital_twin/orbit_propagator/atmosphere_model.html#AtmosphereModelSolarActivity.get_density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelSolarActivity.get_density" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelSolarActivity.get_solar_activity_values">
+<span class="sig-name descname"><span class="pre">get_solar_activity_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iso_date_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/digital_twin/orbit_propagator/atmosphere_model.html#AtmosphereModelSolarActivity.get_solar_activity_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelSolarActivity.get_solar_activity_values" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-digital_twin.orbit_propagator.constants">
+<span id="digital-twin-orbit-propagator-constants-module"></span><h2>digital_twin.orbit_propagator.constants module<a class="headerlink" href="#module-digital_twin.orbit_propagator.constants" title="Link to this heading"></a></h2>
+</section>
+<section id="module-digital_twin.orbit_propagator.orbit_propagator">
+<span id="digital-twin-orbit-propagator-orbit-propagator-module"></span><h2>digital_twin.orbit_propagator.orbit_propagator module<a class="headerlink" href="#module-digital_twin.orbit_propagator.orbit_propagator" title="Link to this heading"></a></h2>
+<p>Wrapper around poliastro orbit propagator.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">digital_twin.orbit_propagator.orbit_propagator.</span></span><span class="sig-name descname"><span class="pre">OrbitPropagator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">orbit_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">atmosphere_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_air_density_timestep</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Quantity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/digital_twin/orbit_propagator/orbit_propagator.html#OrbitPropagator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator.a_d">
+<span class="sig-name descname"><span class="pre">a_d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">J2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C_D</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A_over_m</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/digital_twin/orbit_propagator/orbit_propagator.html#OrbitPropagator.a_d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator.a_d" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator.calculate_eclipse_status">
+<span class="sig-name descname"><span class="pre">calculate_eclipse_status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/digital_twin/orbit_propagator/orbit_propagator.html#OrbitPropagator.calculate_eclipse_status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator.calculate_eclipse_status" title="Link to this definition"></a></dt>
+<dd><p>Calculates if the satellite receives light from the sun.
+If the return value is negative, the satellite is in eclipse and does not receive sunlight.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator.calculate_vis_window">
+<span class="sig-name descname"><span class="pre">calculate_vis_window</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ground_stations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/digital_twin/orbit_propagator/orbit_propagator.html#OrbitPropagator.calculate_vis_window"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator.calculate_vis_window" title="Link to this definition"></a></dt>
+<dd><p>For each ground station, check if the satellite is visible.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ground_stations</strong> (<em>np.ndarray</em>) – Array of ground stations.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>array of Boolean values for each ground station (visible: True).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator.f">
+<span class="sig-name descname"><span class="pre">f</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/digital_twin/orbit_propagator/orbit_propagator.html#OrbitPropagator.f"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator.f" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator.get_initial_orbit">
+<span class="sig-name descname"><span class="pre">get_initial_orbit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Orbit</span></span></span><a class="reference internal" href="_modules/digital_twin/orbit_propagator/orbit_propagator.html#OrbitPropagator.get_initial_orbit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator.get_initial_orbit" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator.propagate">
+<span class="sig-name descname"><span class="pre">propagate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">Quantity</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PhysicalType</span><span class="p"><span class="pre">(</span></span><span class="s"><span class="pre">'time'</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C_D</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A_over_m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Quantity</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="_modules/digital_twin/orbit_propagator/orbit_propagator.html#OrbitPropagator.propagate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator.propagate" title="Link to this definition"></a></dt>
+<dd><p>Propagate the satellite by 1 timestep.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>delta_t</strong> (<em>Quantity</em><em>[</em><em>&quot;time&quot;</em><em>]</em>) – Timestep used to propagate.</p></li>
+<li><p><strong>C_D</strong> (<em>Quantity</em>) – Spacecraft new grad coefficient.</p></li>
+<li><p><strong>A_over_m</strong> (<em>Quantity</em>) – Spacecraft new ratio of mass and area.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>New position of the satellite.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator.r">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">r</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator.r" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator.save_state">
+<span class="sig-name descname"><span class="pre">save_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="_modules/digital_twin/orbit_propagator/orbit_propagator.html#OrbitPropagator.save_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator.save_state" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator.update_rho">
+<span class="sig-name descname"><span class="pre">update_rho</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/digital_twin/orbit_propagator/orbit_propagator.html#OrbitPropagator.update_rho"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator.update_rho" title="Link to this definition"></a></dt>
+<dd><p>Update air density depending on satellite altitude.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>position</strong> (<em>np.ndarray</em>) – Position of the satellite.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator.v">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">v</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator.v" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-digital_twin.orbit_propagator">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-digital_twin.orbit_propagator" title="Link to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="digital_twin.ground_station.html" class="btn btn-neutral float-left" title="digital_twin.ground_station package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="digital_twin.spacecraft.html" class="btn btn-neutral float-right" title="digital_twin.spacecraft package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Mathilde Simoni.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
