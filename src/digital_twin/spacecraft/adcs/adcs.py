@@ -48,7 +48,7 @@ class Adcs(SubSystem):
             pass  # not implemented yet for this subsystem
 
     def get_cross_section(self, old_cross_section: Quantity) -> Quantity:
-        return old_cross_section  # TODO: update when dynamic cross section feature is implemented
+        return old_cross_section
 
     def compute_power_consumed(self, mode: int) -> Quantity:
         return self.consumption_mean[mode]

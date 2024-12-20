@@ -16,6 +16,7 @@ from digital_twin.plotting import (
     plot_boolean_bars,
     plot_dashboard,
     plot_orbital_elem_evolution,
+    plot_1d_multiple,
 )
 from digital_twin.utils import (
     check_and_empty_folder,
@@ -67,10 +68,12 @@ def generate_figures(data: Dict, figure_params: Dict, folder: str) -> None:
 
     stations_coords = []
     stations_names = []
+    stations_colors = []
     for station in data["ground_stations"]:
-        name, pos = station.get_name_pos()
+        name, pos, color = station.get_name_pos_color()
         stations_coords.append(pos)
         stations_names.append(name)
+        stations_colors.append(color)
     if figure_params["groundtrack"] == "yes":
         plot_groundtrack(
             figure_params["title_figures"],
@@ -79,7 +82,8 @@ def generate_figures(data: Dict, figure_params: Dict, folder: str) -> None:
             "CHESS_1 cubeSat",
             folder,
             stations_coords=np.array(stations_coords),
-            stations_name=np.array(stations_names),
+            stations_names=np.array(stations_names),
+            stations_colors=np.array(stations_colors),
         )
 
     if figure_params["modes"] == "yes":
@@ -94,16 +98,21 @@ def generate_figures(data: Dict, figure_params: Dict, folder: str) -> None:
 
     if figure_params["dashboard"] == "yes":
         save_filename = folder + "dashboard.pdf"
-        plot_dashboard(
-            data["modes"],
-            data["eclipse"],
-            data["vis"],
-            data["tofs"].to_value("second"),
-            data["duration_sim"],
-            title="Operating Modes Over Time",
-            save_filename=save_filename,
-            show=False,
-        )
+        if (data["vis"].shape)[1] == 1:
+            plot_dashboard(
+                data["modes"],
+                data["eclipse"],
+                data["vis"],
+                data["tofs"].to_value("second"),
+                data["duration_sim"],
+                title="Operating Modes Over Time",
+                save_filename=save_filename,
+                show=False,
+            )
+        else:
+            print(
+                "WARNING: dashboard function not implemented for multiple ground stations"
+            )
 
     x_label, x_label_f = find_x_scale(data["duration_sim"])
     step = int(len(data["tofs"]) / 100)
@@ -128,10 +137,10 @@ def generate_figures(data: Dict, figure_params: Dict, folder: str) -> None:
     if figure_params["power_consumption"] == "yes":
         plot_1d(
             data["tofs"].to_value("second")[1:],
-            (data["consumption"][1:] * (u.W * u.s)).to(u.W * u.h),
+            data["consumption"][1:],
             "Power Consumption Over Time",
             x_label,
-            r"Power Consumption ($Wh$)",
+            r"Power Consumption ($W$)",
             step=1,  # no step because we want to capture small intervals of time
             fill_under=False,
             remove_box=True,
@@ -145,10 +154,10 @@ def generate_figures(data: Dict, figure_params: Dict, folder: str) -> None:
     if figure_params["power_generation"] == "yes":
         plot_1d(
             data["tofs"].to_value("second")[1:],
-            (data["generation"][1:] * (u.W * u.s)).to(u.W * u.h),
+            data["generation"][1:],
             "Power Generation Over Time",
             x_label,
-            r"Power Generation ($Wh$)",
+            r"Power Generation ($W$)",
             step=1,
             fill_under=False,
             remove_box=True,
@@ -156,6 +165,48 @@ def generate_figures(data: Dict, figure_params: Dict, folder: str) -> None:
             x_label_f=x_label_f,
             show=False,
             save_filename=folder + "power_generation.pdf",
+            markersize_plot=0,
+        )
+    if figure_params["power_balance"] == "yes":
+        balance = data["generation"][1:] - data["consumption"][1:]
+        # xs = [
+        #     data["tofs"].to_value("second")[1:],
+        #     data["tofs"].to_value("second")[1:],
+        #     data["tofs"].to_value("second")[1:],
+        # ]
+        # ys = [-data["consumption"][1:], data["generation"][1:], balance]
+        # colors = ["blue", "purple", "green"]
+        # labels = ["Power Consumption", "Power Generation", "Power Balance"]
+        # steps = [1, 1, 1]
+        # plot_1d_multiple(
+        #     xs,
+        #     ys,
+        #     "Power Balance Over Time",
+        #     x_label,
+        #     r"Power ($W$)",
+        #     colors=colors,
+        #     labels=labels,
+        #     step=steps,
+        #     fill_under=False,
+        #     remove_box=True,
+        #     scatter=True,
+        #     show=False,
+        #     x_label_f=x_label_f,
+        #     save_filename=folder + "power_balance.png",
+        # )
+        plot_1d(
+            data["tofs"].to_value("second")[1:],
+            balance,
+            "Power Balance Over Time",
+            x_label,
+            r"Power Balance ($W$)",
+            step=1,
+            fill_under=False,
+            remove_box=True,
+            scatter=False,
+            x_label_f=x_label_f,
+            show=False,
+            save_filename=folder + "power_balance.pdf",
             markersize_plot=0,
         )
 
@@ -205,14 +256,19 @@ def generate_figures(data: Dict, figure_params: Dict, folder: str) -> None:
 
     if figure_params["visibility_windows"] == "yes":
         save_filename = folder + "visibility_windows.pdf"
-        plot_boolean_bars(
-            data["vis"],
-            data["tofs"].to_value("second"),
-            data["duration_sim"],
-            "Visibility Windows",
-            save_filename=save_filename,
-            show=False,
-        )
+        if (data["vis"].shape)[1] == 1:
+            plot_boolean_bars(
+                data["vis"],
+                data["tofs"].to_value("second"),
+                data["duration_sim"],
+                "Visibility Windows",
+                save_filename=save_filename,
+                show=False,
+            )
+        else:
+            print(
+                "WARNING: dashboard function not implemented for multiple ground stations"
+            )
 
     if figure_params["eclipse_windows"] == "yes":
         save_filename = folder + "eclipse_windows.pdf"

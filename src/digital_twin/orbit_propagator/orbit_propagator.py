@@ -69,17 +69,30 @@ class OrbitPropagator:
         init_AOP = orbit_params["orbital_elements"]["AOP"] * u.deg
         init_TA = orbit_params["orbital_elements"]["TA"] * u.deg
 
-        # TODO: more general orbit
-        self.init_orbit = Orbit.heliosynchronous(
-            attractor=attractor,
-            a=init_SMA,
-            ecc=init_ECC,
-            # inc = inc,
-            raan=init_RAAN,
-            argp=init_AOP,
-            nu=init_TA,
-            epoch=epoch,
-        )
+        self.orbit_type = orbit_params["orbit_type"]
+
+        if self.orbit_type == "SSO":
+            self.init_orbit = Orbit.heliosynchronous(
+                attractor=attractor,
+                a=init_SMA,
+                ecc=init_ECC,
+                # inc = init_INC,
+                raan=init_RAAN,
+                argp=init_AOP,
+                nu=init_TA,
+                epoch=epoch,
+            )
+        else:
+            self.init_orbit = Orbit.from_classical(
+                attractor=attractor,
+                a=init_SMA,
+                ecc=init_ECC,
+                inc=init_INC,
+                raan=init_RAAN,
+                argp=init_AOP,
+                nu=init_TA,
+                epoch=epoch,
+            )
 
         self.current_orbit = copy.deepcopy(self.init_orbit)
 
@@ -94,10 +107,10 @@ class OrbitPropagator:
             self.atmosphere_model = AtmosphereModelCOESA76()
 
         # rho is air density
-        # Approximation updated every __ timesteps for now (TODO: update)
-        self.update_rho_timestep = update_air_density_timestep
+        # Approximation updated every __ time
+        self.update_rho_time_interval = update_air_density_timestep
         self.countdown_rho = copy.deepcopy(
-            self.update_rho_timestep
+            self.update_rho_time_interval
         )  # Rho will be updated when countdown reaches 0
         self.rho = self.atmosphere_model.get_density(
             iso_date_str=str(self.current_orbit.epoch),
@@ -144,13 +157,12 @@ class OrbitPropagator:
         # Update air density
         if self.countdown_rho > 0 * u.s:
             self.countdown_rho -= delta_t
-            # print(self.countdown_rho)
         else:
             self.update_rho(
                 self.current_orbit.r.to(u.km).to_value()
             )  # update air density based on current altitude
             self.countdown_rho = copy.deepcopy(
-                self.update_rho_timestep
+                self.update_rho_time_interval
             )  # restart countdown
 
         new_orbit = self.current_orbit.propagate(delta_t, method=self.method)
@@ -222,7 +234,6 @@ class OrbitPropagator:
         else:
             return False, r_sec
         # If <= 0, the satellite is in eclipse and doesn't get sunlight
-        # TODO: check that
 
     def update_rho(self, position: np.ndarray) -> None:
         """Update air density depending on satellite altitude.
@@ -277,6 +288,7 @@ class OrbitPropagator:
         save_orbit_params["orbital_elements"]["TA"] = self.current_orbit.nu.to(
             u.deg
         ).to_value()
+        save_orbit_params["orbit_type"] = self.orbit_type
         save_orbit_params["epoch"] = str(self.current_orbit.epoch)
 
         return save_orbit_params

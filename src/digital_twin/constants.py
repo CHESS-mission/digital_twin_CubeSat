@@ -12,7 +12,7 @@ J2 = Earth.J2
 
 # SUN CONSTANTS
 sun_R = Sun.R.to(u.km)
-solar_power = 1361 * (u.W / u.m**2)
+solar_power = 1367 * (u.W / u.m**2)
 
 # SPACECRAFT MODES
 mode_dict = {

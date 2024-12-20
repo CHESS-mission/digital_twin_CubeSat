@@ -84,22 +84,24 @@ class Simulation:
             orbit_params, epoch, atmosphere_model, update_air_density_timestep
         )
 
-        # additional user input
+        # Additional user input
         user_input = mission_design_params["user_input"]
         self.handle_user_input(user_input)
 
-        # data
+        # Print user parameters
         self.report_params = mission_design_params["report"]
         self.print_parameters()
 
     def run(self) -> None:
         """Main simulation loop."""
         print("Simulation running...")
+
+        # INITIALIZATION
         eph = np.zeros((self.n_timesteps + 1, 6))
         eph[0, :3] = self.propagator.r
         eph[0, 3:] = self.propagator.v
 
-        # data to store
+        # Data to store
         modes = np.zeros(self.n_timesteps + 1)
         modes[0] = self.switch_algo.operating_mode
 
@@ -129,19 +131,25 @@ class Simulation:
         eclipse_windows[0] = eclipse
 
         print("Number of timesteps:", self.n_timesteps)
-        start_for_loop = time.time()
 
+        start_for_loop = time.time()
         for t in range(0, self.n_timesteps):
 
             # 1. propagate to next position and store the results
-            rv = self.propagator.propagate(
-                self.delta_t, self.spacecraft.C_D, self.spacecraft.A_over_m
-            )
+            try:
+                rv = self.propagator.propagate(
+                    self.delta_t, self.spacecraft.C_D, self.spacecraft.A_over_m
+                )
+            except (
+                RuntimeError
+            ):  # spacefract cannot be propagated anymore (usually because altitude is too low)
+                break
+
             eph[t + 1, :3] = rv[:3]
             eph[t + 1, 3:] = rv[3:]
 
-            if t % 500 == 0:
-                print(t)  # TODO: remove
+            if t % 1000 == 0:
+                print("iter ", t)
                 if np.linalg.norm(rv[:3] - earth_R.value) < 180:
                     print("Altitude decay: deorbiting")
                     break
@@ -163,12 +171,12 @@ class Simulation:
                 if vis:
                     com_window = True
                     gs_coords = (gs_coords_array[i] * u.km).flatten()
-                    break  # right now, only consider the first ground station which is visible from satellite
+                    break  # Right now, we only consider the first ground station which is visible from satellite
 
             # 3. Check for potential flags raised by OBS
             safe_flag = self.spacecraft.get_obc().raise_spacecraft_safe_flag()
 
-            # 4. Switch mode based on location, Eps and Telecom states
+            # 4. Switch mode based on current state
             old_mode = self.switch_algo.operating_mode
             self.switch_algo.switch_mode(
                 self.spacecraft.get_eps(),
@@ -217,11 +225,48 @@ class Simulation:
         print("Simulation ended!")
         print(f"Time: {duration} s")
 
-        # Extract the data
+        # If the simulation finished earlier than planned
+        if t < self.n_timesteps - 1:
+            print("WARNING: simulation couldn't end because of propagation error")
+            eph = eph[: t + 1]
+
+        # Extract the orbital elements data
         rr, vv, SMAs, ECCs, INCs, RAANs, AOPs, TAs, altitudes = (
             extract_propagation_data_from_ephemeris(eph)
         )
-        # extract orbit and spacecraft states
+
+        start = time.time()
+        # Remove data if propagation continued below altitude 0
+        neg_index = np.argmax(altitudes < 0)
+        if neg_index != 0 or t < self.n_timesteps - 1:
+            last_ind = neg_index if neg_index != 0 else t
+
+            altitudes = altitudes[:last_ind]
+            rr = rr[:last_ind]
+            vv = vv[:last_ind]
+            SMAs = SMAs[:last_ind]
+            ECCs = ECCs[:last_ind]
+            INCs = INCs[:last_ind]
+            RAANs = RAANs[:last_ind]
+            AOPs = AOPs[:last_ind]
+            TAs = TAs[:last_ind]
+
+            eph = eph[:last_ind]
+            vis_windows = vis_windows[:last_ind]
+            modes = modes[:last_ind]
+            battery_energies = battery_energies[:last_ind]
+            power_consumption = power_consumption[:last_ind]
+            power_generation = power_generation[:last_ind]
+            data_storage = data_storage[:last_ind]
+            data_storage_GNSS_TOF = data_storage_GNSS_TOF[:last_ind]
+            data_storage_HK = data_storage_HK[:last_ind]
+            eclipse_windows = eclipse_windows[:last_ind]
+
+            self.duration_sim = last_ind * self.delta_t
+            self.tofs = self.tofs[:last_ind]
+            self.epochs_array = self.epochs_array[:last_ind]
+
+        # Extract orbit and spacecraft states
         orbit_state = self.propagator.save_state()
         spacecraft_state = self.spacecraft.save_state()
         spacecraft_state["general"][
@@ -255,8 +300,12 @@ class Simulation:
             "orbit_state": orbit_state,
             "spacecraft_state": spacecraft_state,
         }
+
         # Produce report
         produce_report(data_results, self.report_params)
+        print("Average Power Generation [W]:", np.mean(power_generation))
+        end = time.time()
+        print("Time to print results: ", end - start)
 
     def print_parameters(self) -> None:
         """Print a summary of the the simulation objects."""
@@ -277,8 +326,8 @@ class Simulation:
         print("*******************")
         print("")
 
-    # this function is to handle additional user input
-    # handles each input differently for initialization
+    # This function is to handle additional user input
+    # Only implemented for uplink safe mode trigger
     def handle_user_input(self, user_input) -> None:
         if user_input["uplink_safe_mode"]:  # if dic is not empty
             self.spacecraft.get_telecom().add_uplink_safe_mode(

@@ -16,6 +16,7 @@ class GroundStation:
     def __init__(self, params: Dict) -> None:
         print("Initializing the ground station")
         self.name = params["name"]
+        self.color = params["color"]  # for groundtrack plotting
 
         # Get coordinates
         self.station_coords = [params["latitude"], params["longitude"]] * u.deg
@@ -49,5 +50,5 @@ class GroundStation:
     def __str__(self) -> str:
         return f'ground station "{self.name}" located at {self.station_coords} with an elevation angle of {self.elev_angle}'
 
-    def get_name_pos(self) -> Tuple[str, np.ndarray]:
-        return self.name, self.station_coords
+    def get_name_pos_color(self) -> Tuple[str, np.ndarray]:
+        return self.name, self.station_coords, self.color

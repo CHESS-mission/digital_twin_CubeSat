@@ -5,7 +5,8 @@
 			"latitude": 47.520,
 			"longitude": 6.565,
 			"elevation_angle": 10,
-			"elevation_angle_unit": "degree"
+			"elevation_angle_unit": "degree", 
+			"color": "red"
 		}
 	]
 }

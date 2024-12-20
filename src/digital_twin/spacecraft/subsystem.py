@@ -5,7 +5,6 @@ from astropy.units import Quantity
 import numpy as np
 
 
-# TODO: check if it is better to implement with an @abstractclass decorator instead
 class SubSystem:
     """Interface for subsystems to make sure all susbsystems have necessary functions implemented."""
 

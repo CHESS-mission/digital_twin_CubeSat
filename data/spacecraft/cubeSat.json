@@ -11,9 +11,9 @@
         "min_battery": 15.264,
         "max_battery": 61.056,
         "init_battery_level": 76.32,
-        "measure_threshold": 56.4,
-        "com_threshold": 16.10,
-        "xb_threshold": 18.55,
+        "measure_threshold": 46.4,
+        "com_threshold": 15.63,
+        "xb_threshold": 18.08,
         "consumption": {
             "0": 0.24,
             "1": 0.24,
@@ -31,7 +31,6 @@
                 "4": 0,
                 "5": 0
             },
-            "mean_solar_input": 0.207,
             "nb_cells": 28,
             "cell_surface": 0.0028355,
             "efficiency": 0.25

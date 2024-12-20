@@ -512,8 +512,8 @@ def plot_groundtrack(
     traj_color: str = "purple",
     traj_width: float = 1,
     stations_coords: np.ndarray = None,
-    stations_name: np.ndarray = None,
-    station_color: str = "red",
+    stations_names: np.ndarray = None,
+    stations_colors: str = "red",
     show: bool = False,
 ) -> None:
     """Plot a satellite groundtrack on Earth."""
@@ -544,13 +544,13 @@ def plot_groundtrack(
     if stations_coords is not None:
         for index, station in enumerate(stations_coords):
             coord = station * u.deg  # [LAT LON]
-            name = stations_name[index]
+            name = stations_names[index]
             gp.add_trace(
                 go.Scattergeo(
                     lat=coord[0],
                     lon=coord[-1],
                     name=name,
-                    marker={"color": station_color},
+                    marker={"color": stations_colors[index]},
                     showlegend=True,
                 )
             )
