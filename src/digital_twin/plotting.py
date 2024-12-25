@@ -1,25 +1,23 @@
 """Gather all functions relating to plotting."""
 
-from typing import List, Tuple, Callable, Any
+from typing import Callable, Any
 
 from astropy import units as u
 from astropy.coordinates import (
     GCRS,
     ITRS,
-    CartesianDifferential,
     CartesianRepresentation,
     SphericalRepresentation,
 )
-from astropy.time import Time, TimeDelta
 from astropy.units import Quantity
-from poliastro.earth.plotting import GroundtrackPlotter
-from poliastro.plotting import OrbitPlotter3D
-from poliastro.twobody import Orbit
 from matplotlib import pyplot as plt
 from matplotlib.ticker import FuncFormatter
 import matplotlib.dates as mdates
 import numpy as np
 import plotly.graph_objects as go
+from poliastro.earth.plotting import GroundtrackPlotter
+from poliastro.plotting import OrbitPlotter3D
+from poliastro.twobody import Orbit
 
 from digital_twin.constants import mode_dict
 
@@ -33,8 +31,8 @@ def plot_1d(
     step: int = 1,
     fill_under: bool = True,
     remove_box: bool = True,
-    x_range: Tuple = None,
-    y_range: Tuple = None,
+    x_range: tuple = None,
+    y_range: tuple = None,
     scatter: bool = False,
     x_label_f: Callable = None,
     custom_y_ticks: bool = False,
@@ -50,7 +48,8 @@ def plot_1d(
     date_interval: int = 1,
     date_format: str = "%d/%m/%Y",
 ) -> None:
-    """Function for general plotting in 2d with x and y arrays as input."""
+    """Function for general plotting in 2d with x and y arrays as input.
+    Many parameters are optional to change the visualization design."""
     # Downsample the x and y arrays
     x_downsampled = x[::step]
     y_downsampled = y[::step]
@@ -113,13 +112,13 @@ def plot_1d(
         ax.spines["left"].set_color((0.8, 0.8, 0.8))
         ax.spines["bottom"].set_color((0.8, 0.8, 0.8))
 
-    # if want to have dates as the x axis
+    # If want to have dates as the x axis
     if date_x_axis:
         # Set major locator to show every other day (or adjust as needed)
         ax.xaxis.set_major_locator(mdates.DayLocator(interval=date_interval))
         ax.xaxis.set_major_formatter(
             mdates.DateFormatter(date_format)
-        )  # display the year only
+        )  # Display the year only
         plt.xticks(rotation=45)
 
     # Show the plot
@@ -133,7 +132,6 @@ def plot_1d(
         plt.close()
 
 
-# same as previous function but plots multiple graphs on the same ax, and adds a legend
 def plot_1d_multiple(
     x: list,
     y: list,
@@ -145,8 +143,8 @@ def plot_1d_multiple(
     step: list,
     fill_under: bool = True,
     remove_box: bool = True,
-    x_range: Tuple = None,
-    y_range: Tuple = None,
+    x_range: tuple = None,
+    y_range: tuple = None,
     scatter: bool = False,
     x_label_f: Callable = None,
     custom_y_ticks: bool = False,
@@ -162,7 +160,7 @@ def plot_1d_multiple(
     date_interval: int = 1,
     date_format: str = "%d/%m/%Y",
 ) -> None:
-    """Function for general plotting in 2d with x and y arrays as input."""
+    """Function for general plotting in 2d with x and y arrays as input for MULTIPLE PLOTS on the same ax."""
     nb_plots = len(y)  # = len(x)
 
     # Downsample the x and y arrays
@@ -265,18 +263,18 @@ def plot_1d_multiple(
         plt.close()
 
 
-def seconds_to_days(x: Any, pos: Any) -> Any:
-    """Convert seconds to days."""
+def seconds_to_days(x: Any, pos: Any) -> str:
+    """Convert seconds to days and return a string cast."""
     return f"{x / 86400:.0f}"
 
 
-def seconds_to_hours(x: Any, pos: Any) -> Any:
-    """Convert seconds to hours."""
+def seconds_to_hours(x: Any, pos: Any) -> str:
+    """Convert seconds to hours and return a string cast."""
     return f"{x / 3600:.0f}"
 
 
-def seconds_to_minutes(x: Any, pos: Any) -> Any:
-    """Convert seconds to minutes."""
+def seconds_to_minutes(x: Any, pos: Any) -> str:
+    """Convert seconds to minutes and return a string cast."""
     return f"{x / 60:.0f}"
 
 
@@ -441,7 +439,6 @@ def plot_orbit_trajectory_3d(
 
 def plot_orbit_2d(
     title: str,
-    attractor_name: str,
     folder: str,
     label: str,
     orbit: Orbit,
@@ -665,8 +662,20 @@ def plot_operating_modes(
         plt.close()
 
 
-def find_x_scale(duration_sim: Quantity["time"]):
-    # update what the x_axis scale should be
+def find_x_scale(duration_sim: Quantity["time"]) -> tuple[str, Callable]:
+    """Determine the appropriate x-axis scale and label based on the simulation duration.
+
+    Args:
+        duration_sim (Quantity["time"]): The total duration of the simulation, represented as a time quantity.
+
+    Returns:
+        tuple: A tuple containing the x-axis label (str) and the corresponding function to convert time values (function).
+
+    The function updates the x-axis scale and label based on the total simulation time:
+    - For durations less than or equal to 8 hours, the x-axis is labeled in minutes.
+    - For durations less than or equal to 3 days, the x-axis is labeled in hours.
+    - For durations greater than 3 days, the x-axis is labeled in days.
+    """
     if duration_sim <= 8 * u.h:
         x_label_f = seconds_to_minutes
         x_label = r"Time ($min$)"
@@ -676,7 +685,7 @@ def find_x_scale(duration_sim: Quantity["time"]):
     else:
         x_label_f = seconds_to_days
         x_label = r"Time ($day$)"
-    return x_label, x_label_f
+    return (x_label, x_label_f)
 
 
 def plot_boolean_bars(
@@ -752,17 +761,22 @@ def plot_dashboard(
     save_filename: str = None,
     show: bool = True,
 ) -> None:
-    """Plot operating modes during simulation to visualize them throughout time."""
+    """Plot operating modes during simulation to visualize them throughout time with the ecplipse status and visibility windows."""
 
-    # modes = [int(mode) for mode in modes]
-
-    mode_remap = {0: 1, 1: 2, 2: 0, 3: 4, 4: 5, 5: 3}
+    mode_remap = {
+        0: 1,
+        1: 2,
+        2: 0,
+        3: 4,
+        4: 5,
+        5: 3,
+    }  # to change plot order on the y axis, so that charging mode is next to eclipse bar and xband next to the visibility bar
     new_mode_order = [2, 0, 1, 5, 3, 4]
 
     # Apply the remapping
     modes = [mode_remap[int(mode)] for mode in modes]
 
-    # update what the x_axis scale should be
+    # Update what the x_axis scale should be
     x_label, x_label_f = find_x_scale(duration_sim)
 
     # Mode names
@@ -793,7 +807,6 @@ def plot_dashboard(
 
     # Hide y-ticks and y-axis label, focus on horizontal bars
     axes[0].set_yticks([])
-    # axes[0].set_xticks([])
     axes[0].set_ylabel("Visibility", fontsize=8)
     axes[0].yaxis.label.set(rotation="horizontal", ha="right", va="center")
 
@@ -810,7 +823,6 @@ def plot_dashboard(
     )
 
     # AX 1
-    # plt.figure(figsize=(6, 3.5))
     axes[1].set_ylim(-0.6, len(mode_labels) - 0.3)  # Adjust limits to avoid space
 
     # Manually add horizontal grid lines at each mode level to make grid
@@ -836,8 +848,6 @@ def plot_dashboard(
         linewidth=10,
     )  # Extend last line
 
-    # plt.title("Satellite Modes Over Time", fontsize=13, fontweight="medium")
-
     # Add a legend
     mode_handles = [
         plt.Line2D([0], [0], color=colors[i], linewidth=5)
@@ -848,8 +858,6 @@ def plot_dashboard(
     axes[1].set_yticks([])
     axes[1].set_ylabel("Operating\nMode", fontsize=8)
     axes[1].yaxis.label.set(rotation="horizontal", ha="right", va="center")
-
-    # ax = plt.gca()
     axes[1].xaxis.set_ticks_position("none")  # Remove x-ticks
     axes[1].spines["top"].set_color((0.8, 0.8, 0.8))
     axes[1].spines["right"].set_color((0.8, 0.8, 0.8))
@@ -871,7 +879,6 @@ def plot_dashboard(
 
     # Hide y-ticks and y-axis label, focus on horizontal bars
     axes[2].set_yticks([])
-    # axes[2].set_xticks([])
     axes[2].set_ylabel("Sunlight", fontsize=8)
     axes[2].yaxis.label.set(rotation="horizontal", ha="right", va="center")
 
@@ -882,11 +889,6 @@ def plot_dashboard(
     axes[2].spines["bottom"].set_color((0.8, 0.8, 0.8))
     axes[2].xaxis.set_major_formatter(FuncFormatter(x_label_f))
     axes[2].tick_params(axis="x", labelsize=8)
-
-    eclipse_handle = plt.Line2D(
-        [0], [0], color="gold", linewidth=5, label="Satellite receives sunlight"
-    )
-
     axes[2].set_xlabel(x_label, fontsize=9)
 
     plt.rcParams["legend.title_fontsize"] = 9

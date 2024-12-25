@@ -1,9 +1,11 @@
-"""Constant for the simulation."""
+"""Constants for the simulation."""
 
 from astropy import units as u
 from poliastro.bodies import Earth, Sun
-from poliastro.earth.atmosphere import COESA76
 
+# SIMULATION TIME CONSTANTS
+simulation_unit = u.s
+simulation_unit_string = "second"
 
 # EARTH CONSTANTS
 earth_R = Earth.R.to(u.km)  # Earth's radius

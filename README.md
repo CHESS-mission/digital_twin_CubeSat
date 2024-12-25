@@ -13,6 +13,7 @@
 
 ## Requirements
 
+- python 3.9 or above (for typing hints)
 [Libraries]
 
 

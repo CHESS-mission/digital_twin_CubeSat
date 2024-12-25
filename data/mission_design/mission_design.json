@@ -4,18 +4,18 @@
         "figures" : {
             "title_figures": "CHESS_1 test",
             "orbital_elem_evolution": "yes",
-            "trajectory_2d": "no",
-            "trajectory_3d": "no",
+            "trajectory_2d": "yes",
+            "trajectory_3d": "yes",
             "groundtrack": "yes",
             "modes": "yes",
             "dashboard": "yes",
-            "battery_energy": "no",
-            "power_consumption": "no",
-            "power_generation": "no",
-            "power_balance": "no",
-            "data_storage": "no",
-            "visibility_windows": "no",
-            "eclipse_windows": "no"
+            "battery_energy": "yes",
+            "power_consumption": "yes",
+            "power_generation": "yes",
+            "power_balance": "yes",
+            "data_storage": "yes",
+            "visibility_windows": "yes",
+            "eclipse_windows": "yes"
         },
         "data" : {
             "telecom_data": "no",

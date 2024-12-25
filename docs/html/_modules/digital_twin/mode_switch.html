@@ -41,7 +41,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../modules.html">digital_twin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../digital_twin.html">digital_twin package</a></li>
 </ul>
 
         </div>
@@ -69,8 +69,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for digital_twin.mode_switch</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;File in which all functions for switching between different operating modes are implemented.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;Defininition of the logic for switching between different operating modes.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">digital_twin.constants</span> <span class="kn">import</span> <span class="n">mode_dict</span>
 <span class="kn">from</span> <span class="nn">digital_twin.spacecraft.eps</span> <span class="kn">import</span> <span class="n">Eps</span>
@@ -86,11 +85,12 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">init_mode</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mode_dict</span> <span class="o">=</span> <span class="n">mode_dict</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">operating_mode</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">init_mode</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">operating_mode</span> <span class="o">=</span> <span class="n">init_mode</span>
 
 <div class="viewcode-block" id="ModeSwitch.print_operating_mode">
 <a class="viewcode-back" href="../../digital_twin.html#digital_twin.mode_switch.ModeSwitch.print_operating_mode">[docs]</a>
     <span class="k">def</span> <span class="nf">print_operating_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the human-readable description of the current operating mode.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">operating_mode</span><span class="p">]</span></div>
 
 
@@ -107,6 +107,19 @@
         <span class="n">measurement_session</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
         <span class="n">safe_flag</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determine and set the next operating mode based on the current spacecraft state.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            eps (Eps): The Electrical Power Subsystem (EPS) instance.</span>
+<span class="sd">            telecom (Telecom): The Telecommunication subsystem instance.</span>
+<span class="sd">            payload (Payload): The Payload subsystem instance.</span>
+<span class="sd">            data_storage (DataStorage): The onboard data storage instance.</span>
+<span class="sd">            com_window (bool): Indicates whether a communication window is available.</span>
+<span class="sd">            eclipse_status (bool): Indicates whether the spacecraft is currently in an eclipse.</span>
+<span class="sd">            measurement_session (bool): Indicates whether a measurement session can be started.</span>
+<span class="sd">            safe_flag (bool): Indicates whether a safe flag has been raised.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">safe_flag</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">operating_mode</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="k">else</span><span class="p">:</span>
@@ -114,7 +127,6 @@
                 <span class="k">case</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">mode_switch_from_IDLE</span><span class="p">(</span>
                         <span class="n">eps</span><span class="p">,</span>
-                        <span class="n">payload</span><span class="p">,</span>
                         <span class="n">data_storage</span><span class="p">,</span>
                         <span class="n">com_window</span><span class="p">,</span>
                         <span class="n">eclipse_status</span><span class="p">,</span>
@@ -125,7 +137,6 @@
                 <span class="k">case</span> <span class="mi">2</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">mode_switch_from_CHARGING</span><span class="p">(</span>
                         <span class="n">eps</span><span class="p">,</span>
-                        <span class="n">payload</span><span class="p">,</span>
                         <span class="n">data_storage</span><span class="p">,</span>
                         <span class="n">com_window</span><span class="p">,</span>
                         <span class="n">eclipse_status</span><span class="p">,</span>
@@ -133,14 +144,12 @@
                     <span class="p">)</span>
                 <span class="k">case</span> <span class="mi">3</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">mode_switch_from_UHF_COM</span><span class="p">(</span>
-                        <span class="n">eps</span><span class="p">,</span> <span class="n">telecom</span><span class="p">,</span> <span class="n">payload</span><span class="p">,</span> <span class="n">data_storage</span><span class="p">,</span> <span class="n">com_window</span>
+                        <span class="n">eps</span><span class="p">,</span> <span class="n">telecom</span><span class="p">,</span> <span class="n">data_storage</span><span class="p">,</span> <span class="n">com_window</span>
                     <span class="p">)</span>
                 <span class="k">case</span> <span class="mi">4</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">mode_switch_from_X_BAND_COM</span><span class="p">(</span>
-                        <span class="n">telecom</span><span class="p">,</span> <span class="n">payload</span><span class="p">,</span> <span class="n">data_storage</span><span class="p">,</span> <span class="n">com_window</span>
-                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">mode_switch_from_X_BAND_COM</span><span class="p">(</span><span class="n">data_storage</span><span class="p">,</span> <span class="n">com_window</span><span class="p">)</span>
                 <span class="k">case</span> <span class="mi">5</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">mode_switch_from_MEASUREMENT</span><span class="p">(</span><span class="n">telecom</span><span class="p">,</span> <span class="n">payload</span><span class="p">,</span> <span class="n">data_storage</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">mode_switch_from_MEASUREMENT</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="n">data_storage</span><span class="p">)</span>
                 <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
                         <span class="sa">f</span><span class="s2">&quot;The current operating mode (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">operating_mode</span><span class="si">}</span><span class="s2">) does not exist&quot;</span>
@@ -160,12 +169,12 @@
     <span class="k">def</span> <span class="nf">mode_switch_from_IDLE</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">eps</span><span class="p">:</span> <span class="n">Eps</span><span class="p">,</span>
-        <span class="n">payload</span><span class="p">:</span> <span class="n">Payload</span><span class="p">,</span>
         <span class="n">data_storage</span><span class="p">:</span> <span class="n">DataStorage</span><span class="p">,</span>
         <span class="n">com_window</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
         <span class="n">eclipse_status</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
         <span class="n">measurement_session</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
-    <span class="p">):</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle transitions from IDLE mode.&quot;&quot;&quot;</span>
         <span class="c1"># Charging in priority if low battery (if possible)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">eclipse_status</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">eps</span><span class="o">.</span><span class="n">battery_level</span> <span class="o">&lt;=</span> <span class="n">eps</span><span class="o">.</span><span class="n">min_battery</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">operating_mode</span> <span class="o">=</span> <span class="mi">2</span>
@@ -191,9 +200,8 @@
 
 <div class="viewcode-block" id="ModeSwitch.mode_switch_from_SAFE">
 <a class="viewcode-back" href="../../digital_twin.html#digital_twin.mode_switch.ModeSwitch.mode_switch_from_SAFE">[docs]</a>
-    <span class="k">def</span> <span class="nf">mode_switch_from_SAFE</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># the case of a safe flag was treated in the switch_mode() function already</span>
-        <span class="c1"># so, if the safe flag disappeared, switch to IDLE mode</span>
+    <span class="k">def</span> <span class="nf">mode_switch_from_SAFE</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle transitions from SAFE mode.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">operating_mode</span> <span class="o">=</span> <span class="mi">0</span></div>
 
 
@@ -202,12 +210,12 @@
     <span class="k">def</span> <span class="nf">mode_switch_from_CHARGING</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">eps</span><span class="p">:</span> <span class="n">Eps</span><span class="p">,</span>
-        <span class="n">payload</span><span class="p">:</span> <span class="n">Payload</span><span class="p">,</span>
         <span class="n">data_storage</span><span class="p">:</span> <span class="n">DataStorage</span><span class="p">,</span>
         <span class="n">com_window</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
         <span class="n">eclipse_status</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
         <span class="n">measurement_session</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
-    <span class="p">):</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle transitions from CHARGING mode.&quot;&quot;&quot;</span>
         <span class="c1"># Try to measure</span>
         <span class="k">if</span> <span class="p">(</span>
             <span class="p">(</span><span class="n">eps</span><span class="o">.</span><span class="n">battery_level</span> <span class="o">&gt;=</span> <span class="n">eps</span><span class="o">.</span><span class="n">measure_threshold</span><span class="p">)</span>
@@ -234,10 +242,10 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">eps</span><span class="p">:</span> <span class="n">Eps</span><span class="p">,</span>
         <span class="n">telecom</span><span class="p">:</span> <span class="n">Telecom</span><span class="p">,</span>
-        <span class="n">payload</span><span class="p">:</span> <span class="n">Payload</span><span class="p">,</span>
         <span class="n">data_storage</span><span class="p">:</span> <span class="n">DataStorage</span><span class="p">,</span>
         <span class="n">com_window</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
-    <span class="p">):</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle transitions from UHF-COM mode.&quot;&quot;&quot;</span>
         <span class="c1"># X-BAND DOWNLINK in priority if possible</span>
         <span class="k">if</span> <span class="p">(</span>
             <span class="p">(</span><span class="n">eps</span><span class="o">.</span><span class="n">battery_level</span> <span class="o">&gt;=</span> <span class="n">eps</span><span class="o">.</span><span class="n">xb_threshold</span><span class="p">)</span>
@@ -252,18 +260,17 @@
             <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">com_window</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">telecom</span><span class="o">.</span><span class="n">com_finished</span><span class="p">()):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">operating_mode</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">operating_mode</span> <span class="o">=</span> <span class="mi">3</span>  <span class="c1"># stays un current mode</span></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">operating_mode</span> <span class="o">=</span> <span class="mi">3</span>  <span class="c1"># Stay in current mode</span></div>
 
 
 <div class="viewcode-block" id="ModeSwitch.mode_switch_from_X_BAND_COM">
 <a class="viewcode-back" href="../../digital_twin.html#digital_twin.mode_switch.ModeSwitch.mode_switch_from_X_BAND_COM">[docs]</a>
     <span class="k">def</span> <span class="nf">mode_switch_from_X_BAND_COM</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">telecom</span><span class="p">:</span> <span class="n">Telecom</span><span class="p">,</span>
-        <span class="n">payload</span><span class="p">:</span> <span class="n">Payload</span><span class="p">,</span>
         <span class="n">data_storage</span><span class="p">:</span> <span class="n">DataStorage</span><span class="p">,</span>
         <span class="n">com_window</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
-    <span class="p">):</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle transitions from XBAND-COM mode.&quot;&quot;&quot;</span>
         <span class="c1"># Go back to UHF-COM if downlink is finished (if COM is still possible)</span>
         <span class="k">if</span> <span class="n">com_window</span> <span class="ow">and</span> <span class="n">data_storage</span><span class="o">.</span><span class="n">x_band_data_empty</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">operating_mode</span> <span class="o">=</span> <span class="mi">3</span>
@@ -272,19 +279,20 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="n">com_window</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">operating_mode</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">operating_mode</span> <span class="o">=</span> <span class="mi">4</span>  <span class="c1"># stay in x-band</span></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">operating_mode</span> <span class="o">=</span> <span class="mi">4</span>  <span class="c1"># Stay in x-band</span></div>
 
 
 <div class="viewcode-block" id="ModeSwitch.mode_switch_from_MEASUREMENT">
 <a class="viewcode-back" href="../../digital_twin.html#digital_twin.mode_switch.ModeSwitch.mode_switch_from_MEASUREMENT">[docs]</a>
     <span class="k">def</span> <span class="nf">mode_switch_from_MEASUREMENT</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">telecom</span><span class="p">:</span> <span class="n">Telecom</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">Payload</span><span class="p">,</span> <span class="n">data_storage</span><span class="p">:</span> <span class="n">DataStorage</span>
-    <span class="p">):</span>
-        <span class="c1"># Go to idle after measurement normally ends</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">Payload</span><span class="p">,</span> <span class="n">data_storage</span><span class="p">:</span> <span class="n">DataStorage</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle transitions from MEASUREMENT mode.&quot;&quot;&quot;</span>
+        <span class="c1"># Go to idle after measurement ends</span>
         <span class="k">if</span> <span class="n">data_storage</span><span class="o">.</span><span class="n">data_storage_full</span><span class="p">()</span> <span class="ow">or</span> <span class="n">payload</span><span class="o">.</span><span class="n">campaign_finished</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">operating_mode</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">operating_mode</span> <span class="o">=</span> <span class="mi">5</span>  <span class="c1"># stay in measurement mode!</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">operating_mode</span> <span class="o">=</span> <span class="mi">5</span>  <span class="c1"># Stay in measurement mode!</span></div>
 </div>
 
 </pre></div>

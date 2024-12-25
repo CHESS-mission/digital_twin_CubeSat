@@ -1,9 +1,9 @@
-from typing import Dict
+"""Definition of functions to produce the report after the simulation was run."""
+
 import json
 
 import astropy.units as u
 import numpy as np
-
 
 from digital_twin.orbit_propagator.constants import attractor_string
 from digital_twin.plotting import (
@@ -23,8 +23,13 @@ from digital_twin.utils import (
 )
 
 
-def produce_report(data: Dict, report_params: Dict) -> None:
-    """Produce plots and other report data."""
+def produce_report(data: dict, report_params: dict) -> None:
+    """Generates various plots based on the provided parameters and saves the report data in the specified folders.
+
+    Args:
+        data (dict): A dictionary containing simulation results such as times, battery, visibility, etc.
+        report_params (dict): A dictionary specifying the report settings, including folder paths and figure preferences.
+    """
     folder = report_params["folder"]
     check_and_empty_folder(folder)
     figures_folder = folder + "figures/"
@@ -35,7 +40,9 @@ def produce_report(data: Dict, report_params: Dict) -> None:
     save_data(data, report_params["data"], data_folder)
 
 
-def generate_figures(data: Dict, figure_params: Dict, folder: str) -> None:
+def generate_figures(data: dict, figure_params: dict, folder: str) -> None:
+    """Generate and save figures based on the simulation results."""
+
     if figure_params["orbital_elem_evolution"] == "yes":
         plot_orbital_elem_evolution(
             data["tofs"],
@@ -50,7 +57,6 @@ def generate_figures(data: Dict, figure_params: Dict, folder: str) -> None:
     if figure_params["trajectory_2d"] == "yes":
         plot_orbit_2d(
             figure_params["title_figures"],
-            attractor_string,
             folder,
             "initial orbit",
             orbit=data["initial_orbit"],
@@ -169,31 +175,6 @@ def generate_figures(data: Dict, figure_params: Dict, folder: str) -> None:
         )
     if figure_params["power_balance"] == "yes":
         balance = data["generation"][1:] - data["consumption"][1:]
-        # xs = [
-        #     data["tofs"].to_value("second")[1:],
-        #     data["tofs"].to_value("second")[1:],
-        #     data["tofs"].to_value("second")[1:],
-        # ]
-        # ys = [-data["consumption"][1:], data["generation"][1:], balance]
-        # colors = ["blue", "purple", "green"]
-        # labels = ["Power Consumption", "Power Generation", "Power Balance"]
-        # steps = [1, 1, 1]
-        # plot_1d_multiple(
-        #     xs,
-        #     ys,
-        #     "Power Balance Over Time",
-        #     x_label,
-        #     r"Power ($W$)",
-        #     colors=colors,
-        #     labels=labels,
-        #     step=steps,
-        #     fill_under=False,
-        #     remove_box=True,
-        #     scatter=True,
-        #     show=False,
-        #     x_label_f=x_label_f,
-        #     save_filename=folder + "power_balance.png",
-        # )
         plot_1d(
             data["tofs"].to_value("second")[1:],
             balance,
@@ -282,7 +263,9 @@ def generate_figures(data: Dict, figure_params: Dict, folder: str) -> None:
         )
 
 
-def save_data(data: Dict, data_params: Dict, folder: str) -> None:
+def save_data(data: dict, data_params: dict, folder: str) -> None:
+    """Save the simulation data to specified files."""
+
     if data_params["telecom_data"] == "yes":
         with open(folder + "times.npy", "wb") as f:
             np.save(f, data["tofs"].to_value("second"))

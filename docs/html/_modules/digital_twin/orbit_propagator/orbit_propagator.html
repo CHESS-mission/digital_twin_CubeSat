@@ -41,7 +41,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">digital_twin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../digital_twin.html">digital_twin package</a></li>
 </ul>
 
         </div>
@@ -290,7 +290,7 @@
 
 <div class="viewcode-block" id="OrbitPropagator.calculate_eclipse_status">
 <a class="viewcode-back" href="../../../digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator.calculate_eclipse_status">[docs]</a>
-    <span class="k">def</span> <span class="nf">calculate_eclipse_status</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">calculate_eclipse_status</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Quantity</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculates if the satellite receives light from the sun.</span>
 <span class="sd">        If the return value is negative, the satellite is in eclipse and does not receive sunlight.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -314,9 +314,9 @@
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">eclipse</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">r_sec</span>
+            <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">r_sec</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">r_sec</span></div>
+            <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">r_sec</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span></div>
 
         <span class="c1"># If &lt;= 0, the satellite is in eclipse and doesn&#39;t get sunlight</span>
 

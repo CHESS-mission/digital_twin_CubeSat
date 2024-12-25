@@ -1,26 +1,25 @@
-"""Main file to run the simulation
+"""Definition of the Simulation class which acts as the central manager for orchestrating the various components
+of a satellite mission simulation. It brings together the orbit propagator, spacecraft, ground station, and other
+subsystems to run a cohesive simulation based on user-defined parameters.
 """
 
 import time
-from typing import Dict
+from typing import Any
 
 from astropy import units as u
 from astropy.time import Time, TimeDelta
 import numpy as np
 
-from digital_twin.constants import earth_R
+from digital_twin.constants import earth_R, simulation_unit, simulation_unit_string
 from digital_twin.ground_station import GroundStation
 from digital_twin.mode_switch import ModeSwitch
 from digital_twin.orbit_propagator import OrbitPropagator
-from digital_twin.orbit_propagator.constants import attractor_string
-
+from digital_twin.report import produce_report
 from digital_twin.spacecraft import Spacecraft
 from digital_twin.utils import (
     get_astropy_unit_time,
     extract_propagation_data_from_ephemeris,
 )
-
-from digital_twin.report import produce_report
 
 
 class Simulation:
@@ -28,20 +27,20 @@ class Simulation:
 
     def __init__(
         self,
-        simulation_params: Dict,
-        orbit_params: Dict,
-        spacecraft_params: Dict,
-        station_params: Dict,
-        mission_design_params: Dict,
+        simulation_params: dict,
+        orbit_params: dict,
+        spacecraft_params: dict,
+        station_params: dict,
+        mission_design_params: dict,
     ) -> None:
 
         # TIME INITIALIZATION
-        if simulation_params["units_delta_t"] != "second":
-            raise ValueError(
-                "Simulation no implemented for timesteps not expressed in seconds"
-            )
-        self.sim_unit = get_astropy_unit_time(simulation_params["units_delta_t"])
-        self.delta_t = simulation_params["delta_t"] * self.sim_unit
+        self.sim_unit_string = simulation_unit_string
+        self.sim_unit = simulation_unit
+        self.delta_t = (
+            simulation_params["delta_t"]
+            * get_astropy_unit_time(simulation_params["units_delta_t"])
+        ).to(self.sim_unit)
         init_time_local = 0 * self.sim_unit
 
         self.duration_sim = simulation_params["duration_sim"] * get_astropy_unit_time(
@@ -58,12 +57,12 @@ class Simulation:
 
         self.tofs = TimeDelta(
             np.linspace(init_time_local, end_time_local, num=self.n_timesteps + 1)
-        )  # gives the results in days
+        )  # Gives the results in days
         self.epochs_array = np.array(epoch + self.tofs)
 
         # MODE SWITCH ALGORITHM INITIALIZATION
         self.switch_algo = ModeSwitch(
-            init_mode=spacecraft_params["general"]["init_operating_mode"]
+            init_mode=int(spacecraft_params["general"]["init_operating_mode"])
         )
 
         # SPACECRAFT INITIALIZATION
@@ -93,7 +92,7 @@ class Simulation:
         self.print_parameters()
 
     def run(self) -> None:
-        """Main simulation loop."""
+        """Function to run the simulation, which contains the main simulation loop."""
         print("Simulation running...")
 
         # INITIALIZATION
@@ -101,7 +100,6 @@ class Simulation:
         eph[0, :3] = self.propagator.r
         eph[0, 3:] = self.propagator.v
 
-        # Data to store
         modes = np.zeros(self.n_timesteps + 1)
         modes[0] = self.switch_algo.operating_mode
 
@@ -132,6 +130,7 @@ class Simulation:
 
         print("Number of timesteps:", self.n_timesteps)
 
+        # MAIN SIMULATION LOOP
         start_for_loop = time.time()
         for t in range(0, self.n_timesteps):
 
@@ -142,29 +141,29 @@ class Simulation:
                 )
             except (
                 RuntimeError
-            ):  # spacefract cannot be propagated anymore (usually because altitude is too low)
+            ):  # Spacecraft cannot be propagated anymore (usually because altitude is too low)
                 break
 
             eph[t + 1, :3] = rv[:3]
             eph[t + 1, 3:] = rv[3:]
 
-            if t % 1000 == 0:
+            if t % 1000 == 0:  # For debugging
                 print("iter ", t)
                 if np.linalg.norm(rv[:3] - earth_R.value) < 180:
                     print("Altitude decay: deorbiting")
                     break
 
-            # 2. Calculate position based params: communication window, eclipse
+            # 2. Calculate position based params: communication window, eclipse status
             visibility, gs_coords_array = self.propagator.calculate_vis_window(
                 self.ground_stations
             )
             eclipse_status, r_earth_sun = self.propagator.calculate_eclipse_status()
-            r_earth_sun = r_earth_sun * u.km
+            r_earth_sun = r_earth_sun
 
             # 3. Calculate user-scheduled params
             measurement_session = self.spacecraft.get_payload().can_start_measuring(
                 self.tofs[t + 1].to("second")
-            )
+            )  # Currently implemented with a user parameter deciding the maximum number of measurement sessions per day
             com_window = False
             gs_coords = None
             for i, vis in enumerate(visibility):
@@ -203,7 +202,7 @@ class Simulation:
                 gs_coords,
             )
 
-            # 6. Save data
+            # 6. Save data at current timestep
             vis_windows[t + 1] = np.array([int(vis) for vis in visibility])
             eclipse_windows[t + 1] = int(eclipse_status)
             battery_energies[t + 1] = (
@@ -235,8 +234,7 @@ class Simulation:
             extract_propagation_data_from_ephemeris(eph)
         )
 
-        start = time.time()
-        # Remove data if propagation continued below altitude 0
+        # Remove data if propagation continued below altitude 0 or stopped earlier than planned
         neg_index = np.argmax(altitudes < 0)
         if neg_index != 0 or t < self.n_timesteps - 1:
             last_ind = neg_index if neg_index != 0 else t
@@ -303,9 +301,6 @@ class Simulation:
 
         # Produce report
         produce_report(data_results, self.report_params)
-        print("Average Power Generation [W]:", np.mean(power_generation))
-        end = time.time()
-        print("Time to print results: ", end - start)
 
     def print_parameters(self) -> None:
         """Print a summary of the the simulation objects."""
@@ -326,10 +321,13 @@ class Simulation:
         print("*******************")
         print("")
 
-    # This function is to handle additional user input
-    # Only implemented for uplink safe mode trigger
-    def handle_user_input(self, user_input) -> None:
-        if user_input["uplink_safe_mode"]:  # if dic is not empty
+    def handle_user_input(self, user_input: dict) -> None:
+        """Handle additional user input. Currently only implemented for uplink safe mode trigger.
+
+        Args:
+            user_input (dict): Dictionary containing the user input to consider.
+        """
+        if user_input["uplink_safe_mode"]:  # If dic is not empty
             self.spacecraft.get_telecom().add_uplink_safe_mode(
                 user_input["uplink_safe_mode"]
             )

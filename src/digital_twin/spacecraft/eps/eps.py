@@ -53,7 +53,7 @@ class SolarPanel:
     def get_effective_surface(
         self,
         attitude: int,
-        r_earth_sun: Quantity,
+        r_earth_sun: Quantity["length"],
         r_earth_sat: Quantity,
         gs_coords: Quantity,
     ) -> Quantity:

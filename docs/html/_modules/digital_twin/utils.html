@@ -41,7 +41,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../modules.html">digital_twin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../digital_twin.html">digital_twin package</a></li>
 </ul>
 
         </div>
@@ -69,12 +69,12 @@
            <div itemprop="articleBody">
              
   <h1>Source code for digital_twin.utils</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Util functions used everywhere in the code.&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;Utilitiy functions.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
 
 <span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
 <span class="kn">from</span> <span class="nn">astropy.units</span> <span class="kn">import</span> <span class="n">Unit</span>
@@ -87,6 +87,7 @@
 <div class="viewcode-block" id="get_astropy_unit_time">
 <a class="viewcode-back" href="../../digital_twin.html#digital_twin.utils.get_astropy_unit_time">[docs]</a>
 <span class="k">def</span> <span class="nf">get_astropy_unit_time</span><span class="p">(</span><span class="n">unit_string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Unit</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a time unit string to an instance of the astropy Unit class.&quot;&quot;&quot;</span>
     <span class="n">units</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;second&quot;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="p">,</span> <span class="s2">&quot;hour&quot;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">h</span><span class="p">,</span> <span class="s2">&quot;day&quot;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">day</span><span class="p">,</span> <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">year</span><span class="p">}</span>
     <span class="k">return</span> <span class="n">units</span><span class="p">[</span><span class="n">unit_string</span><span class="p">]</span></div>
 
@@ -95,6 +96,7 @@
 <div class="viewcode-block" id="get_astropy_units_angle">
 <a class="viewcode-back" href="../../digital_twin.html#digital_twin.utils.get_astropy_units_angle">[docs]</a>
 <span class="k">def</span> <span class="nf">get_astropy_units_angle</span><span class="p">(</span><span class="n">unit_string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Unit</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert an angle unit string to an instance of the astropy Unit class.&quot;&quot;&quot;</span>
     <span class="n">units</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;degree&quot;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="s2">&quot;radian&quot;</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">}</span>
     <span class="k">return</span> <span class="n">units</span><span class="p">[</span><span class="n">unit_string</span><span class="p">]</span></div>
 
@@ -103,6 +105,7 @@
 <div class="viewcode-block" id="check_and_empty_folder">
 <a class="viewcode-back" href="../../digital_twin.html#digital_twin.utils.check_and_empty_folder">[docs]</a>
 <span class="k">def</span> <span class="nf">check_and_empty_folder</span><span class="p">(</span><span class="n">folder_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;For a specific folder, check if it exists (if not, create it) and empty it.&quot;&quot;&quot;</span>
     <span class="c1"># If the folder does not exist, create it</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">folder_path</span><span class="p">):</span>
         <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">folder_path</span><span class="p">)</span>
@@ -121,7 +124,7 @@
 
 <div class="viewcode-block" id="extract_propagation_data_from_ephemeris">
 <a class="viewcode-back" href="../../digital_twin.html#digital_twin.utils.extract_propagation_data_from_ephemeris">[docs]</a>
-<span class="k">def</span> <span class="nf">extract_propagation_data_from_ephemeris</span><span class="p">(</span><span class="n">eph</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="k">def</span> <span class="nf">extract_propagation_data_from_ephemeris</span><span class="p">(</span><span class="n">eph</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Uses Poliastro rv2coe() function to extract orbital elements at each timestep using position data.</span>
 
 <span class="sd">    Args:</span>
@@ -153,7 +156,7 @@
     <span class="p">)</span>  <span class="c1"># Formula linking semi-latus rectum to semi-major axis</span>
     <span class="n">altitudes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">eph</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">earth_R</span><span class="o">.</span><span class="n">value</span>
 
-    <span class="k">return</span> <span class="n">rr</span><span class="p">,</span> <span class="n">vv</span><span class="p">,</span> <span class="n">SMAs</span><span class="p">,</span> <span class="n">ECCs</span><span class="p">,</span> <span class="n">INCs</span><span class="p">,</span> <span class="n">RAANs</span><span class="p">,</span> <span class="n">AOPs</span><span class="p">,</span> <span class="n">TAs</span><span class="p">,</span> <span class="n">altitudes</span></div>
+    <span class="k">return</span> <span class="p">(</span><span class="n">rr</span><span class="p">,</span> <span class="n">vv</span><span class="p">,</span> <span class="n">SMAs</span><span class="p">,</span> <span class="n">ECCs</span><span class="p">,</span> <span class="n">INCs</span><span class="p">,</span> <span class="n">RAANs</span><span class="p">,</span> <span class="n">AOPs</span><span class="p">,</span> <span class="n">TAs</span><span class="p">,</span> <span class="n">altitudes</span><span class="p">)</span></div>
 
 
 
@@ -165,8 +168,8 @@
 <span class="sd">    in matrices A and B. Each row represents a vector in 3D space.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">    A : (np.ndarray): Matrix of shape (n, 3) representing n 3D vectors.</span>
-<span class="sd">    B : (np.ndarray): Matrix of shape (n, 3) representing n 3D vectors.</span>
+<span class="sd">        A : (np.ndarray): Matrix of shape (n, 3) representing n 3D vectors.</span>
+<span class="sd">        B : (np.ndarray): Matrix of shape (n, 3) representing n 3D vectors.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        np.ndarray: A vector of shape (n,) containing the angles (in degrees) between corresponding vectors.</span>
@@ -194,14 +197,14 @@
 
 <div class="viewcode-block" id="parse_data_file">
 <a class="viewcode-back" href="../../digital_twin.html#digital_twin.utils.parse_data_file">[docs]</a>
-<span class="k">def</span> <span class="nf">parse_data_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">parse_data_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse JSON file provided by user</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        file_path (str): path to JSON file</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Dict: data from file in a dictionary</span>
+<span class="sd">        dict: Data from file in a dictionary</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>

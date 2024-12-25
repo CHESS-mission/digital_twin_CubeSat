@@ -1,11 +1,10 @@
-"""File in which all functions for switching between different operating modes are implemented.
-"""
+"""Defininition of the logic for switching between different operating modes."""
 
 from digital_twin.constants import mode_dict
 from digital_twin.spacecraft.eps import Eps
+from digital_twin.spacecraft.obc import DataStorage
 from digital_twin.spacecraft.payload import Payload
 from digital_twin.spacecraft.telecom import Telecom
-from digital_twin.spacecraft.obc import DataStorage
 
 
 class ModeSwitch:
@@ -13,9 +12,10 @@ class ModeSwitch:
 
     def __init__(self, init_mode: int) -> None:
         self.mode_dict = mode_dict
-        self.operating_mode = int(init_mode)
+        self.operating_mode = init_mode
 
     def print_operating_mode(self) -> str:
+        """Return the human-readable description of the current operating mode."""
         return self.mode_dict[self.operating_mode]
 
     def switch_mode(
@@ -29,6 +29,19 @@ class ModeSwitch:
         measurement_session: bool,
         safe_flag=False,
     ) -> None:
+        """
+        Determine and set the next operating mode based on the current spacecraft state.
+
+        Args:
+            eps (Eps): The Electrical Power Subsystem (EPS) instance.
+            telecom (Telecom): The Telecommunication subsystem instance.
+            payload (Payload): The Payload subsystem instance.
+            data_storage (DataStorage): The onboard data storage instance.
+            com_window (bool): Indicates whether a communication window is available.
+            eclipse_status (bool): Indicates whether the spacecraft is currently in an eclipse.
+            measurement_session (bool): Indicates whether a measurement session can be started.
+            safe_flag (bool): Indicates whether a safe flag has been raised.
+        """
         if safe_flag:
             self.operating_mode = 1
         else:
@@ -36,7 +49,6 @@ class ModeSwitch:
                 case 0:
                     self.mode_switch_from_IDLE(
                         eps,
-                        payload,
                         data_storage,
                         com_window,
                         eclipse_status,
@@ -47,7 +59,6 @@ class ModeSwitch:
                 case 2:
                     self.mode_switch_from_CHARGING(
                         eps,
-                        payload,
                         data_storage,
                         com_window,
                         eclipse_status,
@@ -55,14 +66,12 @@ class ModeSwitch:
                     )
                 case 3:
                     self.mode_switch_from_UHF_COM(
-                        eps, telecom, payload, data_storage, com_window
+                        eps, telecom, data_storage, com_window
                     )
                 case 4:
-                    self.mode_switch_from_X_BAND_COM(
-                        telecom, payload, data_storage, com_window
-                    )
+                    self.mode_switch_from_X_BAND_COM(data_storage, com_window)
                 case 5:
-                    self.mode_switch_from_MEASUREMENT(telecom, payload, data_storage)
+                    self.mode_switch_from_MEASUREMENT(payload, data_storage)
                 case _:
                     raise AssertionError(
                         f"The current operating mode ({self.operating_mode}) does not exist"
@@ -79,12 +88,12 @@ class ModeSwitch:
     def mode_switch_from_IDLE(
         self,
         eps: Eps,
-        payload: Payload,
         data_storage: DataStorage,
         com_window: bool,
         eclipse_status: bool,
         measurement_session: bool,
-    ):
+    ) -> None:
+        """Handle transitions from IDLE mode."""
         # Charging in priority if low battery (if possible)
         if not (eclipse_status) and (eps.battery_level <= eps.min_battery):
             self.operating_mode = 2
@@ -107,20 +116,19 @@ class ModeSwitch:
                     else:
                         self.operating_mode = 0
 
-    def mode_switch_from_SAFE(self):
-        # the case of a safe flag was treated in the switch_mode() function already
-        # so, if the safe flag disappeared, switch to IDLE mode
+    def mode_switch_from_SAFE(self) -> None:
+        """Handle transitions from SAFE mode."""
         self.operating_mode = 0
 
     def mode_switch_from_CHARGING(
         self,
         eps: Eps,
-        payload: Payload,
         data_storage: DataStorage,
         com_window: bool,
         eclipse_status: bool,
         measurement_session: bool,
-    ):
+    ) -> None:
+        """Handle transitions from CHARGING mode."""
         # Try to measure
         if (
             (eps.battery_level >= eps.measure_threshold)
@@ -144,10 +152,10 @@ class ModeSwitch:
         self,
         eps: Eps,
         telecom: Telecom,
-        payload: Payload,
         data_storage: DataStorage,
         com_window: bool,
-    ):
+    ) -> None:
+        """Handle transitions from UHF-COM mode."""
         # X-BAND DOWNLINK in priority if possible
         if (
             (eps.battery_level >= eps.xb_threshold)
@@ -162,15 +170,14 @@ class ModeSwitch:
             if (not com_window) or (telecom.com_finished()):
                 self.operating_mode = 0
             else:
-                self.operating_mode = 3  # stays un current mode
+                self.operating_mode = 3  # Stay in current mode
 
     def mode_switch_from_X_BAND_COM(
         self,
-        telecom: Telecom,
-        payload: Payload,
         data_storage: DataStorage,
         com_window: bool,
-    ):
+    ) -> None:
+        """Handle transitions from XBAND-COM mode."""
         # Go back to UHF-COM if downlink is finished (if COM is still possible)
         if com_window and data_storage.x_band_data_empty():
             self.operating_mode = 3
@@ -179,13 +186,14 @@ class ModeSwitch:
             if not com_window:
                 self.operating_mode = 0
             else:
-                self.operating_mode = 4  # stay in x-band
+                self.operating_mode = 4  # Stay in x-band
 
     def mode_switch_from_MEASUREMENT(
-        self, telecom: Telecom, payload: Payload, data_storage: DataStorage
-    ):
-        # Go to idle after measurement normally ends
+        self, payload: Payload, data_storage: DataStorage
+    ) -> None:
+        """Handle transitions from MEASUREMENT mode."""
+        # Go to idle after measurement ends
         if data_storage.data_storage_full() or payload.campaign_finished():
             self.operating_mode = 0
         else:
-            self.operating_mode = 5  # stay in measurement mode!
+            self.operating_mode = 5  # Stay in measurement mode!

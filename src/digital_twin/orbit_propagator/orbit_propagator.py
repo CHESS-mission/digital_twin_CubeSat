@@ -206,7 +206,7 @@ class OrbitPropagator:
 
         return np.array(visibility), np.array(gs_coords_array)
 
-    def calculate_eclipse_status(self) -> Tuple[bool, float]:
+    def calculate_eclipse_status(self) -> Tuple[bool, Quantity["length"]]:
         """Calculates if the satellite receives light from the sun.
         If the return value is negative, the satellite is in eclipse and does not receive sunlight.
         """
@@ -230,9 +230,9 @@ class OrbitPropagator:
         )
 
         if eclipse <= 0:
-            return True, r_sec
+            return True, r_sec * u.km
         else:
-            return False, r_sec
+            return False, r_sec * u.km
         # If <= 0, the satellite is in eclipse and doesn't get sunlight
 
     def update_rho(self, position: np.ndarray) -> None:

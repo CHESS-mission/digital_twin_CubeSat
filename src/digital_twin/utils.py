@@ -1,9 +1,9 @@
-"""Util functions used everywhere in the code."""
+"""Utilitiy functions."""
 
 import json
 import os
 import shutil
-from typing import Dict, Tuple
+from typing import Any
 
 from astropy import units as u
 from astropy.units import Unit
@@ -14,16 +14,19 @@ from digital_twin.constants import earth_R, earth_k
 
 
 def get_astropy_unit_time(unit_string: str) -> Unit:
+    """Convert a time unit string to an instance of the astropy Unit class."""
     units = {"second": u.s, "hour": u.h, "day": u.day, "year": u.year}
     return units[unit_string]
 
 
 def get_astropy_units_angle(unit_string: str) -> Unit:
+    """Convert an angle unit string to an instance of the astropy Unit class."""
     units = {"degree": u.deg, "radian": u.rad}
     return units[unit_string]
 
 
 def check_and_empty_folder(folder_path: str) -> None:
+    """For a specific folder, check if it exists (if not, create it) and empty it."""
     # If the folder does not exist, create it
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
@@ -39,7 +42,7 @@ def check_and_empty_folder(folder_path: str) -> None:
                     shutil.rmtree(file_path)
 
 
-def extract_propagation_data_from_ephemeris(eph: np.ndarray) -> Tuple[np.ndarray]:
+def extract_propagation_data_from_ephemeris(eph: np.ndarray) -> tuple[np.ndarray]:
     """Uses Poliastro rv2coe() function to extract orbital elements at each timestep using position data.
 
     Args:
@@ -71,7 +74,7 @@ def extract_propagation_data_from_ephemeris(eph: np.ndarray) -> Tuple[np.ndarray
     )  # Formula linking semi-latus rectum to semi-major axis
     altitudes = np.linalg.norm(eph, axis=1) - earth_R.value
 
-    return rr, vv, SMAs, ECCs, INCs, RAANs, AOPs, TAs, altitudes
+    return (rr, vv, SMAs, ECCs, INCs, RAANs, AOPs, TAs, altitudes)
 
 
 def angle_between_vectors(A: np.ndarray, B: np.ndarray) -> np.ndarray:
@@ -80,8 +83,8 @@ def angle_between_vectors(A: np.ndarray, B: np.ndarray) -> np.ndarray:
     in matrices A and B. Each row represents a vector in 3D space.
 
     Args:
-    A : (np.ndarray): Matrix of shape (n, 3) representing n 3D vectors.
-    B : (np.ndarray): Matrix of shape (n, 3) representing n 3D vectors.
+        A : (np.ndarray): Matrix of shape (n, 3) representing n 3D vectors.
+        B : (np.ndarray): Matrix of shape (n, 3) representing n 3D vectors.
 
     Returns:
         np.ndarray: A vector of shape (n,) containing the angles (in degrees) between corresponding vectors.
@@ -106,14 +109,14 @@ def angle_between_vectors(A: np.ndarray, B: np.ndarray) -> np.ndarray:
     return angle_deg
 
 
-def parse_data_file(file_path: str) -> Dict:
+def parse_data_file(file_path: str) -> dict:
     """Parse JSON file provided by user
 
     Args:
         file_path (str): path to JSON file
 
     Returns:
-        Dict: data from file in a dictionary
+        dict: Data from file in a dictionary
     """
     f = open(file_path)
     data = json.load(f)
