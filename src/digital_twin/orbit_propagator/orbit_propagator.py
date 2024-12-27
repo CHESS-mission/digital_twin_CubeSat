@@ -141,8 +141,8 @@ class OrbitPropagator:
         }  # For drag calculations, updated every time propagate() is called for dynamic drag calculations
 
     def __str__(self) -> str:
-        """Return a string representation of the initial orbit."""
-        return f"Initial orbit: {self.init_orbit} with initial period {self.init_orbit.period}"
+        """Return a string representation giving information about the initial orbit and the atmosphere model"""
+        return f"Initial orbit: {self.init_orbit} with initial period {self.init_orbit.period} \nAtmosphere model: {str(self.atmosphere_model)}"
 
     @property
     def r(self) -> np.ndarray:

@@ -260,7 +260,15 @@ class Telecom(SubSystem):
 
     def __str__(self) -> str:
         """Return a string representation of the Telecom subsystem."""
-        return f"Telecom:"
+        strings = "\n".join(
+            [
+                f"- Communication max duration: {self.com_max_duration}",
+                f"- X-band data transmission rate: {self.x_band_rate}",
+                f"- Uhf data transmission rate: {self.uhf_rate}",
+                f"- Maximum time allowed without communication (if reached, triggers safe mode): {self.t_max_no_com}",
+            ]
+        )
+        return f"Telecom:\n{strings}"
 
     def raise_safe_flag(self) -> bool:
         """Return true if a safe flag is raised by this subsystem in order to trigger safe mode."""

@@ -655,7 +655,7 @@ def plot_operating_modes(
     # Show the plot
     plt.tight_layout()
     if save_filename is not None:
-        plt.savefig(save_filename)
+        plt.savefig(save_filename, dpi=300)
     if show:
         plt.show()
     else:
@@ -742,7 +742,7 @@ def plot_boolean_bars(
 
     # Save the plot if a filename is provided
     if save_filename is not None:
-        plt.savefig(save_filename)
+        plt.savefig(save_filename, dpi=300)
 
     # Show or close the plot
     if show:
@@ -908,7 +908,7 @@ def plot_dashboard(
         left=None, bottom=None, right=None, top=None, wspace=None, hspace=0
     )
     if save_filename is not None:
-        plt.savefig(save_filename)
+        plt.savefig(save_filename, dpi=300)
     if show:
         plt.show()
     else:
@@ -950,7 +950,7 @@ def plot_orbital_elem_evolution(
         y_tick_labels=tick_labels_angle,
         x_label_f=x_label_f,
         show=False,
-        save_filename=folder + "RAAN.pdf",
+        save_filename=folder + "RAAN.png",
     )
 
     plot_1d(
@@ -968,7 +968,7 @@ def plot_orbital_elem_evolution(
         y_tick_labels=tick_labels_angle,
         x_label_f=x_label_f,
         show=False,
-        save_filename=folder + "AOP.pdf",
+        save_filename=folder + "AOP.png",
     )
 
     plot_1d(
@@ -984,7 +984,7 @@ def plot_orbital_elem_evolution(
         scatter=True,
         x_label_f=x_label_f,
         show=False,
-        save_filename=folder + "ECC.pdf",
+        save_filename=folder + "ECC.png",
     )
 
     plot_1d(
@@ -1002,7 +1002,7 @@ def plot_orbital_elem_evolution(
         y_tick_labels=tick_labels_angle,
         x_label_f=x_label_f,
         show=False,
-        save_filename=folder + "INC.pdf",
+        save_filename=folder + "INC.png",
     )
 
     plot_1d(
@@ -1017,5 +1017,5 @@ def plot_orbital_elem_evolution(
         y_range=(min(altitudes) - 20, max(altitudes) + 20),
         x_label_f=x_label_f,
         show=False,
-        save_filename=folder + "altitude.pdf",
+        save_filename=folder + "altitude.png",
     )

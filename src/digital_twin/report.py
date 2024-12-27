@@ -93,7 +93,7 @@ def generate_figures(data: dict, figure_params: dict, folder: str) -> None:
         )
 
     if figure_params["modes"] == "yes":
-        save_filename = folder + "modes.pdf"
+        save_filename = folder + "modes.png"
         plot_operating_modes(
             data["modes"],
             data["tofs"].to_value("second"),
@@ -103,7 +103,7 @@ def generate_figures(data: dict, figure_params: dict, folder: str) -> None:
         )
 
     if figure_params["dashboard"] == "yes":
-        save_filename = folder + "dashboard.pdf"
+        save_filename = folder + "dashboard.png"
         if (data["vis"].shape)[1] == 1:
             plot_dashboard(
                 data["modes"],
@@ -136,7 +136,7 @@ def generate_figures(data: dict, figure_params: dict, folder: str) -> None:
             scatter=False,
             x_label_f=x_label_f,
             show=False,
-            save_filename=folder + "battery_energy.pdf",
+            save_filename=folder + "battery_energy.png",
             markersize_plot=0,
         )
 
@@ -153,7 +153,7 @@ def generate_figures(data: dict, figure_params: dict, folder: str) -> None:
             scatter=False,
             x_label_f=x_label_f,
             show=False,
-            save_filename=folder + "power_consumption.pdf",
+            save_filename=folder + "power_consumption.png",
             markersize_plot=0,
         )
 
@@ -170,7 +170,7 @@ def generate_figures(data: dict, figure_params: dict, folder: str) -> None:
             scatter=False,
             x_label_f=x_label_f,
             show=False,
-            save_filename=folder + "power_generation.pdf",
+            save_filename=folder + "power_generation.png",
             markersize_plot=0,
         )
     if figure_params["power_balance"] == "yes":
@@ -187,7 +187,7 @@ def generate_figures(data: dict, figure_params: dict, folder: str) -> None:
             scatter=False,
             x_label_f=x_label_f,
             show=False,
-            save_filename=folder + "power_balance.pdf",
+            save_filename=folder + "power_balance.png",
             markersize_plot=0,
         )
 
@@ -204,7 +204,7 @@ def generate_figures(data: dict, figure_params: dict, folder: str) -> None:
             scatter=False,
             x_label_f=x_label_f,
             show=False,
-            save_filename=folder + "data_storage.pdf",
+            save_filename=folder + "data_storage.png",
         )
         plot_1d(
             data["tofs"].to_value("second"),
@@ -218,7 +218,7 @@ def generate_figures(data: dict, figure_params: dict, folder: str) -> None:
             scatter=False,
             x_label_f=x_label_f,
             show=False,
-            save_filename=folder + "data_storage_GNSS_TOF.pdf",
+            save_filename=folder + "data_storage_GNSS_TOF.png",
         )
         plot_1d(
             data["tofs"].to_value("second"),
@@ -232,11 +232,11 @@ def generate_figures(data: dict, figure_params: dict, folder: str) -> None:
             scatter=False,
             x_label_f=x_label_f,
             show=False,
-            save_filename=folder + "data_storage_HK.pdf",
+            save_filename=folder + "data_storage_HK.png",
         )
 
     if figure_params["visibility_windows"] == "yes":
-        save_filename = folder + "visibility_windows.pdf"
+        save_filename = folder + "visibility_windows.png"
         if (data["vis"].shape)[1] == 1:
             plot_boolean_bars(
                 data["vis"],
@@ -252,7 +252,7 @@ def generate_figures(data: dict, figure_params: dict, folder: str) -> None:
             )
 
     if figure_params["eclipse_windows"] == "yes":
-        save_filename = folder + "eclipse_windows.pdf"
+        save_filename = folder + "eclipse_windows.png"
         plot_boolean_bars(
             data["eclipse"],
             data["tofs"].to_value("second"),

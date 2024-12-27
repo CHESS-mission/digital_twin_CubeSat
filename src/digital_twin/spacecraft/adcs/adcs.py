@@ -85,7 +85,8 @@ class Adcs(SubSystem):
 
     def __str__(self) -> str:
         """Return a string representation of the ADCS subsystem."""
-        return f"ADCS:"
+        string1 = "; ".join(list(attitude_dict.values()))
+        return f"ADCS: \n- List of attitudes: {string1}"
 
     def raise_safe_flag(self) -> bool:
         """Return true if a safe flag is raised by this subsystem in order to trigger safe mode."""

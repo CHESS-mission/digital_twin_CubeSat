@@ -132,6 +132,10 @@ class DataStorage:
     def get_data_to_downlink(self) -> Quantity["data quantity"]:
         return self.data_to_downlink
 
+    def __str__(self) -> str:
+        """Return a string representation of the Data Storage instance."""
+        return f"   - Maximum storage: {self.max_storage}"
+
 
 class Obc(SubSystem):
     """
@@ -230,7 +234,8 @@ class Obc(SubSystem):
 
     def __str__(self) -> str:
         """Return a string representation of the OBC subsystem."""
-        return f"Obc:"
+        string_data_storage = str(self.data_storage)
+        return f"Obc: \n- Housekeeping data generation rate: {self.HK_rate} \n- Data storage:\n{string_data_storage}"
 
     # This is a method checking safe flags for the OBC subsystem
     def raise_safe_flag(self) -> bool:

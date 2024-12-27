@@ -146,6 +146,17 @@ class SolarPanel:
             else:  # Incident angle >= 90 deg => no sunlight
                 return 0.0 * (u.m**2)
 
+    def __str__(self) -> str:
+        """Return a string representation of the Solar Panels."""
+        strings = "\n".join(
+            [
+                f"   - Number of cells: {self.nb_cells}",
+                f"   - Cell surface: {self.cell_surface}",
+                f"   - Cell efficiency: {self.panels_efficiency}%",
+            ]
+        )
+        return strings
+
 
 class Eps(SubSystem):
     """
@@ -301,7 +312,8 @@ class Eps(SubSystem):
                 f"- x-band threshold: {self.xb_threshold}",
             ]
         )
-        return f"EPS: \n{strings}"
+        string_solar_panel = str(self.solar_panels)
+        return f"EPS: \n{strings} \n- Solar Panels: \n{string_solar_panel}"
 
     def raise_safe_flag(self) -> bool:
         """Return true if a safe flag is raised by this subsystem in order to trigger safe mode."""

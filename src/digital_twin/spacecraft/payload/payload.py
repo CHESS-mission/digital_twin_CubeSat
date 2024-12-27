@@ -154,7 +154,17 @@ class Payload(SubSystem):
 
     def __str__(self) -> str:
         """Return a string representation of the Payload subsystem."""
-        return f"Payload:"
+        strings = "\n".join(
+            [
+                f"- TOF data generation rate: {self.measurement_TOF_rate}",
+                f"- GNSS data generation rate: {self.measurement_GNSS_rate}",
+                f"- Measurement session max duration: {self.measurement_max_duration}",
+                f"- Measurement pre-conditioning time: {self.start_measurement}",
+                f"- Measurement post-conditioning time: {self.measurement_max_duration - self.stop_measurement}",
+                f"- Maximum number of measurement sessions per day: {self.nb_measurement_per_day}",
+            ]
+        )
+        return f"Payload: \n{strings}"
 
     def compute_data_update(
         self, new_mode: int, delta_t: TimeDelta
