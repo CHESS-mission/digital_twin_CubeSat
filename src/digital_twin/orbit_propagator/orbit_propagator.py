@@ -1,10 +1,5 @@
-"""Wrapper around poliastro orbit propagator.
-"""
+"""file that defines the wrapper around poliastro orbit propagator."""
 
-from poliastro.earth.util import raan_from_ltan
-import astropy
-
-from typing import Dict, Tuple
 import copy
 
 from astropy import units as u
@@ -15,7 +10,6 @@ from astropy.coordinates import (
 )
 from astropy.time import Time
 from astropy.units import Quantity
-from numba import njit as jit
 import numpy as np
 from poliastro.core.events import eclipse_function
 from poliastro.core.perturbations import (
@@ -27,27 +21,49 @@ from poliastro.twobody import Orbit
 from poliastro.twobody.propagation import CowellPropagator
 
 from digital_twin.constants import earth_R, J2, sun_R, earth_k
-from digital_twin.orbit_propagator.constants import (
-    attractor,
-    star_string,
-    attractor_string,
-)
-from digital_twin.utils import angle_between_vectors
 from digital_twin.orbit_propagator import (
     AtmosphereModelCOESA76,
     AtmosphereModelNRLMSISE00,
     AtmosphereModelSolarActivity,
     AtmosphereModelJB2008,
 )
+from digital_twin.orbit_propagator.constants import (
+    attractor,
+    star_string,
+    attractor_string,
+)
+from digital_twin.utils import angle_between_vectors
 
 
 class OrbitPropagator:
+    """
+    Class for propagating the orbit of a satellite in the Earth's atmosphere, taking into account
+    the perturbative forces of atmospheric drag and the J2 effect.
+
+    The class provides functionality to propagate the orbit of the satellite using Cowell's method
+    with perturbations, including atmospheric drag and J2 effect. It updated the air density based
+    on an atmospheric model chosen by the user every constant interval of time (also chosen by the
+    user). It includes capabilities for calculating satellite visibility from ground stations and eclipse
+    status based on its position relative to the Earth and Sun.
+
+    Attributes:
+        init_orbit (Orbit): The initial orbit of the satellite.
+        current_orbit (Orbit): The current propagated orbit.
+        orbit_type (str): Type of the orbit, e.g., "SSO" for Sun-synchronous orbits.
+        atmosphere_model (AtmosphereModel): The model used to calculate the air density at a given altitude.
+        update_rho_time_interval (Quantity["time"]): The time interval to update air density.
+        countdown_rho (Quantity["time"]): Countdown timer for air density update.
+        rho (Quantity["mass density"]): The air density at the satellite's current position.
+        drag_params (dict): Parameters for calculating atmospheric drag (C_D and A/m).
+        method (CowellPropagator): The numerical method used for orbit propagation.
+    """
+
     def __init__(
         self,
-        orbit_params: Dict,
+        orbit_params: dict,
         epoch: Time,
         atmosphere_model: str,
-        update_air_density_timestep: Quantity,
+        update_air_density_timestep: Quantity["time"],
     ) -> None:
         print("Initializing the propagator...")
 
@@ -106,8 +122,8 @@ class OrbitPropagator:
         else:
             self.atmosphere_model = AtmosphereModelCOESA76()
 
-        # rho is air density
-        # Approximation updated every __ time
+        # Rho is air density
+        # Approximation updated every __update_rho_time_interval__
         self.update_rho_time_interval = update_air_density_timestep
         self.countdown_rho = copy.deepcopy(
             self.update_rho_time_interval
@@ -125,6 +141,7 @@ class OrbitPropagator:
         }  # For drag calculations, updated every time propagate() is called for dynamic drag calculations
 
     def __str__(self) -> str:
+        """Return a string representation of the initial orbit."""
         return f"Initial orbit: {self.init_orbit} with initial period {self.init_orbit.period}"
 
     @property
@@ -160,10 +177,10 @@ class OrbitPropagator:
         else:
             self.update_rho(
                 self.current_orbit.r.to(u.km).to_value()
-            )  # update air density based on current altitude
+            )  # Update air density based on current altitude
             self.countdown_rho = copy.deepcopy(
                 self.update_rho_time_interval
-            )  # restart countdown
+            )  # Restart countdown
 
         new_orbit = self.current_orbit.propagate(delta_t, method=self.method)
 
@@ -175,7 +192,7 @@ class OrbitPropagator:
 
     def calculate_vis_window(
         self, ground_stations: np.ndarray
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray]:
         """For each ground station, check if the satellite is visible.
 
         Args:
@@ -206,7 +223,7 @@ class OrbitPropagator:
 
         return np.array(visibility), np.array(gs_coords_array)
 
-    def calculate_eclipse_status(self) -> Tuple[bool, Quantity["length"]]:
+    def calculate_eclipse_status(self) -> tuple[bool, Quantity["length"]]:
         """Calculates if the satellite receives light from the sun.
         If the return value is negative, the satellite is in eclipse and does not receive sunlight.
         """
@@ -236,7 +253,7 @@ class OrbitPropagator:
         # If <= 0, the satellite is in eclipse and doesn't get sunlight
 
     def update_rho(self, position: np.ndarray) -> None:
-        """Update air density depending on satellite altitude.
+        """Update air density using the atmosphere model.
 
         Args:
             position (np.ndarray): Position of the satellite.
@@ -245,7 +262,7 @@ class OrbitPropagator:
             iso_date_str=str(self.current_orbit.epoch), position=position
         ).to_value(u.kg / u.km**3) * (u.kg / u.km**3)
 
-    # Function used by f() to compute acceleration
+    # Function used by self.f() to compute acceleration
     def a_d(self, t0, state, k, J2, R, C_D, A_over_m, rho):
         return J2_perturbation(t0, state, k, J2, R) + atmospheric_drag(
             t0, state, k, C_D, A_over_m, rho
@@ -269,7 +286,12 @@ class OrbitPropagator:
 
         return du_kep + du_ad
 
-    def save_state(self) -> Dict:
+    def save_state(self) -> dict:
+        """Save the current state of the orbit. File has the same structure as the input file for the orbit parameters.
+
+        Returns:
+            dict: Updated dictionary representing the orbit's state. Can be used to start another simulation from this final state.
+        """
         save_orbit_params = {}
         save_orbit_params["orbital_elements"] = {}
         save_orbit_params["orbital_elements"]["SMA"] = self.current_orbit.a.to(

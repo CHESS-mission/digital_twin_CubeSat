@@ -1,9 +1,21 @@
-from typing import Dict
+"""
+Atmosphere models for calculating atmospheric density based on different models and solar activity data.
+
+This module defines various atmosphere models to compute the mass density at a given altitude, considering
+solar activity and space weather. The models include COESA76, NRLMSISE00, and JB2008, each providing different
+ways to calculate atmospheric density based on the provided date and position.
+
+Classes:
+    AtmosphereModel: Base class defining the interface for different atmosphere models.
+    AtmosphereModelCOESA76: Implements the COESA76 model for atmospheric density calculation.
+    AtmosphereModelSolarActivity: Implements a model using solar activity values (F10.7, Ap) to calculate density.
+    AtmosphereModelNRLMSISE00: Implements the NRLMSISE00 model for atmospheric density calculation.
+    AtmosphereModelJB2008: Implements the JB2008 model for atmospheric density calculation.
+"""
 
 from astropy.coordinates import (
     GCRS,
     ITRS,
-    get_body_barycentric_posvel,
     SphericalRepresentation,
     CartesianRepresentation,
 )
@@ -26,34 +38,61 @@ from digital_twin.constants import earth_R
 
 
 class AtmosphereModel:
-    """Interface for atmosphere models."""
+    """
+    Interface for atmosphere models.
 
-    # this init function is call by all almosphere models
-    def __init__(self):
+    This is an abstract base class, and each subclass must implement the `get_density` method to compute
+    the atmospheric density for a given date and position in space.
+    """
+
+    # this init function is called by all almosphere models
+    def __init__(self) -> None:
         pass
 
-    def get_density(self, iso_date_str: str, position: np.ndarray) -> Quantity:
+    def get_density(
+        self, iso_date_str: str, position: np.ndarray
+    ) -> Quantity["mass density"]:
         raise (NotImplementedError)
 
     def __str__(self) -> str:
+        """Return a string representation of the atmosphere model."""
         raise (NotImplementedError)
 
 
 class AtmosphereModelCOESA76(AtmosphereModel):
-    def __init__(self):
+    """
+    COESA76 model for atmospheric density calculation.
+
+    This model is used for calculating atmospheric density based on the COESA76 model, which is
+    commonly used as a "simple" model for calculating atmospheric properties at various altitudes.
+    """
+
+    def __init__(self) -> None:
         super(AtmosphereModelCOESA76, self).__init__()
         self.model = COESA76()
 
-    def get_density(self, iso_date_str: str, position: np.ndarray) -> Quantity:
+    def get_density(
+        self, iso_date_str: str, position: np.ndarray
+    ) -> Quantity["mass density"]:
+        """Calculate the atmospheric density based on the given position (this model does not use the date)"""
         alt = (np.linalg.norm(position) - earth_R.value) * u.km
         return self.model.density(alt)
 
-    def __str__(self):
+    def __str__(self) -> str:
+        """Return a string representation of the atmosphere model."""
         return "COESA76 atmosphere model (Poliastro wrapper)"
 
 
 class AtmosphereModelSolarActivity(AtmosphereModel):
-    def __init__(self):
+    """
+    Solar activity-based model for atmospheric density calculation.
+
+    This model calculates atmospheric density based on solar activity values (F10.7 and Ap indices)
+    and altitude. Solar activity values are stored in preloaded arrays, and density is calculated
+    using empirical formulas.
+    """
+
+    def __init__(self) -> None:
         super(AtmosphereModelSolarActivity, self).__init__()
         # SOLAR ACTIVITY VALUES
         self.F10_7 = np.load("../data/atmosphere_data/solar_activity/F10.npy")
@@ -62,7 +101,8 @@ class AtmosphereModelSolarActivity(AtmosphereModel):
             "../data/atmosphere_data/solar_activity/dates_sa.npy", allow_pickle=True
         )
 
-    def get_solar_activity_values(self, iso_date_str: str):
+    def get_solar_activity_values(self, iso_date_str: str) -> tuple[float]:
+        """Retrieve the solar activity values (F10.7 and Ap indices) for a given date."""
         target_date = Time(
             iso_date_str, format="iso"
         ).ymdhms  # Extracts year, month, day tuple
@@ -76,21 +116,38 @@ class AtmosphereModelSolarActivity(AtmosphereModel):
                 return self.F10_7[i], self.Ap[i]
         raise ValueError(f"Date {iso_date_str} not found in times array.")
 
-    def calculate_density(self, F10_7: float, Ap: float, alt: float):
+    def calculate_density(
+        self, F10_7: float, Ap: float, alt: float
+    ) -> Quantity["mass density"]:
+        """Calculate the atmospheric density based on solar activity values and altitude."""
         T = 900 + 2.5 * (F10_7 - 70) + 1.5 * Ap  # [Kelvin]
         m = 27 - 0.012 * (alt - 200)
         H = T / m  # [km]
         rho = 6 * 10 ** (-10) * np.exp(-(alt - 175) / H)  # [kg m‐3]
         return rho * (u.kg / u.m**3)
 
-    def get_density(self, iso_date_str: str, position: np.ndarray) -> Quantity:
+    def get_density(
+        self, iso_date_str: str, position: np.ndarray
+    ) -> Quantity["mass density"]:
+        """Calculate the atmospheric density at a given position and date using solar activity data."""
         alt = np.linalg.norm(position) - earth_R.value
         F10_7, Ap = self.get_solar_activity_values(iso_date_str)
         return self.calculate_density(F10_7, Ap, alt)
 
+    def __str__(self) -> str:
+        """Return a string representation of the atmosphere model."""
+        return "Analytical atmosphere model based on solar activity data"
+
 
 class AtmosphereModelNRLMSISE00(AtmosphereModel):
-    def __init__(self):
+    """
+    NRLMSISE-00 model for atmospheric density calculation.
+
+    This model calculates atmospheric density based on the NRLMSISE-00 empirical model, which incorporates
+    space weather data such as solar activity to estimate the density at a given altitude.
+    """
+
+    def __init__(self) -> None:
         super(AtmosphereModelNRLMSISE00, self).__init__()
         swfile = download_sw_nrlmsise00("../data/atmosphere_data/NRLMSISE00/")
         # Read the space weather data
@@ -98,12 +155,15 @@ class AtmosphereModelNRLMSISE00(AtmosphereModel):
         self.t_max = datetime.strptime(
             "2024-12-01 00:00:00.000", "%Y-%m-%d %H:%M:%S.%f"
         )  # Maximum time for space weather data (checked experimentally)
-        self.cycle = relativedelta(years=11)  # solar activity cycle duration
+        self.cycle = relativedelta(years=11)  # Solar activity cycle duration
 
-    def get_density(self, iso_date_str: str, position: np.ndarray) -> Quantity:
+    def get_density(
+        self, iso_date_str: str, position: np.ndarray
+    ) -> Quantity["mass density"]:
+        """Calculate the atmospheric density at a given position and date using the NRLMSISE-00 model."""
         t_wanted = datetime.strptime(iso_date_str, "%Y-%m-%d %H:%M:%S.%f")
 
-        # go back in time with solar cycles
+        # Do back in time with solar cycles in order to ask for a valid date
         t = t_wanted
         while t > self.t_max:
             t = t - self.cycle
@@ -123,9 +183,20 @@ class AtmosphereModelNRLMSISE00(AtmosphereModel):
         nrl00 = nrlmsise00(t, (lat, lon, alt), self.swdata)
         return nrl00.rho * (u.kg / u.m**3)
 
+    def __str__(self) -> str:
+        """Return a string representation of the atmosphere model."""
+        return "NRLMSISE00 atmosphere model"
+
 
 class AtmosphereModelJB2008(AtmosphereModel):
-    def __init__(self):
+    """
+    JB2008 model for atmospheric density calculation.
+
+    This model calculates atmospheric density using the JB2008 empirical model, which is based on
+    solar activity and space weather data to estimate the density at a given altitude.
+    """
+
+    def __init__(self) -> None:
         super(AtmosphereModelJB2008, self).__init__()
         swfile = download_sw_jb2008("../data/atmosphere_data/JB2008/")
         # Read the space weather data
@@ -133,12 +204,15 @@ class AtmosphereModelJB2008(AtmosphereModel):
         self.t_max = datetime.strptime(
             "2024-12-01 00:00:00.000", "%Y-%m-%d %H:%M:%S.%f"
         )  # Maximum time for space weather data
-        self.cycle = relativedelta(years=11)  # solar activity cycle duration
+        self.cycle = relativedelta(years=11)  # Solar activity cycle duration
 
-    def get_density(self, iso_date_str: str, position: np.ndarray) -> Quantity:
+    def get_density(
+        self, iso_date_str: str, position: np.ndarray
+    ) -> Quantity["mass density"]:
+        """Calculate the atmospheric density at a given position and date using the JB2008 model."""
         t_wanted = datetime.strptime(iso_date_str, "%Y-%m-%d %H:%M:%S.%f")
 
-        # go back in time with solar cycles
+        # Do back in time with solar cycles in order to ask for a valid date
         t = t_wanted
         while t > self.t_max:
             t = t - self.cycle
@@ -157,3 +231,7 @@ class AtmosphereModelJB2008(AtmosphereModel):
 
         jc08 = jb2008(t, (lat, lon, alt), self.swdata)
         return jc08.rho * (u.kg / u.m**3)
+
+    def __str__(self) -> str:
+        """Return a string representation of the atmosphere model."""
+        return "JB2008 atmosphere model"

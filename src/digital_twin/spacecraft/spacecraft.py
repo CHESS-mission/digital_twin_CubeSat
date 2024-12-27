@@ -1,7 +1,6 @@
-"""File for the spacecraft object.
-"""
+"""File for the spacecraft object."""
 
-from typing import Dict, Tuple
+from typing import Optional
 
 from astropy import units as u
 from astropy.time import TimeDelta
@@ -16,20 +15,43 @@ from digital_twin.spacecraft.telecom import Telecom
 
 
 class Spacecraft:
-    def __init__(self, params: Dict, init_operating_mode: int) -> None:
+    """Represent a spacecraft with various subsystems.
+
+    The Spacecraft class models the behavior and attributes of a spacecraft,
+    including its general properties and interactions among its subsystems.
+
+    Attributes:
+        params (dict): dictionary of spacecraft parameters given by the user.
+        name (str): Name of the spacecraft.
+        C_D (Quantity["no_unit"]): Drag coefficient of the spacecraft.
+        cross_section (Quantity["area"]): Cross-sectional area of the spacecraft (km²).
+        mass (Quantity["mass"]): Mass of the spacecraft (kg).
+        A_over_m (Quantity): Area-to-mass ratio of the spacecraft (km²/kg).
+        B (Quantity): Ballistic coefficient (C_D * A_over_m).
+        eps_subsystem (Eps): Electrical Power System (EPS) subsystem.
+        telecom_subsystem (Telecom): Telecommunications subsystem.
+        adcs_subsystem (Adcs): Attitude Determination and Control System (ADCS).
+        payload_subsystem (Payload): Payload subsystem.
+        obc_subsystem (Obc): On-Board Computer (OBC) subsystem.
+        subsystems (list): List of all initialized subsystems.
+    """
+
+    def __init__(self, params: dict, init_operating_mode: int) -> None:
         print("Initializing the spacecraft...")
         self.params = params
         self.name = params["general"]["name"]
         self.C_D = params["general"]["C_D"] * u.one
         init_cross_section = params["general"]["cross_section_area"] * u.km**2
-        self.cross_section = init_cross_section  # NOTE: will have to update this when I implement ADCS module!
+        self.cross_section = (
+            init_cross_section  # NOTE: Can be updated with dynamic cross section
+        )
         self.mass = params["general"]["mass"] * u.kg
         self.A_over_m = ((self.cross_section) / (self.mass)).to_value(
             u.km**2 / u.kg
         ) * (u.km**2 / u.kg)
         self.B = self.C_D * self.A_over_m  # Approximation of the ballistic coefficient
 
-        # SUBSYSTEMS INITIALIZATION (main ones)
+        # SUBSYSTEMS INITIALIZATION
         self.eps_subsystem = Eps(params["eps"], init_operating_mode)
         self.telecom_subsystem = Telecom(params["telecom"], init_operating_mode)
         self.adcs_subsystem = Adcs(params["adcs"], init_operating_mode)
@@ -44,7 +66,7 @@ class Spacecraft:
             self.obc_subsystem,
         ]
 
-        # check if any safe flag is raised by subsystem and update OBC
+        # Check if any safe flag is raised by subsystem and update OBC
         safe_flag_raised = False
         safe_flag_subsystem = None
         for subsystem in self.subsystems:
@@ -55,22 +77,41 @@ class Spacecraft:
 
     def update_subsystems(
         self,
-        old_mode: str,
-        new_mode: str,
-        rv: np.ndarray[Quantity],
+        old_mode: int,
+        new_mode: int,
+        rv: np.ndarray,
         com_window: bool,
         eclipse_status: bool,
         delta_t: TimeDelta,
-        r_earth_sun: Quantity,
-        gs_coords: Quantity,
+        r_earth_sun: Quantity["length"],
+        gs_coords: Optional[np.ndarray],
     ) -> None:
-        # Update each subsystem based on old mode, new mode, location, communication_window and eclispe_status boolean
+        """Update all subsystems and spacecraft properties based on current conditions.
+
+        Args:
+            old_mode (int): Previous operational mode of the spacecraft.
+            new_mode (int): New operational mode of the spacecraft.
+            rv (np.ndarray): Position and velocity vector of the spacecraft (km).
+            com_window (bool): Indicates whether the spacecraft is in a communication window.
+            eclipse_status (bool): Indicates whether the spacecraft is in Earth's shadow.
+            delta_t (TimeDelta): Time step for the update.
+            r_earth_sun (Quantity["length"]): Vector from Earth to the Sun.
+            gs_coords (Optional[np.ndarray]): Coordinates of the ground station if satellite is in visibility window.
+
+        Updates:
+            - Individual updates for each subsystem.
+            - EPS battery level.
+            - Data storage.
+            - Safe flags.
+        """
+        # Update each subsystem independently
         for subsystem in self.subsystems:
             subsystem.update(
                 old_mode, new_mode, rv, com_window, eclipse_status, delta_t
             )
 
-        # get new cross section from ADCS change of orientation, and update related spacecraft attributes
+        # Get new cross section from ADCS and update related spacecraft attributes
+        # Currently the cross section does not change => will change if dynamic cross section is implemented
         new_cross_section = self.adcs_subsystem.get_cross_section(self.cross_section)
         if new_cross_section != self.cross_section:
             self.cross_section = new_cross_section
@@ -91,11 +132,11 @@ class Spacecraft:
             eclipse_status,
             attitude,
             r_earth_sun,
-            rv[:3] * u.km,
+            rv[:3] * u.km,  # position,
             gs_coords,
         )
 
-        # Compute data change (generation or removal) at current timestep
+        # Compute data change (generation by payload or removal by telecom) at current timestep
         data_update_TOF_GNSS = 0 * u.Mbit
         data_update_HK = 0.0 * u.Mbit
         TOF_GNSS_telecom, HK_telecom = self.telecom_subsystem.compute_data_update(
@@ -113,7 +154,7 @@ class Spacecraft:
             data_update_TOF_GNSS, data_update_HK, delta_t
         )
 
-        # check if any safe flag is raised by subsystem and update OBC
+        # Check if any safe flag is raised by subsystem and update OBC
         safe_flag_raised = False
         safe_flag_subsystem = None
         for subsystem in self.subsystems:
@@ -122,7 +163,8 @@ class Spacecraft:
                 safe_flag_subsystem = subsystem.get_name()
         self.obc_subsystem.update_safe_flag(safe_flag_raised, safe_flag_subsystem)
 
-    def __str__(self):
+    def __str__(self) -> str:
+        """Return a string representation of the spacecraft and its subsystems."""
         string1 = "\n".join(
             [
                 f"- mass: {self.mass}",
@@ -136,6 +178,7 @@ class Spacecraft:
         string2 = "\n".join(tmp)
         return f'Spacecraft "{self.name}":\n{string1} \nWith subsystems:\n{string2}'
 
+    # Getters
     @property
     def C_D(self) -> Quantity:
         return self._C_D
@@ -167,9 +210,17 @@ class Spacecraft:
     def get_data_storage(self) -> DataStorage:
         return self.obc_subsystem.get_data_storage()
 
-    def save_state(self) -> Dict:
-        spacecraft_state = self.params  # the initial one, which is now updated
+    def save_state(self) -> dict:
+        """Save the current state of the spacecraft and its subsystems. File has the same structure as the input file for the spaceraft parameters.
 
+        Returns:
+            dict: Updated dictionary representing the spacecraft's state, including subsystem flags,
+                  battery levels, and data storage values. Can be used to start another simulation from this final state.
+        """
+
+        spacecraft_state = self.params  # The initial one, which is now updated
+
+        # Update safe flags
         spacecraft_state["eps"]["init_safe_flag"] = (
             "true" if self.eps_subsystem.raise_safe_flag() else "false"
         )
@@ -190,6 +241,7 @@ class Spacecraft:
             self.eps_subsystem.get_battery_energy().to(u.W * u.hour).to_value()
         )
 
+        # Update data storage variables
         full, TOF_GNSS, HK = self.obc_subsystem.get_data()
         spacecraft_state["obc"]["data_storage"]["init_data"] = full.to_value()
         spacecraft_state["obc"]["data_storage"][
@@ -200,12 +252,14 @@ class Spacecraft:
             self.obc_subsystem.get_data_storage().get_data_to_downlink().to_value()
         )
 
+        # Update measurement variables (payload class)
         dur, is_measuring = self.payload_subsystem.get_measurement_variables()
         spacecraft_state["payload"]["init_measurement_duration"] = dur.to_value()
         spacecraft_state["payload"]["init_is_measuring"] = (
             "true" if is_measuring else "false"
         )
 
+        # Update telecom-related variables
         (
             t_no_com,
             com_duration,
