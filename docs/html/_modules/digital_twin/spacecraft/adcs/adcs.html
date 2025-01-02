@@ -69,10 +69,15 @@
            <div itemprop="articleBody">
              
   <h1>Source code for digital_twin.spacecraft.adcs.adcs</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;File for the ADCS subsystem.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">File for the ADCS (Attitude Determination and Control Subsystem) implementation.</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
+<span class="sd">This module defines the ADCS class used for managing the spacecraft&#39;s attitude.</span>
+
+<span class="sd">Classes:</span>
+<span class="sd">    Adcs: Represents the Attitude Determination and Control Subsystem (ADCS) for </span>
+<span class="sd">          managing spacecraft attitude.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
 <span class="kn">from</span> <span class="nn">astropy.time</span> <span class="kn">import</span> <span class="n">TimeDelta</span>
@@ -86,7 +91,17 @@
 <div class="viewcode-block" id="Adcs">
 <a class="viewcode-back" href="../../../../digital_twin.spacecraft.adcs.html#digital_twin.spacecraft.adcs.adcs.Adcs">[docs]</a>
 <span class="k">class</span> <span class="nc">Adcs</span><span class="p">(</span><span class="n">SubSystem</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">init_operating_mode</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represent the Attitude Determination and Control Subsystem (ADCS) of the spacecraft.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        name (str): The name of the subsystem.</span>
+<span class="sd">        consumption_mean (dict[int, Quantity[&quot;power&quot;]]): Mean power consumption for different operating modes.</span>
+<span class="sd">        safe_flag (bool): Indicates whether the subsystem is in safe mode.</span>
+<span class="sd">        attitude (int): The current attitude mode of the spacecraft (defined in the file constants.py)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">init_operating_mode</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Initializing ADCS subsystem... &quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;ADCS&quot;</span>
 
@@ -104,46 +119,65 @@
 <a class="viewcode-back" href="../../../../digital_twin.spacecraft.adcs.html#digital_twin.spacecraft.adcs.adcs.Adcs.update">[docs]</a>
     <span class="k">def</span> <span class="nf">update</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">old_mode</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">new_mode</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">old_mode</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">new_mode</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">rv</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
         <span class="n">com_window</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
         <span class="n">eclipse_status</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
         <span class="n">delta_t</span><span class="p">:</span> <span class="n">TimeDelta</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the ADCS state, including attitude mode and safe flag handling.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">            old_mode (int): Previous operating mode of the spacecraft.</span>
+<span class="sd">            new_mode (int): New operating mode of the spacecraft.</span>
+<span class="sd">            rv (np.ndarray): Position vector of the spacecraft.</span>
+<span class="sd">            com_window (bool): Indicate if the spacecraft is in a communication window.</span>
+<span class="sd">            eclipse_status (bool): Indicate if the spacecraft is in eclipse.</span>
+<span class="sd">            delta_t (TimeDelta): Timestep for the update.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Update the attitude</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">attitude</span> <span class="o">=</span> <span class="n">attitude_mode_dict</span><span class="p">[</span><span class="n">new_mode</span><span class="p">]</span>
 
         <span class="c1"># SAFE FLAG HANDLING</span>
         <span class="c1"># Check safe flag triggers (cannot generate a safe flag if already in safe mode)</span>
         <span class="k">if</span> <span class="n">new_mode</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">safe_flag</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
-            <span class="k">pass</span>  <span class="c1"># not implemented yet for this subsystem</span>
+            <span class="k">pass</span>  <span class="c1"># Not implemented yet for this subsystem</span>
         <span class="c1"># Check safe flag resolution</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">safe_flag</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
-            <span class="k">pass</span>  <span class="c1"># not implemented yet for this subsystem</span></div>
+            <span class="k">pass</span>  <span class="c1"># Not implemented yet for this subsystem</span></div>
 
 
 <div class="viewcode-block" id="Adcs.get_cross_section">
 <a class="viewcode-back" href="../../../../digital_twin.spacecraft.adcs.html#digital_twin.spacecraft.adcs.adcs.Adcs.get_cross_section">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_cross_section</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">old_cross_section</span><span class="p">:</span> <span class="n">Quantity</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Quantity</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">get_cross_section</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">old_cross_section</span><span class="p">:</span> <span class="n">Quantity</span><span class="p">[</span><span class="s2">&quot;area&quot;</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Quantity</span><span class="p">[</span><span class="s2">&quot;area&quot;</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve the cross-sectional area of the spacecraft in its current attitude. Currently using a constant cross section.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">old_cross_section</span></div>
 
 
 <div class="viewcode-block" id="Adcs.compute_power_consumed">
 <a class="viewcode-back" href="../../../../digital_twin.spacecraft.adcs.html#digital_twin.spacecraft.adcs.adcs.Adcs.compute_power_consumed">[docs]</a>
-    <span class="k">def</span> <span class="nf">compute_power_consumed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Quantity</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">compute_power_consumed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Quantity</span><span class="p">[</span><span class="s2">&quot;power&quot;</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the power consumed in the specified mode.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">consumption_mean</span><span class="p">[</span><span class="n">mode</span><span class="p">]</span></div>
 
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;ADCS:&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a string representation of the ADCS subsystem.&quot;&quot;&quot;</span>
+        <span class="n">string1</span> <span class="o">=</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">attitude_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;ADCS: </span><span class="se">\n</span><span class="s2">- List of attitudes: </span><span class="si">{</span><span class="n">string1</span><span class="si">}</span><span class="s2">&quot;</span>
 
 <div class="viewcode-block" id="Adcs.raise_safe_flag">
 <a class="viewcode-back" href="../../../../digital_twin.spacecraft.adcs.html#digital_twin.spacecraft.adcs.adcs.Adcs.raise_safe_flag">[docs]</a>
     <span class="k">def</span> <span class="nf">raise_safe_flag</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return true if a safe flag is raised by this subsystem in order to trigger safe mode.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">safe_flag</span></div>
 
 
+    <span class="c1"># Getters</span>
 <div class="viewcode-block" id="Adcs.get_name">
 <a class="viewcode-back" href="../../../../digital_twin.spacecraft.adcs.html#digital_twin.spacecraft.adcs.adcs.Adcs.get_name">[docs]</a>
     <span class="k">def</span> <span class="nf">get_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>

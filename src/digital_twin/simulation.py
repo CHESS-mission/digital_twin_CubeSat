@@ -128,6 +128,9 @@ class Simulation:
         eclipse, _ = self.propagator.calculate_eclipse_status()
         eclipse_windows[0] = eclipse
 
+        density_array = np.zeros(self.n_timesteps + 1)
+        density_array[0] = self.propagator.get_density().value
+
         print("Number of timesteps:", self.n_timesteps)
 
         # MAIN SIMULATION LOOP
@@ -140,8 +143,11 @@ class Simulation:
                     self.delta_t, self.spacecraft.C_D, self.spacecraft.A_over_m
                 )
             except (
-                RuntimeError
+                RuntimeError,
+                ValueError,
             ):  # Spacecraft cannot be propagated anymore (usually because altitude is too low)
+                break
+            except ZeroDivisionError:
                 break
 
             eph[t + 1, :3] = rv[:3]
@@ -153,71 +159,73 @@ class Simulation:
                     print("Altitude decay: deorbiting")
                     break
 
-            # 2. Calculate position based params: communication window, eclipse status
-            visibility, gs_coords_array = self.propagator.calculate_vis_window(
-                self.ground_stations
-            )
-            eclipse_status, r_earth_sun = self.propagator.calculate_eclipse_status()
-            r_earth_sun = r_earth_sun
+            # # 2. Calculate position based params: communication window, eclipse status
+            # visibility, gs_coords_array = self.propagator.calculate_vis_window(
+            #     self.ground_stations
+            # )
+            # eclipse_status, r_earth_sun = self.propagator.calculate_eclipse_status()
+            # r_earth_sun = r_earth_sun
 
-            # 3. Calculate user-scheduled params
-            measurement_session = self.spacecraft.get_payload().can_start_measuring(
-                self.tofs[t + 1].to("second")
-            )  # Currently implemented with a user parameter deciding the maximum number of measurement sessions per day
-            com_window = False
-            gs_coords = None
-            for i, vis in enumerate(visibility):
-                if vis:
-                    com_window = True
-                    gs_coords = (gs_coords_array[i] * u.km).flatten()
-                    break  # Right now, we only consider the first ground station which is visible from satellite
+            # # 3. Calculate user-scheduled params
+            # measurement_session = self.spacecraft.get_payload().can_start_measuring(
+            #     self.tofs[t + 1].to("second")
+            # )  # Currently implemented with a user parameter deciding the maximum number of measurement sessions per day
+            # com_window = False
+            # gs_coords = None
+            # for i, vis in enumerate(visibility):
+            #     if vis:
+            #         com_window = True
+            #         gs_coords = (gs_coords_array[i] * u.km).flatten()
+            #         break  # Right now, we only consider the first ground station which is visible from satellite
 
-            # 3. Check for potential flags raised by OBS
-            safe_flag = self.spacecraft.get_obc().raise_spacecraft_safe_flag()
+            # # 4. Check for potential flags raised by OBC
+            # safe_flag = self.spacecraft.get_obc().raise_spacecraft_safe_flag()
 
-            # 4. Switch mode based on current state
-            old_mode = self.switch_algo.operating_mode
-            self.switch_algo.switch_mode(
-                self.spacecraft.get_eps(),
-                self.spacecraft.get_telecom(),
-                self.spacecraft.get_payload(),
-                self.spacecraft.get_data_storage(),
-                com_window,
-                eclipse_status,
-                measurement_session,
-                safe_flag,
-            )
-            new_mode = self.switch_algo.operating_mode
-            modes[t + 1] = new_mode
+            # # 5. Switch mode based on current state
+            # old_mode = self.switch_algo.operating_mode
+            # self.switch_algo.switch_mode(
+            #     self.spacecraft.get_eps(),
+            #     self.spacecraft.get_telecom(),
+            #     self.spacecraft.get_payload(),
+            #     self.spacecraft.get_data_storage(),
+            #     com_window,
+            #     eclipse_status,
+            #     measurement_session,
+            #     safe_flag,
+            # )
+            # new_mode = self.switch_algo.operating_mode
+            # modes[t + 1] = new_mode
 
-            # 5. Ask spacecraft to update all subsystems
-            self.spacecraft.update_subsystems(
-                old_mode,
-                new_mode,
-                rv,
-                com_window,
-                eclipse_status,
-                self.delta_t,
-                r_earth_sun,
-                gs_coords,
-            )
+            # # 6. Ask spacecraft to update all subsystems
+            # self.spacecraft.update_subsystems(
+            #     old_mode,
+            #     new_mode,
+            #     rv,
+            #     com_window,
+            #     eclipse_status,
+            #     self.delta_t,
+            #     r_earth_sun,
+            #     gs_coords,
+            # )
 
-            # 6. Save data at current timestep
-            vis_windows[t + 1] = np.array([int(vis) for vis in visibility])
-            eclipse_windows[t + 1] = int(eclipse_status)
-            battery_energies[t + 1] = (
-                self.spacecraft.get_eps().get_battery_energy().value
-            )
-            power_consumption[t + 1] = (
-                self.spacecraft.get_eps().get_power_consumption().value
-            )
-            power_generation[t + 1] = (
-                self.spacecraft.get_eps().get_power_generation().value
-            )
-            all, GNSS_TOF, HK = self.spacecraft.get_obc().get_data()
-            data_storage[t + 1] = all.value
-            data_storage_GNSS_TOF[t + 1] = GNSS_TOF.value
-            data_storage_HK[t + 1] = HK.value
+            # # 7. Save data at current timestep
+            # vis_windows[t + 1] = np.array([int(vis) for vis in visibility])
+            # eclipse_windows[t + 1] = int(eclipse_status)
+            # battery_energies[t + 1] = (
+            #     self.spacecraft.get_eps().get_battery_energy().value
+            # )
+            # power_consumption[t + 1] = (
+            #     self.spacecraft.get_eps().get_power_consumption().value
+            # )
+            # power_generation[t + 1] = (
+            #     self.spacecraft.get_eps().get_power_generation().value
+            # )
+            # all, GNSS_TOF, HK = self.spacecraft.get_obc().get_data()
+            # data_storage[t + 1] = all.value
+            # data_storage_GNSS_TOF[t + 1] = GNSS_TOF.value
+            # data_storage_HK[t + 1] = HK.value
+
+            density_array[t + 1] = self.propagator.get_density().value
 
         end_for_loop = time.time()
         duration = end_for_loop - start_for_loop
@@ -259,6 +267,7 @@ class Simulation:
             data_storage_GNSS_TOF = data_storage_GNSS_TOF[:last_ind]
             data_storage_HK = data_storage_HK[:last_ind]
             eclipse_windows = eclipse_windows[:last_ind]
+            density_array = density_array[:last_ind]
 
             self.duration_sim = last_ind * self.delta_t
             self.tofs = self.tofs[:last_ind]
@@ -297,6 +306,7 @@ class Simulation:
             "ground_stations": self.ground_stations,
             "orbit_state": orbit_state,
             "spacecraft_state": spacecraft_state,
+            "density_array": density_array,
         }
 
         # Produce report

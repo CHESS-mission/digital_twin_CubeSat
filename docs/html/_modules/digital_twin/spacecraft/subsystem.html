@@ -69,7 +69,12 @@
            <div itemprop="articleBody">
              
   <h1>Source code for digital_twin.spacecraft.subsystem</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Subsystem Interface Module</span>
+
+<span class="sd">This module defines the `SubSystem` class, which serves as an abstract interface </span>
+<span class="sd">for all spacecraft subsystems.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">astropy.time</span> <span class="kn">import</span> <span class="n">TimeDelta</span>
 <span class="kn">from</span> <span class="nn">astropy.units</span> <span class="kn">import</span> <span class="n">Quantity</span>
@@ -79,45 +84,57 @@
 <div class="viewcode-block" id="SubSystem">
 <a class="viewcode-back" href="../../../digital_twin.spacecraft.html#digital_twin.spacecraft.subsystem.SubSystem">[docs]</a>
 <span class="k">class</span> <span class="nc">SubSystem</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Interface for subsystems to make sure all susbsystems have necessary functions implemented.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract interface for spacecraft subsystems.</span>
 
-    <span class="c1"># this init function is call by all subsystems</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="sd">    This class ensures that all subsystems implement the necessary methods to</span>
+<span class="sd">    interact with the spacecraft. Each subsystem is expected to define its</span>
+<span class="sd">    behavior for updates, power consumption, safety flags, and identification.</span>
+
+<span class="sd">    Methods defined here must be implemented by all derived classes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># This init function is called by all subsystems</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">pass</span>
 
 <div class="viewcode-block" id="SubSystem.update">
 <a class="viewcode-back" href="../../../digital_twin.spacecraft.html#digital_twin.spacecraft.subsystem.SubSystem.update">[docs]</a>
     <span class="k">def</span> <span class="nf">update</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">old_mode</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">new_mode</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">old_mode</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">new_mode</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">rv</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
         <span class="n">com_window</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
         <span class="n">eclipse_status</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
         <span class="n">delta_t</span><span class="p">:</span> <span class="n">TimeDelta</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update the subsystem&#39;s state based on current spacecraft conditions.&quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="SubSystem.compute_power_consumed">
 <a class="viewcode-back" href="../../../digital_twin.spacecraft.html#digital_twin.spacecraft.subsystem.SubSystem.compute_power_consumed">[docs]</a>
-    <span class="k">def</span> <span class="nf">compute_power_consumed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Quantity</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">compute_power_consumed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Quantity</span><span class="p">[</span><span class="s2">&quot;power&quot;</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate the power consumed by the subsystem in the given mode.&quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="SubSystem.raise_safe_flag">
 <a class="viewcode-back" href="../../../digital_twin.spacecraft.html#digital_twin.spacecraft.subsystem.SubSystem.raise_safe_flag">[docs]</a>
     <span class="k">def</span> <span class="nf">raise_safe_flag</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Determine whether the subsystem raises a safety flag.&quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="SubSystem.get_name">
 <a class="viewcode-back" href="../../../digital_twin.spacecraft.html#digital_twin.spacecraft.subsystem.SubSystem.get_name">[docs]</a>
     <span class="k">def</span> <span class="nf">get_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the name of the subsystem.&quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">)</span></div>
 
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Provide a string representation of the subsystem.&quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="p">(</span><span class="ne">NotImplementedError</span><span class="p">)</span></div>
 
 </pre></div>

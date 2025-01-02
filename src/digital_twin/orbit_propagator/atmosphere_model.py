@@ -59,7 +59,7 @@ class AtmosphereModel:
         raise (NotImplementedError)
 
 
-class AtmosphereModelCOESA76(AtmosphereModel):
+class Coesa76(AtmosphereModel):
     """
     COESA76 model for atmospheric density calculation.
 
@@ -68,7 +68,7 @@ class AtmosphereModelCOESA76(AtmosphereModel):
     """
 
     def __init__(self) -> None:
-        super(AtmosphereModelCOESA76, self).__init__()
+        super(Coesa76, self).__init__()
         self.model = COESA76()
 
     def get_density(
@@ -80,10 +80,10 @@ class AtmosphereModelCOESA76(AtmosphereModel):
 
     def __str__(self) -> str:
         """Return a string representation of the atmosphere model."""
-        return "COESA76 atmosphere model (Poliastro wrapper)"
+        return "Coesa76 atmosphere model (Poliastro wrapper)"
 
 
-class AtmosphereModelSolarActivity(AtmosphereModel):
+class SolarActivity(AtmosphereModel):
     """
     Solar activity-based model for atmospheric density calculation.
 
@@ -92,14 +92,17 @@ class AtmosphereModelSolarActivity(AtmosphereModel):
     using empirical formulas.
     """
 
-    def __init__(self) -> None:
-        super(AtmosphereModelSolarActivity, self).__init__()
+    def __init__(
+        self,
+        path_f10: str = "../data/atmosphere_data/solar_activity/F10.npy",
+        path_ap: str = "../data/atmosphere_data/solar_activity/Ap.npy",
+        path_times: str = "../data/atmosphere_data/solar_activity/dates_sa.npy",
+    ) -> None:
+        super(SolarActivity, self).__init__()
         # SOLAR ACTIVITY VALUES
-        self.F10_7 = np.load("../data/atmosphere_data/solar_activity/F10.npy")
-        self.Ap = np.load("../data/atmosphere_data/solar_activity/Ap.npy")
-        self.times = np.load(
-            "../data/atmosphere_data/solar_activity/dates_sa.npy", allow_pickle=True
-        )
+        self.F10_7 = np.load(path_f10)
+        self.Ap = np.load(path_ap)
+        self.times = np.load(path_times, allow_pickle=True)
 
     def get_solar_activity_values(self, iso_date_str: str) -> tuple[float]:
         """Retrieve the solar activity values (F10.7 and Ap indices) for a given date."""
@@ -139,7 +142,7 @@ class AtmosphereModelSolarActivity(AtmosphereModel):
         return "Analytical atmosphere model based on solar activity data"
 
 
-class AtmosphereModelNRLMSISE00(AtmosphereModel):
+class NRLMSISE00(AtmosphereModel):
     """
     NRLMSISE-00 model for atmospheric density calculation.
 
@@ -147,9 +150,9 @@ class AtmosphereModelNRLMSISE00(AtmosphereModel):
     space weather data such as solar activity to estimate the density at a given altitude.
     """
 
-    def __init__(self) -> None:
-        super(AtmosphereModelNRLMSISE00, self).__init__()
-        swfile = download_sw_nrlmsise00("../data/atmosphere_data/NRLMSISE00/")
+    def __init__(self, path: str = "../data/atmosphere_data/NRLMSISE00/") -> None:
+        super(NRLMSISE00, self).__init__()
+        swfile = download_sw_nrlmsise00(path)
         # Read the space weather data
         self.swdata = read_sw_nrlmsise00(swfile)
         self.t_max = datetime.strptime(
@@ -188,7 +191,7 @@ class AtmosphereModelNRLMSISE00(AtmosphereModel):
         return "NRLMSISE00 atmosphere model"
 
 
-class AtmosphereModelJB2008(AtmosphereModel):
+class JB2008(AtmosphereModel):
     """
     JB2008 model for atmospheric density calculation.
 
@@ -196,9 +199,9 @@ class AtmosphereModelJB2008(AtmosphereModel):
     solar activity and space weather data to estimate the density at a given altitude.
     """
 
-    def __init__(self) -> None:
-        super(AtmosphereModelJB2008, self).__init__()
-        swfile = download_sw_jb2008("../data/atmosphere_data/JB2008/")
+    def __init__(self, path: str = "../data/atmosphere_data/JB2008/") -> None:
+        super(JB2008, self).__init__()
+        swfile = download_sw_jb2008(path)
         # Read the space weather data
         self.swdata = read_sw_jb2008(swfile)
         self.t_max = datetime.strptime(

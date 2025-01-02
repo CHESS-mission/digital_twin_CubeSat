@@ -71,26 +71,24 @@
   <h1>Source code for digital_twin.plotting</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Gather all functions relating to plotting.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Any</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Any</span>
 
 <span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
 <span class="kn">from</span> <span class="nn">astropy.coordinates</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">GCRS</span><span class="p">,</span>
     <span class="n">ITRS</span><span class="p">,</span>
-    <span class="n">CartesianDifferential</span><span class="p">,</span>
     <span class="n">CartesianRepresentation</span><span class="p">,</span>
     <span class="n">SphericalRepresentation</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">astropy.time</span> <span class="kn">import</span> <span class="n">Time</span><span class="p">,</span> <span class="n">TimeDelta</span>
 <span class="kn">from</span> <span class="nn">astropy.units</span> <span class="kn">import</span> <span class="n">Quantity</span>
-<span class="kn">from</span> <span class="nn">poliastro.earth.plotting</span> <span class="kn">import</span> <span class="n">GroundtrackPlotter</span>
-<span class="kn">from</span> <span class="nn">poliastro.plotting</span> <span class="kn">import</span> <span class="n">OrbitPlotter3D</span>
-<span class="kn">from</span> <span class="nn">poliastro.twobody</span> <span class="kn">import</span> <span class="n">Orbit</span>
 <span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
 <span class="kn">from</span> <span class="nn">matplotlib.ticker</span> <span class="kn">import</span> <span class="n">FuncFormatter</span>
 <span class="kn">import</span> <span class="nn">matplotlib.dates</span> <span class="k">as</span> <span class="nn">mdates</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">plotly.graph_objects</span> <span class="k">as</span> <span class="nn">go</span>
+<span class="kn">from</span> <span class="nn">poliastro.earth.plotting</span> <span class="kn">import</span> <span class="n">GroundtrackPlotter</span>
+<span class="kn">from</span> <span class="nn">poliastro.plotting</span> <span class="kn">import</span> <span class="n">OrbitPlotter3D</span>
+<span class="kn">from</span> <span class="nn">poliastro.twobody</span> <span class="kn">import</span> <span class="n">Orbit</span>
 
 <span class="kn">from</span> <span class="nn">digital_twin.constants</span> <span class="kn">import</span> <span class="n">mode_dict</span>
 
@@ -106,8 +104,8 @@
     <span class="n">step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">fill_under</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">remove_box</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="n">x_range</span><span class="p">:</span> <span class="n">Tuple</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">y_range</span><span class="p">:</span> <span class="n">Tuple</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">x_range</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">y_range</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">scatter</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">x_label_f</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">custom_y_ticks</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -123,7 +121,8 @@
     <span class="n">date_interval</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">date_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Function for general plotting in 2d with x and y arrays as input.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Function for general plotting in 2d with x and y arrays as input.</span>
+<span class="sd">    Many parameters are optional to change the visualization design.&quot;&quot;&quot;</span>
     <span class="c1"># Downsample the x and y arrays</span>
     <span class="n">x_downsampled</span> <span class="o">=</span> <span class="n">x</span><span class="p">[::</span><span class="n">step</span><span class="p">]</span>
     <span class="n">y_downsampled</span> <span class="o">=</span> <span class="n">y</span><span class="p">[::</span><span class="n">step</span><span class="p">]</span>
@@ -186,13 +185,13 @@
         <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;left&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_color</span><span class="p">((</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">))</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_color</span><span class="p">((</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">))</span>
 
-    <span class="c1"># if want to have dates as the x axis</span>
+    <span class="c1"># If want to have dates as the x axis</span>
     <span class="k">if</span> <span class="n">date_x_axis</span><span class="p">:</span>
         <span class="c1"># Set major locator to show every other day (or adjust as needed)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">mdates</span><span class="o">.</span><span class="n">DayLocator</span><span class="p">(</span><span class="n">interval</span><span class="o">=</span><span class="n">date_interval</span><span class="p">))</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span>
             <span class="n">mdates</span><span class="o">.</span><span class="n">DateFormatter</span><span class="p">(</span><span class="n">date_format</span><span class="p">)</span>
-        <span class="p">)</span>  <span class="c1"># display the year only</span>
+        <span class="p">)</span>  <span class="c1"># Display the year only</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
 
     <span class="c1"># Show the plot</span>
@@ -207,7 +206,6 @@
 
 
 
-<span class="c1"># same as previous function but plots multiple graphs on the same ax, and adds a legend</span>
 <div class="viewcode-block" id="plot_1d_multiple">
 <a class="viewcode-back" href="../../digital_twin.html#digital_twin.plotting.plot_1d_multiple">[docs]</a>
 <span class="k">def</span> <span class="nf">plot_1d_multiple</span><span class="p">(</span>
@@ -221,8 +219,8 @@
     <span class="n">step</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
     <span class="n">fill_under</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">remove_box</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="n">x_range</span><span class="p">:</span> <span class="n">Tuple</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">y_range</span><span class="p">:</span> <span class="n">Tuple</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">x_range</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">y_range</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">scatter</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">x_label_f</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">custom_y_ticks</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -238,7 +236,7 @@
     <span class="n">date_interval</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
     <span class="n">date_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">/%m/%Y&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Function for general plotting in 2d with x and y arrays as input.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Function for general plotting in 2d with x and y arrays as input for MULTIPLE PLOTS on the same ax.&quot;&quot;&quot;</span>
     <span class="n">nb_plots</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>  <span class="c1"># = len(x)</span>
 
     <span class="c1"># Downsample the x and y arrays</span>
@@ -344,24 +342,24 @@
 
 <div class="viewcode-block" id="seconds_to_days">
 <a class="viewcode-back" href="../../digital_twin.html#digital_twin.plotting.seconds_to_days">[docs]</a>
-<span class="k">def</span> <span class="nf">seconds_to_days</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">pos</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert seconds to days.&quot;&quot;&quot;</span>
+<span class="k">def</span> <span class="nf">seconds_to_days</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">pos</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert seconds to days and return a string cast.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">x</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">86400</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">&quot;</span></div>
 
 
 
 <div class="viewcode-block" id="seconds_to_hours">
 <a class="viewcode-back" href="../../digital_twin.html#digital_twin.plotting.seconds_to_hours">[docs]</a>
-<span class="k">def</span> <span class="nf">seconds_to_hours</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">pos</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert seconds to hours.&quot;&quot;&quot;</span>
+<span class="k">def</span> <span class="nf">seconds_to_hours</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">pos</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert seconds to hours and return a string cast.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">x</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">3600</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">&quot;</span></div>
 
 
 
 <div class="viewcode-block" id="seconds_to_minutes">
 <a class="viewcode-back" href="../../digital_twin.html#digital_twin.plotting.seconds_to_minutes">[docs]</a>
-<span class="k">def</span> <span class="nf">seconds_to_minutes</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">pos</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert seconds to minutes.&quot;&quot;&quot;</span>
+<span class="k">def</span> <span class="nf">seconds_to_minutes</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">pos</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert seconds to minutes and return a string cast.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">x</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">60</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">&quot;</span></div>
 
 
@@ -532,7 +530,6 @@
 <a class="viewcode-back" href="../../digital_twin.html#digital_twin.plotting.plot_orbit_2d">[docs]</a>
 <span class="k">def</span> <span class="nf">plot_orbit_2d</span><span class="p">(</span>
     <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">attractor_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">orbit</span><span class="p">:</span> <span class="n">Orbit</span><span class="p">,</span>
@@ -755,7 +752,7 @@
     <span class="c1"># Show the plot</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">save_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">save_filename</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">save_filename</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">show</span><span class="p">:</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
@@ -765,8 +762,20 @@
 
 <div class="viewcode-block" id="find_x_scale">
 <a class="viewcode-back" href="../../digital_twin.html#digital_twin.plotting.find_x_scale">[docs]</a>
-<span class="k">def</span> <span class="nf">find_x_scale</span><span class="p">(</span><span class="n">duration_sim</span><span class="p">:</span> <span class="n">Quantity</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]):</span>
-    <span class="c1"># update what the x_axis scale should be</span>
+<span class="k">def</span> <span class="nf">find_x_scale</span><span class="p">(</span><span class="n">duration_sim</span><span class="p">:</span> <span class="n">Quantity</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Determine the appropriate x-axis scale and label based on the simulation duration.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        duration_sim (Quantity[&quot;time&quot;]): The total duration of the simulation, represented as a time quantity.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple: A tuple containing the x-axis label (str) and the corresponding function to convert time values (function).</span>
+
+<span class="sd">    The function updates the x-axis scale and label based on the total simulation time:</span>
+<span class="sd">    - For durations less than or equal to 8 hours, the x-axis is labeled in minutes.</span>
+<span class="sd">    - For durations less than or equal to 3 days, the x-axis is labeled in hours.</span>
+<span class="sd">    - For durations greater than 3 days, the x-axis is labeled in days.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">duration_sim</span> <span class="o">&lt;=</span> <span class="mi">8</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">h</span><span class="p">:</span>
         <span class="n">x_label_f</span> <span class="o">=</span> <span class="n">seconds_to_minutes</span>
         <span class="n">x_label</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;Time ($min$)&quot;</span>
@@ -776,7 +785,7 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">x_label_f</span> <span class="o">=</span> <span class="n">seconds_to_days</span>
         <span class="n">x_label</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;Time ($day$)&quot;</span>
-    <span class="k">return</span> <span class="n">x_label</span><span class="p">,</span> <span class="n">x_label_f</span></div>
+    <span class="k">return</span> <span class="p">(</span><span class="n">x_label</span><span class="p">,</span> <span class="n">x_label_f</span><span class="p">)</span></div>
 
 
 
@@ -836,7 +845,7 @@
 
     <span class="c1"># Save the plot if a filename is provided</span>
     <span class="k">if</span> <span class="n">save_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">save_filename</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">save_filename</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
 
     <span class="c1"># Show or close the plot</span>
     <span class="k">if</span> <span class="n">show</span><span class="p">:</span>
@@ -858,17 +867,22 @@
     <span class="n">save_filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">show</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plot operating modes during simulation to visualize them throughout time.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plot operating modes during simulation to visualize them throughout time with the ecplipse status and visibility windows.&quot;&quot;&quot;</span>
 
-    <span class="c1"># modes = [int(mode) for mode in modes]</span>
-
-    <span class="n">mode_remap</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="mi">3</span><span class="p">}</span>
+    <span class="n">mode_remap</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="mi">0</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="mi">2</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="mi">3</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+        <span class="mi">4</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="mi">5</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="p">}</span>  <span class="c1"># to change plot order on the y axis, so that charging mode is next to eclipse bar and xband next to the visibility bar</span>
     <span class="n">new_mode_order</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
 
     <span class="c1"># Apply the remapping</span>
     <span class="n">modes</span> <span class="o">=</span> <span class="p">[</span><span class="n">mode_remap</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">mode</span><span class="p">)]</span> <span class="k">for</span> <span class="n">mode</span> <span class="ow">in</span> <span class="n">modes</span><span class="p">]</span>
 
-    <span class="c1"># update what the x_axis scale should be</span>
+    <span class="c1"># Update what the x_axis scale should be</span>
     <span class="n">x_label</span><span class="p">,</span> <span class="n">x_label_f</span> <span class="o">=</span> <span class="n">find_x_scale</span><span class="p">(</span><span class="n">duration_sim</span><span class="p">)</span>
 
     <span class="c1"># Mode names</span>
@@ -899,7 +913,6 @@
 
     <span class="c1"># Hide y-ticks and y-axis label, focus on horizontal bars</span>
     <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
-    <span class="c1"># axes[0].set_xticks([])</span>
     <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Visibility&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
     <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="s2">&quot;horizontal&quot;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">)</span>
 
@@ -916,7 +929,6 @@
     <span class="p">)</span>
 
     <span class="c1"># AX 1</span>
-    <span class="c1"># plt.figure(figsize=(6, 3.5))</span>
     <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">0.6</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">mode_labels</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.3</span><span class="p">)</span>  <span class="c1"># Adjust limits to avoid space</span>
 
     <span class="c1"># Manually add horizontal grid lines at each mode level to make grid</span>
@@ -942,8 +954,6 @@
         <span class="n">linewidth</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
     <span class="p">)</span>  <span class="c1"># Extend last line</span>
 
-    <span class="c1"># plt.title(&quot;Satellite Modes Over Time&quot;, fontsize=13, fontweight=&quot;medium&quot;)</span>
-
     <span class="c1"># Add a legend</span>
     <span class="n">mode_handles</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
@@ -954,8 +964,6 @@
     <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
     <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Operating</span><span class="se">\n</span><span class="s2">Mode&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
     <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="s2">&quot;horizontal&quot;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">)</span>
-
-    <span class="c1"># ax = plt.gca()</span>
     <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_ticks_position</span><span class="p">(</span><span class="s2">&quot;none&quot;</span><span class="p">)</span>  <span class="c1"># Remove x-ticks</span>
     <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_color</span><span class="p">((</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">))</span>
     <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;right&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_color</span><span class="p">((</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">))</span>
@@ -977,7 +985,6 @@
 
     <span class="c1"># Hide y-ticks and y-axis label, focus on horizontal bars</span>
     <span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
-    <span class="c1"># axes[2].set_xticks([])</span>
     <span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Sunlight&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
     <span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="s2">&quot;horizontal&quot;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">)</span>
 
@@ -988,11 +995,6 @@
     <span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_color</span><span class="p">((</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">))</span>
     <span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">FuncFormatter</span><span class="p">(</span><span class="n">x_label_f</span><span class="p">))</span>
     <span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
-
-    <span class="n">eclipse_handle</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">Line2D</span><span class="p">(</span>
-        <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;gold&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Satellite receives sunlight&quot;</span>
-    <span class="p">)</span>
-
     <span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">x_label</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
 
     <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;legend.title_fontsize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">9</span>
@@ -1012,7 +1014,7 @@
         <span class="n">left</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wspace</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hspace</span><span class="o">=</span><span class="mi">0</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">save_filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">save_filename</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">save_filename</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">show</span><span class="p">:</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
@@ -1057,7 +1059,7 @@
         <span class="n">y_tick_labels</span><span class="o">=</span><span class="n">tick_labels_angle</span><span class="p">,</span>
         <span class="n">x_label_f</span><span class="o">=</span><span class="n">x_label_f</span><span class="p">,</span>
         <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">save_filename</span><span class="o">=</span><span class="n">folder</span> <span class="o">+</span> <span class="s2">&quot;RAAN.pdf&quot;</span><span class="p">,</span>
+        <span class="n">save_filename</span><span class="o">=</span><span class="n">folder</span> <span class="o">+</span> <span class="s2">&quot;RAAN.png&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">plot_1d</span><span class="p">(</span>
@@ -1075,7 +1077,7 @@
         <span class="n">y_tick_labels</span><span class="o">=</span><span class="n">tick_labels_angle</span><span class="p">,</span>
         <span class="n">x_label_f</span><span class="o">=</span><span class="n">x_label_f</span><span class="p">,</span>
         <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">save_filename</span><span class="o">=</span><span class="n">folder</span> <span class="o">+</span> <span class="s2">&quot;AOP.pdf&quot;</span><span class="p">,</span>
+        <span class="n">save_filename</span><span class="o">=</span><span class="n">folder</span> <span class="o">+</span> <span class="s2">&quot;AOP.png&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">plot_1d</span><span class="p">(</span>
@@ -1091,7 +1093,7 @@
         <span class="n">scatter</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">x_label_f</span><span class="o">=</span><span class="n">x_label_f</span><span class="p">,</span>
         <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">save_filename</span><span class="o">=</span><span class="n">folder</span> <span class="o">+</span> <span class="s2">&quot;ECC.pdf&quot;</span><span class="p">,</span>
+        <span class="n">save_filename</span><span class="o">=</span><span class="n">folder</span> <span class="o">+</span> <span class="s2">&quot;ECC.png&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">plot_1d</span><span class="p">(</span>
@@ -1109,7 +1111,7 @@
         <span class="n">y_tick_labels</span><span class="o">=</span><span class="n">tick_labels_angle</span><span class="p">,</span>
         <span class="n">x_label_f</span><span class="o">=</span><span class="n">x_label_f</span><span class="p">,</span>
         <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">save_filename</span><span class="o">=</span><span class="n">folder</span> <span class="o">+</span> <span class="s2">&quot;INC.pdf&quot;</span><span class="p">,</span>
+        <span class="n">save_filename</span><span class="o">=</span><span class="n">folder</span> <span class="o">+</span> <span class="s2">&quot;INC.png&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">plot_1d</span><span class="p">(</span>
@@ -1124,7 +1126,7 @@
         <span class="n">y_range</span><span class="o">=</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">altitudes</span><span class="p">)</span> <span class="o">-</span> <span class="mi">20</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">altitudes</span><span class="p">)</span> <span class="o">+</span> <span class="mi">20</span><span class="p">),</span>
         <span class="n">x_label_f</span><span class="o">=</span><span class="n">x_label_f</span><span class="p">,</span>
         <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">save_filename</span><span class="o">=</span><span class="n">folder</span> <span class="o">+</span> <span class="s2">&quot;altitude.pdf&quot;</span><span class="p">,</span>
+        <span class="n">save_filename</span><span class="o">=</span><span class="n">folder</span> <span class="o">+</span> <span class="s2">&quot;altitude.png&quot;</span><span class="p">,</span>
     <span class="p">)</span></div>
 
 </pre></div>

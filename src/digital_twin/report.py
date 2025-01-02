@@ -317,3 +317,9 @@ def save_data(data: dict, data_params: dict, folder: str) -> None:
             json.dump(
                 data["spacecraft_state"], f, indent=4
             )  # Save with indentation for readability
+
+    if data_params["density"] == "yes":
+        with open(folder + "times.npy", "wb") as f:
+            np.save(f, data["tofs"].to_value("second"))
+        with open(folder + "density.npy", "wb") as f:
+            np.save(f, data["density_array"])

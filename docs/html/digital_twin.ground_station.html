@@ -100,24 +100,80 @@
 </section>
 <section id="module-digital_twin.ground_station.ground_station">
 <span id="digital-twin-ground-station-ground-station-module"></span><h2>digital_twin.ground_station.ground_station module<a class="headerlink" href="#module-digital_twin.ground_station.ground_station" title="Link to this heading"></a></h2>
-<p>File to store ground station related functions and objects</p>
+<p>File which define a ground station object.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="digital_twin.ground_station.ground_station.GroundStation">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">digital_twin.ground_station.ground_station.</span></span><span class="sig-name descname"><span class="pre">GroundStation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/digital_twin/ground_station/ground_station.html#GroundStation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.ground_station.ground_station.GroundStation" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">digital_twin.ground_station.ground_station.</span></span><span class="sig-name descname"><span class="pre">GroundStation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/digital_twin/ground_station/ground_station.html#GroundStation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.ground_station.ground_station.GroundStation" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="py property">
+<p>Represent a ground station (GS) for spacecraft communications.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.ground_station.ground_station.GroundStation.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#digital_twin.ground_station.ground_station.GroundStation.name" title="Link to this definition"></a></dt>
+<dd><p>The name of the ground station.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.ground_station.ground_station.GroundStation.color">
+<span class="sig-name descname"><span class="pre">color</span></span><a class="headerlink" href="#digital_twin.ground_station.ground_station.GroundStation.color" title="Link to this definition"></a></dt>
+<dd><p>The color of the ground station, used for groundtrack plotting.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.ground_station.ground_station.GroundStation.station_coords">
+<span class="sig-name descname"><span class="pre">station_coords</span></span><a class="headerlink" href="#digital_twin.ground_station.ground_station.GroundStation.station_coords" title="Link to this definition"></a></dt>
+<dd><p>The geographic coordinates of the ground station (latitude and longitude).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Quantity[“angle”]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="digital_twin.ground_station.ground_station.GroundStation.cartesian_coords">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cartesian_coords</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">CartesianRepresentation</span></em><a class="headerlink" href="#digital_twin.ground_station.ground_station.GroundStation.cartesian_coords" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">cartesian_coords</span></span><a class="headerlink" href="#digital_twin.ground_station.ground_station.GroundStation.cartesian_coords" title="Link to this definition"></a></dt>
+<dd><p>The Cartesian coordinates of the ground station in 3D space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>CartesianRepresentation</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.ground_station.ground_station.GroundStation.elev_angle">
+<span class="sig-name descname"><span class="pre">elev_angle</span></span><a class="headerlink" href="#digital_twin.ground_station.ground_station.GroundStation.elev_angle" title="Link to this definition"></a></dt>
+<dd><p>minimum angle between line GS-Sattelite and horizontal plane at the GS</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Quantity[“angle”]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id0">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cartesian_coords</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">CartesianRepresentation</span></em><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="digital_twin.ground_station.ground_station.GroundStation.elev_angle">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">elev_angle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">Quantity</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PhysicalType</span><span class="p"><span class="pre">(</span></span><span class="s"><span class="pre">'angle'</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#digital_twin.ground_station.ground_station.GroundStation.elev_angle" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="id1">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">elev_angle</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">Quantity</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PhysicalType</span><span class="p"><span class="pre">(</span></span><span class="s"><span class="pre">'angle'</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#id1" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="digital_twin.ground_station.ground_station.GroundStation.get_name_pos_color">
-<span class="sig-name descname"><span class="pre">get_name_pos_color</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/digital_twin/ground_station/ground_station.html#GroundStation.get_name_pos_color"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.ground_station.ground_station.GroundStation.get_name_pos_color" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_name_pos_color</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/digital_twin/ground_station/ground_station.html#GroundStation.get_name_pos_color"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.ground_station.ground_station.GroundStation.get_name_pos_color" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>

@@ -85,14 +85,12 @@
 <span class="kn">from</span> <span class="nn">digital_twin.ground_station</span> <span class="kn">import</span> <span class="n">GroundStation</span>
 <span class="kn">from</span> <span class="nn">digital_twin.mode_switch</span> <span class="kn">import</span> <span class="n">ModeSwitch</span>
 <span class="kn">from</span> <span class="nn">digital_twin.orbit_propagator</span> <span class="kn">import</span> <span class="n">OrbitPropagator</span>
-
+<span class="kn">from</span> <span class="nn">digital_twin.report</span> <span class="kn">import</span> <span class="n">produce_report</span>
 <span class="kn">from</span> <span class="nn">digital_twin.spacecraft</span> <span class="kn">import</span> <span class="n">Spacecraft</span>
 <span class="kn">from</span> <span class="nn">digital_twin.utils</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">get_astropy_unit_time</span><span class="p">,</span>
     <span class="n">extract_propagation_data_from_ephemeris</span><span class="p">,</span>
 <span class="p">)</span>
-
-<span class="kn">from</span> <span class="nn">digital_twin.report</span> <span class="kn">import</span> <span class="n">produce_report</span>
 
 
 <div class="viewcode-block" id="Simulation">
@@ -102,11 +100,11 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">simulation_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span>
-        <span class="n">orbit_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span>
-        <span class="n">spacecraft_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span>
-        <span class="n">station_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span>
-        <span class="n">mission_design_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span>
+        <span class="n">simulation_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+        <span class="n">orbit_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+        <span class="n">spacecraft_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+        <span class="n">station_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+        <span class="n">mission_design_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
         <span class="c1"># TIME INITIALIZATION</span>
@@ -404,11 +402,11 @@
 
 <div class="viewcode-block" id="Simulation.handle_user_input">
 <a class="viewcode-back" href="../../digital_twin.html#digital_twin.simulation.Simulation.handle_user_input">[docs]</a>
-    <span class="k">def</span> <span class="nf">handle_user_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_input</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">handle_user_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_input</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle additional user input. Currently only implemented for uplink safe mode trigger.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            user_input (dict[Any]): Dictionary containing the user input to consider.</span>
+<span class="sd">            user_input (dict): Dictionary containing the user input to consider.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">user_input</span><span class="p">[</span><span class="s2">&quot;uplink_safe_mode&quot;</span><span class="p">]:</span>  <span class="c1"># If dic is not empty</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_telecom</span><span class="p">()</span><span class="o">.</span><span class="n">add_uplink_safe_mode</span><span class="p">(</span>

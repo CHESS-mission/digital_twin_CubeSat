@@ -69,13 +69,8 @@
            <div itemprop="articleBody">
              
   <h1>Source code for digital_twin.orbit_propagator.orbit_propagator</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Wrapper around poliastro orbit propagator.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;file that defines the wrapper around poliastro orbit propagator.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">poliastro.earth.util</span> <span class="kn">import</span> <span class="n">raan_from_ltan</span>
-<span class="kn">import</span> <span class="nn">astropy</span>
-
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span>
 <span class="kn">import</span> <span class="nn">copy</span>
 
 <span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
@@ -86,7 +81,6 @@
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">astropy.time</span> <span class="kn">import</span> <span class="n">Time</span>
 <span class="kn">from</span> <span class="nn">astropy.units</span> <span class="kn">import</span> <span class="n">Quantity</span>
-<span class="kn">from</span> <span class="nn">numba</span> <span class="kn">import</span> <span class="n">njit</span> <span class="k">as</span> <span class="n">jit</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">poliastro.core.events</span> <span class="kn">import</span> <span class="n">eclipse_function</span>
 <span class="kn">from</span> <span class="nn">poliastro.core.perturbations</span> <span class="kn">import</span> <span class="p">(</span>
@@ -98,29 +92,51 @@
 <span class="kn">from</span> <span class="nn">poliastro.twobody.propagation</span> <span class="kn">import</span> <span class="n">CowellPropagator</span>
 
 <span class="kn">from</span> <span class="nn">digital_twin.constants</span> <span class="kn">import</span> <span class="n">earth_R</span><span class="p">,</span> <span class="n">J2</span><span class="p">,</span> <span class="n">sun_R</span><span class="p">,</span> <span class="n">earth_k</span>
-<span class="kn">from</span> <span class="nn">digital_twin.orbit_propagator.constants</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">attractor</span><span class="p">,</span>
-    <span class="n">star_string</span><span class="p">,</span>
-    <span class="n">attractor_string</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span> <span class="nn">digital_twin.utils</span> <span class="kn">import</span> <span class="n">angle_between_vectors</span>
 <span class="kn">from</span> <span class="nn">digital_twin.orbit_propagator</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">AtmosphereModelCOESA76</span><span class="p">,</span>
     <span class="n">AtmosphereModelNRLMSISE00</span><span class="p">,</span>
     <span class="n">AtmosphereModelSolarActivity</span><span class="p">,</span>
     <span class="n">AtmosphereModelJB2008</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span> <span class="nn">digital_twin.orbit_propagator.constants</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">attractor</span><span class="p">,</span>
+    <span class="n">star_string</span><span class="p">,</span>
+    <span class="n">attractor_string</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">digital_twin.utils</span> <span class="kn">import</span> <span class="n">angle_between_vectors</span>
 
 
 <div class="viewcode-block" id="OrbitPropagator">
 <a class="viewcode-back" href="../../../digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator">[docs]</a>
 <span class="k">class</span> <span class="nc">OrbitPropagator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Class for propagating the orbit of a satellite in the Earth&#39;s atmosphere, taking into account</span>
+<span class="sd">    the perturbative forces of atmospheric drag and the J2 effect.</span>
+
+<span class="sd">    The class provides functionality to propagate the orbit of the satellite using Cowell&#39;s method</span>
+<span class="sd">    with perturbations, including atmospheric drag and J2 effect. It updated the air density based</span>
+<span class="sd">    on an atmospheric model chosen by the user every constant interval of time (also chosen by the</span>
+<span class="sd">    user). It includes capabilities for calculating satellite visibility from ground stations and eclipse</span>
+<span class="sd">    status based on its position relative to the Earth and Sun.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        init_orbit (Orbit): The initial orbit of the satellite.</span>
+<span class="sd">        current_orbit (Orbit): The current propagated orbit.</span>
+<span class="sd">        orbit_type (str): Type of the orbit, e.g., &quot;SSO&quot; for Sun-synchronous orbits.</span>
+<span class="sd">        atmosphere_model (AtmosphereModel): The model used to calculate the air density at a given altitude.</span>
+<span class="sd">        update_rho_time_interval (Quantity[&quot;time&quot;]): The time interval to update air density.</span>
+<span class="sd">        countdown_rho (Quantity[&quot;time&quot;]): Countdown timer for air density update.</span>
+<span class="sd">        rho (Quantity[&quot;mass density&quot;]): The air density at the satellite&#39;s current position.</span>
+<span class="sd">        drag_params (dict): Parameters for calculating atmospheric drag (C_D and A/m).</span>
+<span class="sd">        method (CowellPropagator): The numerical method used for orbit propagation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">orbit_params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
+        <span class="n">orbit_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
         <span class="n">epoch</span><span class="p">:</span> <span class="n">Time</span><span class="p">,</span>
         <span class="n">atmosphere_model</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">update_air_density_timestep</span><span class="p">:</span> <span class="n">Quantity</span><span class="p">,</span>
+        <span class="n">update_air_density_timestep</span><span class="p">:</span> <span class="n">Quantity</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Initializing the propagator...&quot;</span><span class="p">)</span>
 
@@ -179,8 +195,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">atmosphere_model</span> <span class="o">=</span> <span class="n">AtmosphereModelCOESA76</span><span class="p">()</span>
 
-        <span class="c1"># rho is air density</span>
-        <span class="c1"># Approximation updated every __ time</span>
+        <span class="c1"># Rho is air density</span>
+        <span class="c1"># Approximation updated every __update_rho_time_interval__</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update_rho_time_interval</span> <span class="o">=</span> <span class="n">update_air_density_timestep</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">countdown_rho</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">update_rho_time_interval</span>
@@ -198,7 +214,8 @@
         <span class="p">}</span>  <span class="c1"># For drag calculations, updated every time propagate() is called for dynamic drag calculations</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Initial orbit: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">init_orbit</span><span class="si">}</span><span class="s2"> with initial period </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">init_orbit</span><span class="o">.</span><span class="n">period</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a string representation giving information about the initial orbit and the atmosphere model&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Initial orbit: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">init_orbit</span><span class="si">}</span><span class="s2"> with initial period </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">init_orbit</span><span class="o">.</span><span class="n">period</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2">Atmosphere model: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">atmosphere_model</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">r</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
@@ -238,10 +255,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">update_rho</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">current_orbit</span><span class="o">.</span><span class="n">r</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="p">)</span><span class="o">.</span><span class="n">to_value</span><span class="p">()</span>
-            <span class="p">)</span>  <span class="c1"># update air density based on current altitude</span>
+            <span class="p">)</span>  <span class="c1"># Update air density based on current altitude</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">countdown_rho</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">update_rho_time_interval</span>
-            <span class="p">)</span>  <span class="c1"># restart countdown</span>
+            <span class="p">)</span>  <span class="c1"># Restart countdown</span>
 
         <span class="n">new_orbit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_orbit</span><span class="o">.</span><span class="n">propagate</span><span class="p">(</span><span class="n">delta_t</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="p">)</span>
 
@@ -256,7 +273,7 @@
 <a class="viewcode-back" href="../../../digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator.calculate_vis_window">[docs]</a>
     <span class="k">def</span> <span class="nf">calculate_vis_window</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">ground_stations</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;For each ground station, check if the satellite is visible.</span>
 
 <span class="sd">        Args:</span>
@@ -290,7 +307,7 @@
 
 <div class="viewcode-block" id="OrbitPropagator.calculate_eclipse_status">
 <a class="viewcode-back" href="../../../digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator.calculate_eclipse_status">[docs]</a>
-    <span class="k">def</span> <span class="nf">calculate_eclipse_status</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Quantity</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]]:</span>
+    <span class="k">def</span> <span class="nf">calculate_eclipse_status</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Quantity</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculates if the satellite receives light from the sun.</span>
 <span class="sd">        If the return value is negative, the satellite is in eclipse and does not receive sunlight.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -323,7 +340,7 @@
 <div class="viewcode-block" id="OrbitPropagator.update_rho">
 <a class="viewcode-back" href="../../../digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator.update_rho">[docs]</a>
     <span class="k">def</span> <span class="nf">update_rho</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update air density depending on satellite altitude.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update air density using the atmosphere model.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            position (np.ndarray): Position of the satellite.</span>
@@ -333,7 +350,7 @@
         <span class="p">)</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">kg</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">kg</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span></div>
 
 
-    <span class="c1"># Function used by f() to compute acceleration</span>
+    <span class="c1"># Function used by self.f() to compute acceleration</span>
 <div class="viewcode-block" id="OrbitPropagator.a_d">
 <a class="viewcode-back" href="../../../digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator.a_d">[docs]</a>
     <span class="k">def</span> <span class="nf">a_d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t0</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">J2</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">C_D</span><span class="p">,</span> <span class="n">A_over_m</span><span class="p">,</span> <span class="n">rho</span><span class="p">):</span>
@@ -365,7 +382,12 @@
 
 <div class="viewcode-block" id="OrbitPropagator.save_state">
 <a class="viewcode-back" href="../../../digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator.save_state">[docs]</a>
-    <span class="k">def</span> <span class="nf">save_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">save_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save the current state of the orbit. File has the same structure as the input file for the orbit parameters.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: Updated dictionary representing the orbit&#39;s state. Can be used to start another simulation from this final state.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">save_orbit_params</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">save_orbit_params</span><span class="p">[</span><span class="s2">&quot;orbital_elements&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">save_orbit_params</span><span class="p">[</span><span class="s2">&quot;orbital_elements&quot;</span><span class="p">][</span><span class="s2">&quot;SMA&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_orbit</span><span class="o">.</span><span class="n">a</span><span class="o">.</span><span class="n">to</span><span class="p">(</span>

@@ -22,10 +22,10 @@ from poliastro.twobody.propagation import CowellPropagator
 
 from digital_twin.constants import earth_R, J2, sun_R, earth_k
 from digital_twin.orbit_propagator import (
-    AtmosphereModelCOESA76,
-    AtmosphereModelNRLMSISE00,
-    AtmosphereModelSolarActivity,
-    AtmosphereModelJB2008,
+    Coesa76,
+    NRLMSISE00,
+    SolarActivity,
+    JB2008,
 )
 from digital_twin.orbit_propagator.constants import (
     attractor,
@@ -114,13 +114,13 @@ class OrbitPropagator:
 
         # Choose atmospheric model
         if atmosphere_model == "nrlmsise00":
-            self.atmosphere_model = AtmosphereModelNRLMSISE00()
+            self.atmosphere_model = NRLMSISE00()
         elif atmosphere_model == "solar_activity":
-            self.atmosphere_model = AtmosphereModelSolarActivity()
+            self.atmosphere_model = SolarActivity()
         elif atmosphere_model == "jb2008":
-            self.atmosphere_model = AtmosphereModelJB2008()
+            self.atmosphere_model = JB2008()
         else:
-            self.atmosphere_model = AtmosphereModelCOESA76()
+            self.atmosphere_model = Coesa76()
 
         # Rho is air density
         # Approximation updated every __update_rho_time_interval__
@@ -314,3 +314,6 @@ class OrbitPropagator:
         save_orbit_params["epoch"] = str(self.current_orbit.epoch)
 
         return save_orbit_params
+
+    def get_density(self) -> Quantity["mass density"]:
+        return self.rho

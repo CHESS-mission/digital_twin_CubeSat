@@ -6,6 +6,8 @@
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Usage](#usage)
+- [Test Case](#test_case)
+- [Documentation](#documentation)
 - [Authors and Acknowledgement](#authors_acknowledgement)
 
 
@@ -45,6 +47,20 @@
 Notes: most of the functions in the notebook are then copied and added to the framework. Notebooks can have 2 different purposes
 - Analysis of some results of the simulation.
 - Space to create functions that are then added to the main framework.
+
+- uplink to ground station
+
+
+<a name="test_case"/>
+
+## Test Case
+
+
+<a name="documentation"/>
+
+## Documentation
+
+- write how to generate documentation
 
 
 <a name="authors_acknowledgement"/>

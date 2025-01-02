@@ -103,15 +103,69 @@
 </section>
 <section id="module-digital_twin.spacecraft.adcs.adcs">
 <span id="digital-twin-spacecraft-adcs-adcs-module"></span><h2>digital_twin.spacecraft.adcs.adcs module<a class="headerlink" href="#module-digital_twin.spacecraft.adcs.adcs" title="Link to this heading"></a></h2>
-<p>File for the ADCS subsystem.</p>
+<p>File for the ADCS (Attitude Determination and Control Subsystem) implementation.</p>
+<p>This module defines the ADCS class used for managing the spacecraft’s attitude.</p>
+<dl class="simple">
+<dt>Classes:</dt><dd><dl class="simple">
+<dt>Adcs: Represents the Attitude Determination and Control Subsystem (ADCS) for</dt><dd><p>managing spacecraft attitude.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="digital_twin.spacecraft.adcs.adcs.Adcs">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">digital_twin.spacecraft.adcs.adcs.</span></span><span class="sig-name descname"><span class="pre">Adcs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_operating_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/digital_twin/spacecraft/adcs/adcs.html#Adcs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.adcs.adcs.Adcs" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">digital_twin.spacecraft.adcs.adcs.</span></span><span class="sig-name descname"><span class="pre">Adcs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_operating_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/digital_twin/spacecraft/adcs/adcs.html#Adcs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.adcs.adcs.Adcs" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="digital_twin.spacecraft.html#digital_twin.spacecraft.subsystem.SubSystem" title="digital_twin.spacecraft.subsystem.SubSystem"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubSystem</span></code></a></p>
+<p>Represent the Attitude Determination and Control Subsystem (ADCS) of the spacecraft.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.adcs.adcs.Adcs.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#digital_twin.spacecraft.adcs.adcs.Adcs.name" title="Link to this definition"></a></dt>
+<dd><p>The name of the subsystem.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.adcs.adcs.Adcs.consumption_mean">
+<span class="sig-name descname"><span class="pre">consumption_mean</span></span><a class="headerlink" href="#digital_twin.spacecraft.adcs.adcs.Adcs.consumption_mean" title="Link to this definition"></a></dt>
+<dd><p>Mean power consumption for different operating modes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[int, Quantity[“power”]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.adcs.adcs.Adcs.safe_flag">
+<span class="sig-name descname"><span class="pre">safe_flag</span></span><a class="headerlink" href="#digital_twin.spacecraft.adcs.adcs.Adcs.safe_flag" title="Link to this definition"></a></dt>
+<dd><p>Indicates whether the subsystem is in safe mode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.adcs.adcs.Adcs.attitude">
+<span class="sig-name descname"><span class="pre">attitude</span></span><a class="headerlink" href="#digital_twin.spacecraft.adcs.adcs.Adcs.attitude" title="Link to this definition"></a></dt>
+<dd><p>The current attitude mode of the spacecraft (defined in the file constants.py)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="digital_twin.spacecraft.adcs.adcs.Adcs.compute_power_consumed">
-<span class="sig-name descname"><span class="pre">compute_power_consumed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Quantity</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/adcs/adcs.html#Adcs.compute_power_consumed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.adcs.adcs.Adcs.compute_power_consumed" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">compute_power_consumed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Quantity,</span> <span class="pre">PhysicalType({'power',</span> <span class="pre">'radiant</span> <span class="pre">flux'})]</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/adcs/adcs.html#Adcs.compute_power_consumed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.adcs.adcs.Adcs.compute_power_consumed" title="Link to this definition"></a></dt>
+<dd><p>Compute the power consumed in the specified mode.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="digital_twin.spacecraft.adcs.adcs.Adcs.get_attitude">
@@ -120,23 +174,39 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="digital_twin.spacecraft.adcs.adcs.Adcs.get_cross_section">
-<span class="sig-name descname"><span class="pre">get_cross_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">old_cross_section</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Quantity</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Quantity</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/adcs/adcs.html#Adcs.get_cross_section"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.adcs.adcs.Adcs.get_cross_section" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">get_cross_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">old_cross_section</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">Quantity</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PhysicalType</span><span class="p"><span class="pre">(</span></span><span class="s"><span class="pre">'area'</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">Quantity</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PhysicalType</span><span class="p"><span class="pre">(</span></span><span class="s"><span class="pre">'area'</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/adcs/adcs.html#Adcs.get_cross_section"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.adcs.adcs.Adcs.get_cross_section" title="Link to this definition"></a></dt>
+<dd><p>Retrieve the cross-sectional area of the spacecraft in its current attitude. Currently using a constant cross section.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="digital_twin.spacecraft.adcs.adcs.Adcs.get_name">
 <span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/adcs/adcs.html#Adcs.get_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.adcs.adcs.Adcs.get_name" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Get the name of the subsystem.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="digital_twin.spacecraft.adcs.adcs.Adcs.raise_safe_flag">
 <span class="sig-name descname"><span class="pre">raise_safe_flag</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/adcs/adcs.html#Adcs.raise_safe_flag"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.adcs.adcs.Adcs.raise_safe_flag" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Return true if a safe flag is raised by this subsystem in order to trigger safe mode.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="digital_twin.spacecraft.adcs.adcs.Adcs.update">
-<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">old_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">com_window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eclipse_status</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TimeDelta</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/adcs/adcs.html#Adcs.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.adcs.adcs.Adcs.update" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">old_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">com_window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eclipse_status</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TimeDelta</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/adcs/adcs.html#Adcs.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.adcs.adcs.Adcs.update" title="Link to this definition"></a></dt>
+<dd><p>Update the ADCS state, including attitude mode and safe flag handling.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>old_mode</strong> (<em>int</em>) – Previous operating mode of the spacecraft.</p></li>
+<li><p><strong>new_mode</strong> (<em>int</em>) – New operating mode of the spacecraft.</p></li>
+<li><p><strong>rv</strong> (<em>np.ndarray</em>) – Position vector of the spacecraft.</p></li>
+<li><p><strong>com_window</strong> (<em>bool</em>) – Indicate if the spacecraft is in a communication window.</p></li>
+<li><p><strong>eclipse_status</strong> (<em>bool</em>) – Indicate if the spacecraft is in eclipse.</p></li>
+<li><p><strong>delta_t</strong> (<em>TimeDelta</em>) – Timestep for the update.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 

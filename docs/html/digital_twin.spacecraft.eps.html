@@ -103,91 +103,371 @@
 </section>
 <section id="module-digital_twin.spacecraft.eps.eps">
 <span id="digital-twin-spacecraft-eps-eps-module"></span><h2>digital_twin.spacecraft.eps.eps module<a class="headerlink" href="#module-digital_twin.spacecraft.eps.eps" title="Link to this heading"></a></h2>
-<p>Fle for the EPS subsystem.</p>
+<p>File for the EPS (Electrical Power Subsystem) implementation.</p>
+<p>This module defines the EPS and SolarPanel classes used for managing the spacecraft’s
+electrical power system, including the generation, consumption, and management of power.
+It also includes methods for updating thresholds, battery levels, and handling power generation
+depending on the operating mode.</p>
+<dl>
+<dt>Classes:</dt><dd><p>SolarPanel: Represents the solar panel system responsible for power generation.
+Eps: Represents the Electrical Power Subsystem (EPS) for managing power consumption,</p>
+<blockquote>
+<div><p>generation, and battery levels.</p>
+</div></blockquote>
+</dd>
+</dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="digital_twin.spacecraft.eps.eps.Eps">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">digital_twin.spacecraft.eps.eps.</span></span><span class="sig-name descname"><span class="pre">Eps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_operating_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/digital_twin/spacecraft/eps/eps.html#Eps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.Eps" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">digital_twin.spacecraft.eps.eps.</span></span><span class="sig-name descname"><span class="pre">Eps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_operating_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/digital_twin/spacecraft/eps/eps.html#Eps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.Eps" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="digital_twin.spacecraft.html#digital_twin.spacecraft.subsystem.SubSystem" title="digital_twin.spacecraft.subsystem.SubSystem"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubSystem</span></code></a></p>
+<p>Represent the Electrical Power Subsystem (EPS) of the spacecraft.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.eps.eps.Eps.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.Eps.name" title="Link to this definition"></a></dt>
+<dd><p>The name of the subsystem.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.eps.eps.Eps.consumption_mean">
+<span class="sig-name descname"><span class="pre">consumption_mean</span></span><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.Eps.consumption_mean" title="Link to this definition"></a></dt>
+<dd><p>Mean power consumption for different operating modes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[int, Quantity[“power”]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.eps.eps.Eps.energy">
+<span class="sig-name descname"><span class="pre">energy</span></span><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.Eps.energy" title="Link to this definition"></a></dt>
+<dd><p>Total energy capacity of the battery.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Quantity[“energy”]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.eps.eps.Eps.min_battery">
+<span class="sig-name descname"><span class="pre">min_battery</span></span><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.Eps.min_battery" title="Link to this definition"></a></dt>
+<dd><p>Minimum allowable battery level before triggering safe mode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Quantity[“energy”]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.eps.eps.Eps.max_battery">
+<span class="sig-name descname"><span class="pre">max_battery</span></span><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.Eps.max_battery" title="Link to this definition"></a></dt>
+<dd><p>Maximum allowable battery level for charging.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Quantity[“energy”]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.eps.eps.Eps.measure_threshold">
+<span class="sig-name descname"><span class="pre">measure_threshold</span></span><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.Eps.measure_threshold" title="Link to this definition"></a></dt>
+<dd><p>Power threshold for measurement mode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Quantity[“energy”]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.eps.eps.Eps.com_threshold">
+<span class="sig-name descname"><span class="pre">com_threshold</span></span><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.Eps.com_threshold" title="Link to this definition"></a></dt>
+<dd><p>Power threshold for communication mode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Quantity[“energy”]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.eps.eps.Eps.xb_threshold">
+<span class="sig-name descname"><span class="pre">xb_threshold</span></span><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.Eps.xb_threshold" title="Link to this definition"></a></dt>
+<dd><p>Power threshold for X-band transmission mode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Quantity[“energy”]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.eps.eps.Eps.battery_level">
+<span class="sig-name descname"><span class="pre">battery_level</span></span><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.Eps.battery_level" title="Link to this definition"></a></dt>
+<dd><p>Current battery energy level.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Quantity[“energy”]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.eps.eps.Eps.solar_panels">
+<span class="sig-name descname"><span class="pre">solar_panels</span></span><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.Eps.solar_panels" title="Link to this definition"></a></dt>
+<dd><p>Instance of the SolarPanel class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#digital_twin.spacecraft.eps.eps.SolarPanel" title="digital_twin.spacecraft.eps.eps.SolarPanel">SolarPanel</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.eps.eps.Eps.power_consumption_last_step">
+<span class="sig-name descname"><span class="pre">power_consumption_last_step</span></span><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.Eps.power_consumption_last_step" title="Link to this definition"></a></dt>
+<dd><p>Power consumed during the last update.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Quantity[“power”]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.eps.eps.Eps.power_generation_last_step">
+<span class="sig-name descname"><span class="pre">power_generation_last_step</span></span><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.Eps.power_generation_last_step" title="Link to this definition"></a></dt>
+<dd><p>Power generated during the last update.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Quantity[“power”]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.eps.eps.Eps.safe_flag">
+<span class="sig-name descname"><span class="pre">safe_flag</span></span><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.Eps.safe_flag" title="Link to this definition"></a></dt>
+<dd><p>Indicates whether the subsystem is in safe mode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="digital_twin.spacecraft.eps.eps.Eps.compute_power_consumed">
-<span class="sig-name descname"><span class="pre">compute_power_consumed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Quantity</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/eps/eps.html#Eps.compute_power_consumed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.Eps.compute_power_consumed" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">compute_power_consumed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Quantity,</span> <span class="pre">PhysicalType({'power',</span> <span class="pre">'radiant</span> <span class="pre">flux'})]</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/eps/eps.html#Eps.compute_power_consumed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.Eps.compute_power_consumed" title="Link to this definition"></a></dt>
+<dd><p>Compute the power consumed in the specified mode.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="digital_twin.spacecraft.eps.eps.Eps.get_battery_energy">
-<span class="sig-name descname"><span class="pre">get_battery_energy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Quantity</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/eps/eps.html#Eps.get_battery_energy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.Eps.get_battery_energy" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_battery_energy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Quantity,</span> <span class="pre">PhysicalType({'energy',</span> <span class="pre">'torque',</span> <span class="pre">'work'})]</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/eps/eps.html#Eps.get_battery_energy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.Eps.get_battery_energy" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="digital_twin.spacecraft.eps.eps.Eps.get_name">
 <span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/eps/eps.html#Eps.get_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.Eps.get_name" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Get the name of the subsystem.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="digital_twin.spacecraft.eps.eps.Eps.get_power_consumption">
-<span class="sig-name descname"><span class="pre">get_power_consumption</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Quantity</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/eps/eps.html#Eps.get_power_consumption"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.Eps.get_power_consumption" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_power_consumption</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Quantity,</span> <span class="pre">PhysicalType({'power',</span> <span class="pre">'radiant</span> <span class="pre">flux'})]</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/eps/eps.html#Eps.get_power_consumption"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.Eps.get_power_consumption" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="digital_twin.spacecraft.eps.eps.Eps.get_power_generation">
-<span class="sig-name descname"><span class="pre">get_power_generation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Quantity</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/eps/eps.html#Eps.get_power_generation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.Eps.get_power_generation" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_power_generation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Quantity,</span> <span class="pre">PhysicalType({'power',</span> <span class="pre">'radiant</span> <span class="pre">flux'})]</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/eps/eps.html#Eps.get_power_generation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.Eps.get_power_generation" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="digital_twin.spacecraft.eps.eps.Eps.raise_safe_flag">
 <span class="sig-name descname"><span class="pre">raise_safe_flag</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/eps/eps.html#Eps.raise_safe_flag"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.Eps.raise_safe_flag" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Return true if a safe flag is raised by this subsystem in order to trigger safe mode.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="digital_twin.spacecraft.eps.eps.Eps.update">
-<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">old_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">com_window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eclipse_status</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TimeDelta</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/eps/eps.html#Eps.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.Eps.update" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">old_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">com_window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eclipse_status</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TimeDelta</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/eps/eps.html#Eps.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.Eps.update" title="Link to this definition"></a></dt>
+<dd><p>Update the EPS state, including handling the safe flag.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>old_mode</strong> (<em>int</em>) – Previous operating mode of the spacecraft.</p></li>
+<li><p><strong>new_mode</strong> (<em>int</em>) – New operating mode of the spacecraft.</p></li>
+<li><p><strong>rv</strong> (<em>np.ndarray</em>) – Position vector of the spacecraft.</p></li>
+<li><p><strong>com_window</strong> (<em>bool</em>) – Indicate if the spacecraft is in a communication window.</p></li>
+<li><p><strong>eclipse_status</strong> (<em>bool</em>) – Indicate if the spacecraft is in eclipse.</p></li>
+<li><p><strong>delta_t</strong> (<em>TimeDelta</em>) – Timestep for the update.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="digital_twin.spacecraft.eps.eps.Eps.update_batteries">
-<span class="sig-name descname"><span class="pre">update_batteries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">power_consumed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TimeDelta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eclipse_status</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attitude</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_earth_sun</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_earth_sat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gs_coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Quantity</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/eps/eps.html#Eps.update_batteries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.Eps.update_batteries" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">update_batteries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">power_consumed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Quantity,</span> <span class="pre">PhysicalType({'power',</span> <span class="pre">'radiant</span> <span class="pre">flux'})]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TimeDelta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eclipse_status</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attitude</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_earth_sun</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">Quantity</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PhysicalType</span><span class="p"><span class="pre">(</span></span><span class="s"><span class="pre">'length'</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_earth_sat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">Quantity</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PhysicalType</span><span class="p"><span class="pre">(</span></span><span class="s"><span class="pre">'length'</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gs_coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/eps/eps.html#Eps.update_batteries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.Eps.update_batteries" title="Link to this definition"></a></dt>
+<dd><p>Update the battery level based on power consumption and generation.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="digital_twin.spacecraft.eps.eps.Eps.update_com_threshold">
 <span class="sig-name descname"><span class="pre">update_com_threshold</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">telecom</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="digital_twin.spacecraft.telecom.html#digital_twin.spacecraft.telecom.telecom.Telecom" title="digital_twin.spacecraft.telecom.telecom.Telecom"><span class="pre">Telecom</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="digital_twin.spacecraft.payload.html#digital_twin.spacecraft.payload.payload.Payload" title="digital_twin.spacecraft.payload.payload.Payload"><span class="pre">Payload</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/eps/eps.html#Eps.update_com_threshold"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.Eps.update_com_threshold" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Function to update the battery threshold for uhf communication mode.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="digital_twin.spacecraft.eps.eps.Eps.update_measure_threshold">
 <span class="sig-name descname"><span class="pre">update_measure_threshold</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">telecom</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="digital_twin.spacecraft.telecom.html#digital_twin.spacecraft.telecom.telecom.Telecom" title="digital_twin.spacecraft.telecom.telecom.Telecom"><span class="pre">Telecom</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="digital_twin.spacecraft.payload.html#digital_twin.spacecraft.payload.payload.Payload" title="digital_twin.spacecraft.payload.payload.Payload"><span class="pre">Payload</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/eps/eps.html#Eps.update_measure_threshold"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.Eps.update_measure_threshold" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Function to update the battery threshold for measurement mode.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="digital_twin.spacecraft.eps.eps.Eps.update_thresholds">
 <span class="sig-name descname"><span class="pre">update_thresholds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">telecom</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="digital_twin.spacecraft.telecom.html#digital_twin.spacecraft.telecom.telecom.Telecom" title="digital_twin.spacecraft.telecom.telecom.Telecom"><span class="pre">Telecom</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="digital_twin.spacecraft.payload.html#digital_twin.spacecraft.payload.payload.Payload" title="digital_twin.spacecraft.payload.payload.Payload"><span class="pre">Payload</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/eps/eps.html#Eps.update_thresholds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.Eps.update_thresholds" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Function to update different battery thresholds during the simulation.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="digital_twin.spacecraft.eps.eps.Eps.update_xb_threshold">
 <span class="sig-name descname"><span class="pre">update_xb_threshold</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">telecom</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="digital_twin.spacecraft.telecom.html#digital_twin.spacecraft.telecom.telecom.Telecom" title="digital_twin.spacecraft.telecom.telecom.Telecom"><span class="pre">Telecom</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="digital_twin.spacecraft.payload.html#digital_twin.spacecraft.payload.payload.Payload" title="digital_twin.spacecraft.payload.payload.Payload"><span class="pre">Payload</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/eps/eps.html#Eps.update_xb_threshold"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.Eps.update_xb_threshold" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Function to update the battery threshold for x band transmission mode.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="digital_twin.spacecraft.eps.eps.SolarPanel">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">digital_twin.spacecraft.eps.eps.</span></span><span class="sig-name descname"><span class="pre">SolarPanel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_operating_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/digital_twin/spacecraft/eps/eps.html#SolarPanel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.SolarPanel" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">digital_twin.spacecraft.eps.eps.</span></span><span class="sig-name descname"><span class="pre">SolarPanel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_operating_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/digital_twin/spacecraft/eps/eps.html#SolarPanel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.SolarPanel" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Represent the solar panel system of the spacecraft.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.eps.eps.SolarPanel.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.SolarPanel.name" title="Link to this definition"></a></dt>
+<dd><p>The name of the subsystem.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.eps.eps.SolarPanel.consumption_mean">
+<span class="sig-name descname"><span class="pre">consumption_mean</span></span><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.SolarPanel.consumption_mean" title="Link to this definition"></a></dt>
+<dd><p>Mean power consumption for different operating modes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[int, Quantity[“power”]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.eps.eps.SolarPanel.nb_cells">
+<span class="sig-name descname"><span class="pre">nb_cells</span></span><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.SolarPanel.nb_cells" title="Link to this definition"></a></dt>
+<dd><p>Number of solar cells in the panels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.eps.eps.SolarPanel.cell_surface">
+<span class="sig-name descname"><span class="pre">cell_surface</span></span><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.SolarPanel.cell_surface" title="Link to this definition"></a></dt>
+<dd><p>Surface area of a single solar cell in square meters (m^2).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Quantity[“area”]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.eps.eps.SolarPanel.panels_efficiency">
+<span class="sig-name descname"><span class="pre">panels_efficiency</span></span><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.SolarPanel.panels_efficiency" title="Link to this definition"></a></dt>
+<dd><p>Efficiency of the solar panels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.eps.eps.SolarPanel.solar_power">
+<span class="sig-name descname"><span class="pre">solar_power</span></span><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.SolarPanel.solar_power" title="Link to this definition"></a></dt>
+<dd><p>Solar power constant.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Quantity[“irradiance”]</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="digital_twin.spacecraft.eps.eps.SolarPanel.compute_power_consumed">
-<span class="sig-name descname"><span class="pre">compute_power_consumed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Quantity</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/eps/eps.html#SolarPanel.compute_power_consumed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.SolarPanel.compute_power_consumed" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">compute_power_consumed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Quantity,</span> <span class="pre">PhysicalType({'power',</span> <span class="pre">'radiant</span> <span class="pre">flux'})]</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/eps/eps.html#SolarPanel.compute_power_consumed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.SolarPanel.compute_power_consumed" title="Link to this definition"></a></dt>
+<dd><p>Compute the power consumed in the specified mode.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="digital_twin.spacecraft.eps.eps.SolarPanel.compute_power_generated">
-<span class="sig-name descname"><span class="pre">compute_power_generated</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eclipse_status</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attitude</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_earth_sun</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_earth_sat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gs_coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Quantity</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Quantity</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/eps/eps.html#SolarPanel.compute_power_generated"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.SolarPanel.compute_power_generated" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">compute_power_generated</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eclipse_status</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attitude</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_earth_sun</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">Quantity</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PhysicalType</span><span class="p"><span class="pre">(</span></span><span class="s"><span class="pre">'length'</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_earth_sat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">Quantity</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PhysicalType</span><span class="p"><span class="pre">(</span></span><span class="s"><span class="pre">'length'</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gs_coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Quantity,</span> <span class="pre">PhysicalType({'power',</span> <span class="pre">'radiant</span> <span class="pre">flux'})]</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/eps/eps.html#SolarPanel.compute_power_generated"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.SolarPanel.compute_power_generated" title="Link to this definition"></a></dt>
+<dd><p>Calculate the power generated by the solar panels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eclipse_status</strong> (<em>bool</em>) – True if the spacecraft is in eclipse, False otherwise.</p></li>
+<li><p><strong>attitude</strong> (<em>int</em>) – The spacecraft’s attitude mode.</p></li>
+<li><p><strong>r_earth_sun</strong> (<em>Quantity</em><em>[</em><em>&quot;length&quot;</em><em>]</em>) – Distance from Earth to the Sun.</p></li>
+<li><p><strong>r_earth_sat</strong> (<em>Quantity</em><em>[</em><em>&quot;length&quot;</em><em>]</em>) – Distance from Earth to the spacecraft.</p></li>
+<li><p><strong>gs_coords</strong> (<em>Optional</em><em>[</em><em>np.ndarray</em><em>]</em>) – Ground station coordinates if currently in visibility window, otherwise None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The power generated by the solar panels.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Quantity[“power”]</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="digital_twin.spacecraft.eps.eps.SolarPanel.get_effective_surface">
-<span class="sig-name descname"><span class="pre">get_effective_surface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attitude</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_earth_sun</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">Quantity</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PhysicalType</span><span class="p"><span class="pre">(</span></span><span class="s"><span class="pre">'length'</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_earth_sat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gs_coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Quantity</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Quantity</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/eps/eps.html#SolarPanel.get_effective_surface"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.SolarPanel.get_effective_surface" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">get_effective_surface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attitude</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_earth_sun</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">Quantity</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PhysicalType</span><span class="p"><span class="pre">(</span></span><span class="s"><span class="pre">'length'</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_earth_sat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">Quantity</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PhysicalType</span><span class="p"><span class="pre">(</span></span><span class="s"><span class="pre">'length'</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gs_coords</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">Quantity</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PhysicalType</span><span class="p"><span class="pre">(</span></span><span class="s"><span class="pre">'area'</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/eps/eps.html#SolarPanel.get_effective_surface"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.eps.eps.SolarPanel.get_effective_surface" title="Link to this definition"></a></dt>
+<dd><p>Calculate the effective surface area of the solar panels exposed to sunlight.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>attitude</strong> (<em>int</em>) – Current spacecraft attitude mode.</p></li>
+<li><p><strong>r_earth_sun</strong> (<em>Quantity</em><em>[</em><em>&quot;length&quot;</em><em>]</em>) – Distance from Earth to the Sun.</p></li>
+<li><p><strong>r_earth_sat</strong> (<em>Quantity</em><em>[</em><em>&quot;length&quot;</em><em>]</em>) – Distance from Earth to the spacecraft.</p></li>
+<li><p><strong>gs_coords</strong> (<em>Optional</em><em>[</em><em>np.ndarray</em><em>]</em>) – Ground station coordinates if currently in visibility window, otherwise None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Effective surface area exposed to sunlight (in square meters).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Quantity[“area”]</p>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 

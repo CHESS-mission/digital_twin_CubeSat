@@ -102,44 +102,259 @@
 </section>
 <section id="module-digital_twin.spacecraft.telecom.telecom">
 <span id="digital-twin-spacecraft-telecom-telecom-module"></span><h2>digital_twin.spacecraft.telecom.telecom module<a class="headerlink" href="#module-digital_twin.spacecraft.telecom.telecom" title="Link to this heading"></a></h2>
-<p>File for the Telecom subsystem.</p>
+<p>File for the Telecom subsystem implementation.</p>
+<p>This module defines the Telecom class, responsible for managing the spacecraft’s communication operations.</p>
+<dl class="simple">
+<dt>Classes:</dt><dd><p>Telecom: Represents the Telecom subsystem.</p>
+</dd>
+</dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="digital_twin.spacecraft.telecom.telecom.Telecom">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">digital_twin.spacecraft.telecom.telecom.</span></span><span class="sig-name descname"><span class="pre">Telecom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_operating_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/digital_twin/spacecraft/telecom/telecom.html#Telecom"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.telecom.telecom.Telecom" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">digital_twin.spacecraft.telecom.telecom.</span></span><span class="sig-name descname"><span class="pre">Telecom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_operating_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/digital_twin/spacecraft/telecom/telecom.html#Telecom"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.telecom.telecom.Telecom" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="digital_twin.spacecraft.html#digital_twin.spacecraft.subsystem.SubSystem" title="digital_twin.spacecraft.subsystem.SubSystem"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubSystem</span></code></a></p>
+<p>Represent the Telecom subsystem for spacecraft communications (UHF anf XBAND).</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.telecom.telecom.Telecom.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#digital_twin.spacecraft.telecom.telecom.Telecom.name" title="Link to this definition"></a></dt>
+<dd><p>The name of the subsystem.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.telecom.telecom.Telecom.consumption_mean_uhf">
+<span class="sig-name descname"><span class="pre">consumption_mean_uhf</span></span><a class="headerlink" href="#digital_twin.spacecraft.telecom.telecom.Telecom.consumption_mean_uhf" title="Link to this definition"></a></dt>
+<dd><p>Mean power consumption of UHF system for different operating modes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[int, Quantity[“power”]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.telecom.telecom.Telecom.consumption_mean_x_band">
+<span class="sig-name descname"><span class="pre">consumption_mean_x_band</span></span><a class="headerlink" href="#digital_twin.spacecraft.telecom.telecom.Telecom.consumption_mean_x_band" title="Link to this definition"></a></dt>
+<dd><p>Mean power consumption of X-BAND system for different operating modes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[int, Quantity[“power”]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.telecom.telecom.Telecom.com_max_duration">
+<span class="sig-name descname"><span class="pre">com_max_duration</span></span><a class="headerlink" href="#digital_twin.spacecraft.telecom.telecom.Telecom.com_max_duration" title="Link to this definition"></a></dt>
+<dd><p>Maximum allowed communication duration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Quantity[“time”]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.telecom.telecom.Telecom.x_band_rate">
+<span class="sig-name descname"><span class="pre">x_band_rate</span></span><a class="headerlink" href="#digital_twin.spacecraft.telecom.telecom.Telecom.x_band_rate" title="Link to this definition"></a></dt>
+<dd><p>Data rate for transmiting X-band scientific data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Quantity[“bandwidth”]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.telecom.telecom.Telecom.uhf_rate">
+<span class="sig-name descname"><span class="pre">uhf_rate</span></span><a class="headerlink" href="#digital_twin.spacecraft.telecom.telecom.Telecom.uhf_rate" title="Link to this definition"></a></dt>
+<dd><p>Data rate for UHF communication (housekeeping data).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Quantity[“bandwidth”]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.telecom.telecom.Telecom.t_max_no_com">
+<span class="sig-name descname"><span class="pre">t_max_no_com</span></span><a class="headerlink" href="#digital_twin.spacecraft.telecom.telecom.Telecom.t_max_no_com" title="Link to this definition"></a></dt>
+<dd><p>Maximum time allowed without communication.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Quantity[“time”]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.telecom.telecom.Telecom.t_no_com">
+<span class="sig-name descname"><span class="pre">t_no_com</span></span><a class="headerlink" href="#digital_twin.spacecraft.telecom.telecom.Telecom.t_no_com" title="Link to this definition"></a></dt>
+<dd><p>Time without communication since the last contact.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Quantity[“time”]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.telecom.telecom.Telecom.com_duration">
+<span class="sig-name descname"><span class="pre">com_duration</span></span><a class="headerlink" href="#digital_twin.spacecraft.telecom.telecom.Telecom.com_duration" title="Link to this definition"></a></dt>
+<dd><p>Duration of the current communication session since it started.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Quantity[“time”]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.telecom.telecom.Telecom.is_communicating">
+<span class="sig-name descname"><span class="pre">is_communicating</span></span><a class="headerlink" href="#digital_twin.spacecraft.telecom.telecom.Telecom.is_communicating" title="Link to this definition"></a></dt>
+<dd><p>Indicates whether the system is currently in communication with a ground station.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.telecom.telecom.Telecom.alternating">
+<span class="sig-name descname"><span class="pre">alternating</span></span><a class="headerlink" href="#digital_twin.spacecraft.telecom.telecom.Telecom.alternating" title="Link to this definition"></a></dt>
+<dd><p>Prevents alternating between 2 communication modes (UHF and XBAND) during a visibility window.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.telecom.telecom.Telecom.safe_flag">
+<span class="sig-name descname"><span class="pre">safe_flag</span></span><a class="headerlink" href="#digital_twin.spacecraft.telecom.telecom.Telecom.safe_flag" title="Link to this definition"></a></dt>
+<dd><p>Indicates whether the subsystem is in safe mode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.telecom.telecom.Telecom.safe_flag_reason">
+<span class="sig-name descname"><span class="pre">safe_flag_reason</span></span><a class="headerlink" href="#digital_twin.spacecraft.telecom.telecom.Telecom.safe_flag_reason" title="Link to this definition"></a></dt>
+<dd><p>Reason for the safe mode flag (e.g., no communication for too long).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.telecom.telecom.Telecom.safe_flag_duration_left_dict">
+<span class="sig-name descname"><span class="pre">safe_flag_duration_left_dict</span></span><a class="headerlink" href="#digital_twin.spacecraft.telecom.telecom.Telecom.safe_flag_duration_left_dict" title="Link to this definition"></a></dt>
+<dd><p>Duration left for safe mode resolution for each safe flag raised by a command from Ground Station.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[int, Quantity[“time”]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.telecom.telecom.Telecom.safe_flag_duration_left">
+<span class="sig-name descname"><span class="pre">safe_flag_duration_left</span></span><a class="headerlink" href="#digital_twin.spacecraft.telecom.telecom.Telecom.safe_flag_duration_left" title="Link to this definition"></a></dt>
+<dd><p>Remaining duration before safe mode is resolved (if safe flag was generated by a command from Ground Station).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[Quantity[“time”]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.telecom.telecom.Telecom.is_visible">
+<span class="sig-name descname"><span class="pre">is_visible</span></span><a class="headerlink" href="#digital_twin.spacecraft.telecom.telecom.Telecom.is_visible" title="Link to this definition"></a></dt>
+<dd><p>Indicates whether the spacecraft is within a visibility window.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.telecom.telecom.Telecom.vis_window_count">
+<span class="sig-name descname"><span class="pre">vis_window_count</span></span><a class="headerlink" href="#digital_twin.spacecraft.telecom.telecom.Telecom.vis_window_count" title="Link to this definition"></a></dt>
+<dd><p>Counter for visibility window occurrences.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="digital_twin.spacecraft.telecom.telecom.Telecom.vis_window_triggered">
+<span class="sig-name descname"><span class="pre">vis_window_triggered</span></span><a class="headerlink" href="#digital_twin.spacecraft.telecom.telecom.Telecom.vis_window_triggered" title="Link to this definition"></a></dt>
+<dd><p>The visibility window number that triggered the safe mode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="digital_twin.spacecraft.telecom.telecom.Telecom.add_uplink_safe_mode">
 <span class="sig-name descname"><span class="pre">add_uplink_safe_mode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/telecom/telecom.html#Telecom.add_uplink_safe_mode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.telecom.telecom.Telecom.add_uplink_safe_mode" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Add commands to consider in order to switch to safe mode if asked by the GS. Only called once at initialization.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="digital_twin.spacecraft.telecom.telecom.Telecom.can_downlink">
 <span class="sig-name descname"><span class="pre">can_downlink</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/telecom/telecom.html#Telecom.can_downlink"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.telecom.telecom.Telecom.can_downlink" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Determine if downlinking can proceed during the current communication mode.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="digital_twin.spacecraft.telecom.telecom.Telecom.com_finished">
 <span class="sig-name descname"><span class="pre">com_finished</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/telecom/telecom.html#Telecom.com_finished"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.telecom.telecom.Telecom.com_finished" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Check if the communication session has finished (using com_max_duration).</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="digital_twin.spacecraft.telecom.telecom.Telecom.compute_data_update">
-<span class="sig-name descname"><span class="pre">compute_data_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TimeDelta</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Quantity</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/telecom/telecom.html#Telecom.compute_data_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.telecom.telecom.Telecom.compute_data_update" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">compute_data_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TimeDelta</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">Quantity</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PhysicalType</span><span class="p"><span class="pre">(</span></span><span class="s"><span class="pre">'data</span> <span class="pre">quantity'</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/telecom/telecom.html#Telecom.compute_data_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.telecom.telecom.Telecom.compute_data_update" title="Link to this definition"></a></dt>
+<dd><p>Calculate how much data was sent to ground station during the current timestep.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple which first term is transmited scientific data and second term is transmited housekeeping data. In this case the terms are negative because they are removed from the data storage.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="digital_twin.spacecraft.telecom.telecom.Telecom.compute_power_consumed">
-<span class="sig-name descname"><span class="pre">compute_power_consumed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Quantity</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/telecom/telecom.html#Telecom.compute_power_consumed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.telecom.telecom.Telecom.compute_power_consumed" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">compute_power_consumed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Quantity,</span> <span class="pre">PhysicalType({'power',</span> <span class="pre">'radiant</span> <span class="pre">flux'})]</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/telecom/telecom.html#Telecom.compute_power_consumed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.telecom.telecom.Telecom.compute_power_consumed" title="Link to this definition"></a></dt>
+<dd><p>Compute the power consumed in the specified mode.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="digital_twin.spacecraft.telecom.telecom.Telecom.get_name">
 <span class="sig-name descname"><span class="pre">get_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/telecom/telecom.html#Telecom.get_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.telecom.telecom.Telecom.get_name" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Get the name of the subsystem.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="digital_twin.spacecraft.telecom.telecom.Telecom.get_telecom_variables">
-<span class="sig-name descname"><span class="pre">get_telecom_variables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/telecom/telecom.html#Telecom.get_telecom_variables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.telecom.telecom.Telecom.get_telecom_variables" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_telecom_variables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">Quantity</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PhysicalType</span><span class="p"><span class="pre">(</span></span><span class="s"><span class="pre">'time'</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/telecom/telecom.html#Telecom.get_telecom_variables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.telecom.telecom.Telecom.get_telecom_variables" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -150,12 +365,26 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="digital_twin.spacecraft.telecom.telecom.Telecom.raise_safe_flag">
 <span class="sig-name descname"><span class="pre">raise_safe_flag</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/telecom/telecom.html#Telecom.raise_safe_flag"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.telecom.telecom.Telecom.raise_safe_flag" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Return true if a safe flag is raised by this subsystem in order to trigger safe mode.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="digital_twin.spacecraft.telecom.telecom.Telecom.update">
-<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">old_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">com_window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eclipse_status</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TimeDelta</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/telecom/telecom.html#Telecom.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.telecom.telecom.Telecom.update" title="Link to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">old_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">com_window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eclipse_status</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TimeDelta</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/digital_twin/spacecraft/telecom/telecom.html#Telecom.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.telecom.telecom.Telecom.update" title="Link to this definition"></a></dt>
+<dd><p>Update the Telecom subsystem state based on the new operating mode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>old_mode</strong> (<em>int</em>) – Previous operating mode of the spacecraft.</p></li>
+<li><p><strong>new_mode</strong> (<em>int</em>) – New operating mode of the spacecraft.</p></li>
+<li><p><strong>rv</strong> (<em>np.ndarray</em>) – Position vector of the spacecraft.</p></li>
+<li><p><strong>com_window</strong> (<em>bool</em>) – Indicates if the spacecraft is in a communication window.</p></li>
+<li><p><strong>eclipse_status</strong> (<em>bool</em>) – Indicates if the spacecraft is in eclipse.</p></li>
+<li><p><strong>delta_t</strong> (<em>TimeDelta</em>) – Time step for the update.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 </dd></dl>
 

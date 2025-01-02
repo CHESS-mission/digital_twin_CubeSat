@@ -159,6 +159,8 @@ def plot_1d_multiple(
     date_x_axis: bool = False,
     date_interval: int = 1,
     date_format: str = "%d/%m/%Y",
+    log_y_scale: bool = False,
+    legend_title: str = "",
 ) -> None:
     """Function for general plotting in 2d with x and y arrays as input for MULTIPLE PLOTS on the same ax."""
     nb_plots = len(y)  # = len(x)
@@ -195,6 +197,8 @@ def plot_1d_multiple(
             )
 
     # Beautifying the plot
+    if log_y_scale:
+        plt.yscale("log")
     plt.title(title, fontsize=13, fontweight="medium")
     plt.xlabel(xlabel, fontsize=11)
     plt.ylabel(ylabel, fontsize=11)
@@ -250,7 +254,9 @@ def plot_1d_multiple(
         )  # display the year only
         plt.xticks(rotation=45)
 
-    plt.legend()
+    # plt.legend()
+    legend = plt.legend(title=legend_title)
+    # legend.get_title().set_fontsize(12)
 
     # Show the plot
     plt.tight_layout()
@@ -678,13 +684,13 @@ def find_x_scale(duration_sim: Quantity["time"]) -> tuple[str, Callable]:
     """
     if duration_sim <= 8 * u.h:
         x_label_f = seconds_to_minutes
-        x_label = r"Time ($min$)"
+        x_label = r"Time $\left[min\right]$"
     elif duration_sim <= 3 * u.day:
         x_label_f = seconds_to_hours
-        x_label = r"Time ($hour$)"
+        x_label = r"Time $\left[hour\right]$"
     else:
         x_label_f = seconds_to_days
-        x_label = r"Time ($day$)"
+        x_label = r"Time $\left[day\right]$"
     return (x_label, x_label_f)
 
 
