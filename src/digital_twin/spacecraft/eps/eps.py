@@ -20,7 +20,7 @@ from astropy.time import TimeDelta
 from astropy.units import Quantity
 import numpy as np
 
-from digital_twin.constants import solar_power
+from digital_twin.constants import solar_flux
 from digital_twin.spacecraft import SubSystem
 from digital_twin.spacecraft.payload import Payload
 from digital_twin.spacecraft.telecom import Telecom
@@ -37,7 +37,7 @@ class SolarPanel:
         nb_cells (int): Number of solar cells in the panels.
         cell_surface (Quantity["area"]): Surface area of a single solar cell in square meters (m^2).
         panels_efficiency (float): Efficiency of the solar panels.
-        solar_power (Quantity["irradiance"]): Solar power constant.
+        solar_flux (Quantity["irradiance"]): Solar power constant.
     """
 
     def __init__(self, params: dict, init_operating_mode: int) -> None:
@@ -49,7 +49,7 @@ class SolarPanel:
         self.nb_cells = params["nb_cells"]
         self.cell_surface = params["cell_surface"] * (u.m**2)
         self.panels_efficiency = params["efficiency"]
-        self.solar_power = solar_power
+        self.solar_flux = solar_flux
 
     def compute_power_generated(
         self,
@@ -77,7 +77,7 @@ class SolarPanel:
                 self.get_effective_surface(
                     attitude, r_earth_sun, r_earth_sat, gs_coords
                 )
-                * self.solar_power
+                * self.solar_flux
                 * self.panels_efficiency
             )
         else:  # In eclipse, the solar panel don't generate power
