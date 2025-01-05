@@ -134,6 +134,7 @@ class Spacecraft:
             r_earth_sun,
             rv[:3] * u.km,  # position,
             gs_coords,
+            new_mode,
         )
 
         # Compute data change (generation by payload or removal by telecom) at current timestep

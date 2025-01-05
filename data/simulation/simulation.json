@@ -1,9 +1,10 @@
 {
     "units_delta_t": "second",
-    "delta_t": 60,
+    "delta_t": 10,
     "units_duration_sim": "day",
     "duration_sim": 1,
     "atmosphere_model" : "nrlmsise00",
     "update_air_density_timestep": 1,
-    "update_air_density_timestep_unit": "day"
+    "update_air_density_timestep_unit": "day",
+    "propagation_only": "no"
 }

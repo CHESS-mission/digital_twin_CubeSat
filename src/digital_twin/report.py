@@ -271,14 +271,30 @@ def save_data(data: dict, data_params: dict, folder: str) -> None:
             np.save(f, data["tofs"].to_value("second"))
         with open(folder + "visibility.npy", "wb") as f:
             np.save(f, data["vis"])
-        with open(folder + "modes.npy", "wb") as f:
-            np.save(f, data["modes"])
         with open(folder + "data.npy", "wb") as f:
             np.save(f, data["storage"])
         with open(folder + "data_GNSS_TOF.npy", "wb") as f:
             np.save(f, data["storage_GNSS_TOF"])
         with open(folder + "data_HK.npy", "wb") as f:
             np.save(f, data["storage_HK"])
+
+    if data_params["eps_data"] == "yes":
+        with open(folder + "times.npy", "wb") as f:
+            np.save(f, data["tofs"].to_value("second"))
+        with open(folder + "battery.npy", "wb") as f:
+            np.save(f, data["battery"])
+        with open(folder + "consumption.npy", "wb") as f:
+            np.save(f, data["consumption"])
+        with open(folder + "generation.npy", "wb") as f:
+            np.save(f, data["generation"])
+        with open(folder + "eclipse.npy", "wb") as f:
+            np.save(f, data["eclipse"])
+
+    if data_params["modes"] == "yes":
+        with open(folder + "times.npy", "wb") as f:
+            np.save(f, data["tofs"].to_value("second"))
+        with open(folder + "modes.npy", "wb") as f:
+            np.save(f, data["modes"])
 
     if data_params["altitude_data"] == "yes":
         with open(folder + "times.npy", "wb") as f:

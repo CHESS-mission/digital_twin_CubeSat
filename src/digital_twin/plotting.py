@@ -124,7 +124,7 @@ def plot_1d(
     # Show the plot
     plt.tight_layout()
     if save_filename is not None:
-        plt.savefig(save_filename, dpi=300)
+        plt.savefig(save_filename, dpi=300, bbox_inches="tight")
 
     if show:
         plt.show()
@@ -261,7 +261,7 @@ def plot_1d_multiple(
     # Show the plot
     plt.tight_layout()
     if save_filename is not None:
-        plt.savefig(save_filename, dpi=300)
+        plt.savefig(save_filename, dpi=300, bbox_inches="tight")
 
     if show:
         plt.show()
@@ -661,7 +661,7 @@ def plot_operating_modes(
     # Show the plot
     plt.tight_layout()
     if save_filename is not None:
-        plt.savefig(save_filename, dpi=300)
+        plt.savefig(save_filename, dpi=300, bbox_inches="tight")
     if show:
         plt.show()
     else:
@@ -748,7 +748,7 @@ def plot_boolean_bars(
 
     # Save the plot if a filename is provided
     if save_filename is not None:
-        plt.savefig(save_filename, dpi=300)
+        plt.savefig(save_filename, dpi=300, bbox_inches="tight")
 
     # Show or close the plot
     if show:
@@ -914,7 +914,7 @@ def plot_dashboard(
         left=None, bottom=None, right=None, top=None, wspace=None, hspace=0
     )
     if save_filename is not None:
-        plt.savefig(save_filename, dpi=300)
+        plt.savefig(save_filename, dpi=300, bbox_inches="tight")
     if show:
         plt.show()
     else:

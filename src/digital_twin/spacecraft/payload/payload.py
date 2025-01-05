@@ -91,6 +91,8 @@ class Payload(SubSystem):
         """
         # the max number of measurement sessions is defined to be PER DAY currently
         one_day = 86400 * u.s
+        if self.nb_measurement_per_day == 0:
+            return False
         if (
             math.floor(self.nb_measurement_windows / self.nb_measurement_per_day)
             < (time_elapsed / one_day).value
