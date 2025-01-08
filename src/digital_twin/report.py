@@ -16,14 +16,15 @@ from digital_twin.plotting import (
     plot_boolean_bars,
     plot_dashboard,
     plot_orbital_elem_evolution,
-    plot_1d_multiple,
 )
 from digital_twin.utils import (
     check_and_empty_folder,
 )
 
 
-def produce_report(data: dict, report_params: dict, verbose=False) -> None:
+def produce_report(
+    data: dict, report_params: dict, results_folder, verbose=False
+) -> None:
     """Generates various plots based on the provided parameters and saves the report data in the specified folders.
 
     Args:
@@ -31,7 +32,7 @@ def produce_report(data: dict, report_params: dict, verbose=False) -> None:
         report_params (dict): A dictionary specifying the report settings, including folder paths and figure preferences.
     """
     print("Saving the results...") if verbose else None
-    folder = report_params["folder"]
+    folder = results_folder
     check_and_empty_folder(folder)
     figures_folder = folder + "figures/"
     check_and_empty_folder(figures_folder)

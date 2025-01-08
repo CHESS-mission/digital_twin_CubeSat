@@ -104,7 +104,7 @@ class Simulation:
         if simulation_params["print_initial_parameters"] == "yes":
             self.print_parameters()  # Print user parameters
 
-    def run(self) -> None:
+    def run(self, results_folder: str = "results/") -> None:
         """Function to run the simulation, which contains the main simulation loop."""
         print("Simulation running...") if self.verbose else None
 
@@ -323,7 +323,7 @@ class Simulation:
         }
 
         # Produce report
-        produce_report(data_results, self.report_params, self.verbose)
+        produce_report(data_results, self.report_params, results_folder, self.verbose)
         print("Results saved!") if self.verbose else None
 
     def print_parameters(self) -> None:

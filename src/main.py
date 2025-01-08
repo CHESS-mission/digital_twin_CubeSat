@@ -12,6 +12,9 @@ SPACECRAFT_FOLDER = "data/spacecraft/"
 GROUND_STATION_FOLDER = "data/ground_station/"
 MISSION_DESIGN_FOLDER = "data/mission_design/"
 
+# Defining result paths
+RESULTS_FOLDER = "results/"
+
 
 def run(args: list[str]) -> None:
     """Main function to instantiate the Simuation class and run the simulation.
@@ -35,7 +38,7 @@ def run(args: list[str]) -> None:
         ground_station_params,
         mission_design_params,
     )
-    simulation.run()
+    simulation.run(results_folder=RESULTS_FOLDER)
 
 
 if __name__ == "__main__":
