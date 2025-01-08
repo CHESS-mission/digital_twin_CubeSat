@@ -28,8 +28,10 @@ class Adcs(SubSystem):
         attitude (int): The current attitude mode of the spacecraft (defined in the file constants.py)
     """
 
-    def __init__(self, params: dict, init_operating_mode: int) -> None:
-        print("Initializing ADCS subsystem... ")
+    def __init__(
+        self, params: dict, init_operating_mode: int, verbose: bool = False
+    ) -> None:
+        print("Initializing ADCS subsystem... ") if verbose else None
         self.name = "ADCS"
 
         super(Adcs, self).__init__()

@@ -23,13 +23,14 @@ from digital_twin.utils import (
 )
 
 
-def produce_report(data: dict, report_params: dict) -> None:
+def produce_report(data: dict, report_params: dict, verbose=False) -> None:
     """Generates various plots based on the provided parameters and saves the report data in the specified folders.
 
     Args:
         data (dict): A dictionary containing simulation results such as times, battery, visibility, etc.
         report_params (dict): A dictionary specifying the report settings, including folder paths and figure preferences.
     """
+    print("Saving the results...") if verbose else None
     folder = report_params["folder"]
     check_and_empty_folder(folder)
     figures_folder = folder + "figures/"

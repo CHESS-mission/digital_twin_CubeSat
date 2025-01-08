@@ -1,6 +1,6 @@
 {
     "report":{
-        "folder": "../results/",
+        "folder": "results/",
         "figures" : {
             "title_figures": "CHESS_1 Test",
             "orbital_elem_evolution": "yes",

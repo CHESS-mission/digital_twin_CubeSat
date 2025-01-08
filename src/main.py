@@ -5,6 +5,13 @@ import sys
 from digital_twin import Simulation
 from digital_twin.utils import parse_data_file
 
+# Defining data paths
+SIMULATION_FOLDER = "data/simulation/"
+ORBIT_FOLDER = "data/orbit/"
+SPACECRAFT_FOLDER = "data/spacecraft/"
+GROUND_STATION_FOLDER = "data/ground_station/"
+MISSION_DESIGN_FOLDER = "data/mission_design/"
+
 
 def run(args: list[str]) -> None:
     """Main function to instantiate the Simuation class and run the simulation.
@@ -16,16 +23,16 @@ def run(args: list[str]) -> None:
         raise TypeError(
             "Please provide 5 data files for the simulaton, orbit, spacecraft, ground station, and mission design parameters!"
         )
-    simulation_params = parse_data_file(args[0])
-    orbit_params = parse_data_file(args[1])
-    spacecraft_params = parse_data_file(args[2])
-    station_params = parse_data_file(args[3])
-    mission_design_params = parse_data_file(args[4])
+    simulation_params = parse_data_file(SIMULATION_FOLDER + args[0])
+    orbit_params = parse_data_file(ORBIT_FOLDER + args[1])
+    spacecraft_params = parse_data_file(SPACECRAFT_FOLDER + args[2])
+    ground_station_params = parse_data_file(GROUND_STATION_FOLDER + args[3])
+    mission_design_params = parse_data_file(MISSION_DESIGN_FOLDER + args[4])
     simulation = Simulation(
         simulation_params,
         orbit_params,
         spacecraft_params,
-        station_params,
+        ground_station_params,
         mission_design_params,
     )
     simulation.run()

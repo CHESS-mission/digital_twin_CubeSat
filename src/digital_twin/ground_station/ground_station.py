@@ -23,8 +23,8 @@ class GroundStation:
         elev_angle (Quantity["angle"]): minimum angle between line GS-Sattelite and horizontal plane at the GS
     """
 
-    def __init__(self, params: dict) -> None:
-        print("Initializing the ground station")
+    def __init__(self, params: dict, verbose: bool = False) -> None:
+        print("Initializing the ground station...") if verbose else None
         self.name = params["name"]
         self.color = params["color"]  # For groundtrack plotting
 

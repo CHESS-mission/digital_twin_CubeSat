@@ -46,7 +46,8 @@ class AtmosphereModel:
     """
 
     # this init function is called by all almosphere models
-    def __init__(self) -> None:
+    def __init__(self, verbose) -> None:
+        print("Initializing the atmosphere model... ") if verbose else None
         pass
 
     def get_density(
@@ -67,8 +68,8 @@ class Coesa76(AtmosphereModel):
     commonly used as a "simple" model for calculating atmospheric properties at various altitudes.
     """
 
-    def __init__(self) -> None:
-        super(Coesa76, self).__init__()
+    def __init__(self, verbose: bool = False) -> None:
+        super(Coesa76, self).__init__(verbose)
         self.model = COESA76()
 
     def get_density(
@@ -94,11 +95,12 @@ class SolarActivity(AtmosphereModel):
 
     def __init__(
         self,
-        path_f10: str = "../data/atmosphere_data/solar_activity/F10.npy",
-        path_ap: str = "../data/atmosphere_data/solar_activity/Ap.npy",
-        path_times: str = "../data/atmosphere_data/solar_activity/dates_sa.npy",
+        path_f10: str = "data/atmosphere_data/solar_activity/F10.npy",
+        path_ap: str = "data/atmosphere_data/solar_activity/Ap.npy",
+        path_times: str = "data/atmosphere_data/solar_activity/dates_sa.npy",
+        verbose: bool = False,
     ) -> None:
-        super(SolarActivity, self).__init__()
+        super(SolarActivity, self).__init__(verbose)
         # SOLAR ACTIVITY VALUES
         self.F10_7 = np.load(path_f10)
         self.Ap = np.load(path_ap)
@@ -150,8 +152,10 @@ class NRLMSISE00(AtmosphereModel):
     space weather data such as solar activity to estimate the density at a given altitude.
     """
 
-    def __init__(self, path: str = "../data/atmosphere_data/NRLMSISE00/") -> None:
-        super(NRLMSISE00, self).__init__()
+    def __init__(
+        self, path: str = "data/atmosphere_data/NRLMSISE00/", verbose: bool = False
+    ) -> None:
+        super(NRLMSISE00, self).__init__(verbose)
         swfile = download_sw_nrlmsise00(path)
         # Read the space weather data
         self.swdata = read_sw_nrlmsise00(swfile)
@@ -199,8 +203,10 @@ class JB2008(AtmosphereModel):
     solar activity and space weather data to estimate the density at a given altitude.
     """
 
-    def __init__(self, path: str = "../data/atmosphere_data/JB2008/") -> None:
-        super(JB2008, self).__init__()
+    def __init__(
+        self, path: str = "data/atmosphere_data/JB2008/", verbose: bool = False
+    ) -> None:
+        super(JB2008, self).__init__(verbose)
         swfile = download_sw_jb2008(path)
         # Read the space weather data
         self.swdata = read_sw_jb2008(swfile)

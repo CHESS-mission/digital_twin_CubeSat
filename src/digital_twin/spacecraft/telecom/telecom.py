@@ -42,8 +42,10 @@ class Telecom(SubSystem):
         vis_window_triggered (int): The visibility window number that triggered the safe mode.
     """
 
-    def __init__(self, params: dict, init_operating_mode: int) -> None:
-        print("Initializing Telecom subsystem... ")
+    def __init__(
+        self, params: dict, init_operating_mode: int, verbose: bool = False
+    ) -> None:
+        print("Initializing Telecom subsystem... ") if verbose else None
         self.name = "Telecom"
 
         super(Telecom, self).__init__()

@@ -40,8 +40,10 @@ class SolarPanel:
         solar_flux (Quantity["irradiance"]): Solar power constant.
     """
 
-    def __init__(self, params: dict, init_operating_mode: int) -> None:
-        print("Initializing the solar panels...")
+    def __init__(
+        self, params: dict, init_operating_mode: int, verbose: bool = False
+    ) -> None:
+        print("Initializing the solar panels...") if verbose else None
         self.name = "Solar Panel"
         self.consumption_mean = {
             int(k): v * u.W for k, v in params["consumption"].items()
@@ -187,8 +189,10 @@ class Eps(SubSystem):
         safe_flag (bool): Indicates whether the subsystem is in safe mode.
     """
 
-    def __init__(self, params: dict, init_operating_mode: int) -> None:
-        print("Initializing EPS subsystem... ")
+    def __init__(
+        self, params: dict, init_operating_mode: int, verbose: bool = False
+    ) -> None:
+        print("Initializing EPS subsystem... ") if verbose else None
         self.name = "EPS"
 
         super(Eps, self).__init__()
@@ -216,7 +220,9 @@ class Eps(SubSystem):
         )
 
         # Initialize solar panels
-        self.solar_panels = SolarPanel(params["solar_panels"], init_operating_mode)
+        self.solar_panels = SolarPanel(
+            params["solar_panels"], init_operating_mode, verbose
+        )
 
         # In order to store power generated/consumed at last step
         self.power_consumption_last_step = 0.0 * (u.W)

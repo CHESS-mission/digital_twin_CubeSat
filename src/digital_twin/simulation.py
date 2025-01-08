@@ -13,6 +13,7 @@ import numpy as np
 from digital_twin.constants import earth_R, simulation_unit, simulation_unit_string
 from digital_twin.ground_station import GroundStation
 from digital_twin.mode_switch import ModeSwitch
+
 from digital_twin.orbit_propagator import OrbitPropagator
 from digital_twin.report import produce_report
 from digital_twin.spacecraft import Spacecraft
@@ -33,6 +34,7 @@ class Simulation:
         station_params: dict,
         mission_design_params: dict,
     ) -> None:
+        self.verbose = True if simulation_params["verbose"] == "yes" else False
 
         # TIME INITIALIZATION
         self.sim_unit_string = simulation_unit_string
@@ -62,16 +64,19 @@ class Simulation:
 
         # MODE SWITCH ALGORITHM INITIALIZATION
         self.switch_algo = ModeSwitch(
-            init_mode=int(spacecraft_params["general"]["init_operating_mode"])
+            init_mode=int(spacecraft_params["general"]["init_operating_mode"]),
+            verbose=self.verbose,
         )
 
         # SPACECRAFT INITIALIZATION
-        self.spacecraft = Spacecraft(spacecraft_params, self.switch_algo.operating_mode)
+        self.spacecraft = Spacecraft(
+            spacecraft_params, self.switch_algo.operating_mode, self.verbose
+        )
 
         # GROUND STATION INITIALIZATION
         self.ground_stations = []
         for param in station_params["stations"]:
-            self.ground_stations.append(GroundStation(param))
+            self.ground_stations.append(GroundStation(param, self.verbose))
         self.ground_stations = np.array(self.ground_stations)
 
         # PROPAGATOR INITIALIZATION
@@ -80,7 +85,11 @@ class Simulation:
         ] * get_astropy_unit_time(simulation_params["update_air_density_timestep_unit"])
         atmosphere_model = simulation_params["atmosphere_model"]
         self.propagator = OrbitPropagator(
-            orbit_params, epoch, atmosphere_model, update_air_density_timestep
+            orbit_params,
+            epoch,
+            atmosphere_model,
+            update_air_density_timestep,
+            self.verbose,
         )
         self.propagation_only = (
             True if simulation_params["propagation_only"] == "yes" else False
@@ -90,13 +99,14 @@ class Simulation:
         user_input = mission_design_params["user_input"]
         self.handle_user_input(user_input)
 
-        # Print user parameters
+        # Report and printing
         self.report_params = mission_design_params["report"]
-        self.print_parameters()
+        if simulation_params["print_initial_parameters"] == "yes":
+            self.print_parameters()  # Print user parameters
 
     def run(self) -> None:
         """Function to run the simulation, which contains the main simulation loop."""
-        print("Simulation running...")
+        print("Simulation running...") if self.verbose else None
 
         # INITIALIZATION
         eph = np.zeros((self.n_timesteps + 1, 6))
@@ -134,7 +144,7 @@ class Simulation:
         density_array = np.zeros(self.n_timesteps + 1)
         density_array[0] = self.propagator.get_density().value
 
-        print("Number of timesteps:", self.n_timesteps)
+        print("Number of timesteps:", self.n_timesteps) if self.verbose else None
 
         # MAIN SIMULATION LOOP
         start_for_loop = time.time()
@@ -157,10 +167,7 @@ class Simulation:
             eph[t + 1, 3:] = rv[3:]
 
             if t % 1000 == 0:  # For debugging
-                print("iter ", t)
-                if np.linalg.norm(rv[:3] - earth_R.value) < 180:
-                    print("Altitude decay: deorbiting")
-                    break
+                print("> iter ", t) if self.verbose else None
 
             # For simulations where only propagation matters, skip the next steps
             if not self.propagation_only:
@@ -235,8 +242,8 @@ class Simulation:
 
         end_for_loop = time.time()
         duration = end_for_loop - start_for_loop
-        print("Simulation ended!")
-        print(f"Time: {duration} s")
+        print("Simulation ended!") if self.verbose else None
+        print(f"Duration: {duration} s") if self.verbose else None
 
         # If the simulation finished earlier than planned
         if t < self.n_timesteps - 1:
@@ -316,7 +323,8 @@ class Simulation:
         }
 
         # Produce report
-        produce_report(data_results, self.report_params)
+        produce_report(data_results, self.report_params, self.verbose)
+        print("Results saved!") if self.verbose else None
 
     def print_parameters(self) -> None:
         """Print a summary of the the simulation objects."""

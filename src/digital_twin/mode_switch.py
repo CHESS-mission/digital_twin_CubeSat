@@ -10,7 +10,8 @@ from digital_twin.spacecraft.telecom import Telecom
 class ModeSwitch:
     """Implement the mode switch algorithm defined in the MOP for the CHESS mission."""
 
-    def __init__(self, init_mode: int) -> None:
+    def __init__(self, init_mode: int, verbose: bool = False) -> None:
+        print("Initializing the mode switch algorithm...") if verbose else None
         self.mode_dict = mode_dict
         self.operating_mode = init_mode
 

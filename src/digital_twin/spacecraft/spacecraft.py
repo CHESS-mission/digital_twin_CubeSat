@@ -36,8 +36,10 @@ class Spacecraft:
         subsystems (list): List of all initialized subsystems.
     """
 
-    def __init__(self, params: dict, init_operating_mode: int) -> None:
-        print("Initializing the spacecraft...")
+    def __init__(
+        self, params: dict, init_operating_mode: int, verbose: bool = False
+    ) -> None:
+        print("Initializing the spacecraft...") if verbose else None
         self.params = params
         self.name = params["general"]["name"]
         self.C_D = params["general"]["C_D"] * u.one
@@ -52,11 +54,15 @@ class Spacecraft:
         self.B = self.C_D * self.A_over_m  # Approximation of the ballistic coefficient
 
         # SUBSYSTEMS INITIALIZATION
-        self.eps_subsystem = Eps(params["eps"], init_operating_mode)
-        self.telecom_subsystem = Telecom(params["telecom"], init_operating_mode)
-        self.adcs_subsystem = Adcs(params["adcs"], init_operating_mode)
-        self.payload_subsystem = Payload(params["payload"], init_operating_mode)
-        self.obc_subsystem = Obc(params["obc"], init_operating_mode)
+        self.eps_subsystem = Eps(params["eps"], init_operating_mode, verbose)
+        self.telecom_subsystem = Telecom(
+            params["telecom"], init_operating_mode, verbose
+        )
+        self.adcs_subsystem = Adcs(params["adcs"], init_operating_mode, verbose)
+        self.payload_subsystem = Payload(
+            params["payload"], init_operating_mode, verbose
+        )
+        self.obc_subsystem = Obc(params["obc"], init_operating_mode, verbose)
 
         self.subsystems = [
             self.eps_subsystem,

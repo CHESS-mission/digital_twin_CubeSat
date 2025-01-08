@@ -39,8 +39,10 @@ class Payload(SubSystem):
         safe_flag (bool): Indicates whether the Payload subsystem is in safe mode.
     """
 
-    def __init__(self, params: dict, init_operating_mode: int) -> None:
-        print("Initializing Payload subsystem... ")
+    def __init__(
+        self, params: dict, init_operating_mode: int, verbose: bool = False
+    ) -> None:
+        print("Initializing Payload subsystem... ") if verbose else None
         self.name = "Payload"
 
         super(Payload, self).__init__()

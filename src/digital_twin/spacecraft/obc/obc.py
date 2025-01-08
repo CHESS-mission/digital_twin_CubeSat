@@ -30,7 +30,8 @@ class DataStorage:
         data_to_downlink (Quantity["data quantity"]): Data queued for downlink during X-band communication.
     """
 
-    def __init__(self, params: dict):
+    def __init__(self, params: dict, verbose: bool = False):
+        print("Initializing the data storage... ") if verbose else None
         self.max_storage = float(params["max_storage"]) * u.Mbit
 
         # Data_storage gathers all 3 types of data (TOF, GNSS, HK = Housekeeping)
@@ -151,8 +152,10 @@ class Obc(SubSystem):
         safe_flag (bool): Indicates whether the OBC subsystem is in safe mode.
     """
 
-    def __init__(self, params: dict, init_operating_mode: int) -> None:
-        print("Initializing OBC subsystem... ")
+    def __init__(
+        self, params: dict, init_operating_mode: int, verbose: bool = False
+    ) -> None:
+        print("Initializing OBC subsystem... ") if verbose else None
         self.name = "OBC"
 
         super(Obc, self).__init__()
@@ -164,7 +167,7 @@ class Obc(SubSystem):
         # Obc generates housekeeping data
         self.HK_rate = float(params["housekeeping_data_rate"]) * (u.Mbit / u.s)
 
-        self.data_storage = DataStorage(params["data_storage"])
+        self.data_storage = DataStorage(params["data_storage"], verbose)
 
         # Safe flag handling
         # These 2 will be automatically updated at initialization since the Spacecraft calls update_safe_flag()

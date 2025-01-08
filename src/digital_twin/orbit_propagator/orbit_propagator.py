@@ -27,6 +27,7 @@ from digital_twin.orbit_propagator import (
     SolarActivity,
     JB2008,
 )
+
 from digital_twin.orbit_propagator.constants import (
     attractor,
     star_string,
@@ -64,8 +65,9 @@ class OrbitPropagator:
         epoch: Time,
         atmosphere_model: str,
         update_air_density_timestep: Quantity["time"],
+        verbose: bool = False,
     ) -> None:
-        print("Initializing the propagator...")
+        print("Initializing the propagator...") if verbose else None
 
         # INITAL CHECKS
         if star_string != "Sun":
@@ -114,13 +116,13 @@ class OrbitPropagator:
 
         # Choose atmospheric model
         if atmosphere_model == "nrlmsise00":
-            self.atmosphere_model = NRLMSISE00()
+            self.atmosphere_model = NRLMSISE00(verbose=verbose)
         elif atmosphere_model == "solar_activity":
-            self.atmosphere_model = SolarActivity()
+            self.atmosphere_model = SolarActivity(verbose=verbose)
         elif atmosphere_model == "jb2008":
-            self.atmosphere_model = JB2008()
+            self.atmosphere_model = JB2008(verbose=verbose)
         else:
-            self.atmosphere_model = Coesa76()
+            self.atmosphere_model = Coesa76(verbose=verbose)
 
         # Rho is air density
         # Approximation updated every __update_rho_time_interval__
