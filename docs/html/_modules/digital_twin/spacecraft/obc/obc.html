@@ -103,7 +103,8 @@
 <span class="sd">        data_to_downlink (Quantity[&quot;data quantity&quot;]): Data queued for downlink during X-band communication.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Initializing the data storage... &quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">verbose</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_storage</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;max_storage&quot;</span><span class="p">])</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">Mbit</span>
 
         <span class="c1"># Data_storage gathers all 3 types of data (TOF, GNSS, HK = Housekeeping)</span>
@@ -248,8 +249,10 @@
 <span class="sd">        safe_flag (bool): Indicates whether the OBC subsystem is in safe mode.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">init_operating_mode</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Initializing OBC subsystem... &quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">init_operating_mode</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Initializing OBC subsystem... &quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">verbose</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;OBC&quot;</span>
 
         <span class="nb">super</span><span class="p">(</span><span class="n">Obc</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
@@ -261,7 +264,7 @@
         <span class="c1"># Obc generates housekeeping data</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">HK_rate</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;housekeeping_data_rate&quot;</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">Mbit</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">data_storage</span> <span class="o">=</span> <span class="n">DataStorage</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;data_storage&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_storage</span> <span class="o">=</span> <span class="n">DataStorage</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;data_storage&quot;</span><span class="p">],</span> <span class="n">verbose</span><span class="p">)</span>
 
         <span class="c1"># Safe flag handling</span>
         <span class="c1"># These 2 will be automatically updated at initialization since the Spacecraft calls update_safe_flag()</span>

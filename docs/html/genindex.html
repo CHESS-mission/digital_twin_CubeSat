@@ -80,6 +80,7 @@
  | <a href="#G"><strong>G</strong></a>
  | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
+ | <a href="#J"><strong>J</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
  | <a href="#O"><strong>O</strong></a>
@@ -107,25 +108,17 @@
 </li>
       <li><a href="digital_twin.spacecraft.html#digital_twin.spacecraft.spacecraft.Spacecraft.adcs_subsystem">adcs_subsystem (digital_twin.spacecraft.spacecraft.Spacecraft attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="digital_twin.spacecraft.telecom.html#digital_twin.spacecraft.telecom.telecom.Telecom.add_uplink_safe_mode">add_uplink_safe_mode() (digital_twin.spacecraft.telecom.telecom.Telecom method)</a>
 </li>
       <li><a href="digital_twin.spacecraft.telecom.html#digital_twin.spacecraft.telecom.telecom.Telecom.alternating">alternating (digital_twin.spacecraft.telecom.telecom.Telecom attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="digital_twin.html#digital_twin.utils.angle_between_vectors">angle_between_vectors() (in module digital_twin.utils)</a>
 </li>
       <li><a href="digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator.atmosphere_model">atmosphere_model (digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator attribute)</a>
 </li>
       <li><a href="digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModel">AtmosphereModel (class in digital_twin.orbit_propagator.atmosphere_model)</a>
-</li>
-      <li><a href="digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelCOESA76">AtmosphereModelCOESA76 (class in digital_twin.orbit_propagator.atmosphere_model)</a>
-</li>
-      <li><a href="digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelJB2008">AtmosphereModelJB2008 (class in digital_twin.orbit_propagator.atmosphere_model)</a>
-</li>
-      <li><a href="digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelNRLMSISE00">AtmosphereModelNRLMSISE00 (class in digital_twin.orbit_propagator.atmosphere_model)</a>
-</li>
-      <li><a href="digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelSolarActivity">AtmosphereModelSolarActivity (class in digital_twin.orbit_propagator.atmosphere_model)</a>
 </li>
       <li><a href="digital_twin.spacecraft.adcs.html#digital_twin.spacecraft.adcs.adcs.Adcs.attitude">attitude (digital_twin.spacecraft.adcs.adcs.Adcs attribute)</a>
 </li>
@@ -153,7 +146,7 @@
         <li><a href="digital_twin.spacecraft.html#id1">(digital_twin.spacecraft.spacecraft.Spacecraft property)</a>
 </li>
       </ul></li>
-      <li><a href="digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelSolarActivity.calculate_density">calculate_density() (digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelSolarActivity method)</a>
+      <li><a href="digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.SolarActivity.calculate_density">calculate_density() (digital_twin.orbit_propagator.atmosphere_model.SolarActivity method)</a>
 </li>
       <li><a href="digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator.calculate_eclipse_status">calculate_eclipse_status() (digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator method)</a>
 </li>
@@ -174,6 +167,8 @@
       <li><a href="digital_twin.spacecraft.eps.html#digital_twin.spacecraft.eps.eps.SolarPanel.cell_surface">cell_surface (digital_twin.spacecraft.eps.eps.SolarPanel attribute)</a>
 </li>
       <li><a href="digital_twin.html#digital_twin.utils.check_and_empty_folder">check_and_empty_folder() (in module digital_twin.utils)</a>
+</li>
+      <li><a href="digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.Coesa76">Coesa76 (class in digital_twin.orbit_propagator.atmosphere_model)</a>
 </li>
       <li><a href="digital_twin.ground_station.html#digital_twin.ground_station.ground_station.GroundStation.color">color (digital_twin.ground_station.ground_station.GroundStation attribute)</a>
 </li>
@@ -512,13 +507,15 @@
       <li><a href="digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModel.get_density">get_density() (digital_twin.orbit_propagator.atmosphere_model.AtmosphereModel method)</a>
 
       <ul>
-        <li><a href="digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelCOESA76.get_density">(digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelCOESA76 method)</a>
+        <li><a href="digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.Coesa76.get_density">(digital_twin.orbit_propagator.atmosphere_model.Coesa76 method)</a>
 </li>
-        <li><a href="digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelJB2008.get_density">(digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelJB2008 method)</a>
+        <li><a href="digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.JB2008.get_density">(digital_twin.orbit_propagator.atmosphere_model.JB2008 method)</a>
 </li>
-        <li><a href="digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelNRLMSISE00.get_density">(digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelNRLMSISE00 method)</a>
+        <li><a href="digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.NRLMSISE00.get_density">(digital_twin.orbit_propagator.atmosphere_model.NRLMSISE00 method)</a>
 </li>
-        <li><a href="digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelSolarActivity.get_density">(digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelSolarActivity method)</a>
+        <li><a href="digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.SolarActivity.get_density">(digital_twin.orbit_propagator.atmosphere_model.SolarActivity method)</a>
+</li>
+        <li><a href="digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator.get_density">(digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator method)</a>
 </li>
       </ul></li>
       <li><a href="digital_twin.spacecraft.eps.html#digital_twin.spacecraft.eps.eps.SolarPanel.get_effective_surface">get_effective_surface() (digital_twin.spacecraft.eps.eps.SolarPanel method)</a>
@@ -555,7 +552,7 @@
 </li>
       <li><a href="digital_twin.spacecraft.eps.html#digital_twin.spacecraft.eps.eps.Eps.get_power_generation">get_power_generation() (digital_twin.spacecraft.eps.eps.Eps method)</a>
 </li>
-      <li><a href="digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelSolarActivity.get_solar_activity_values">get_solar_activity_values() (digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelSolarActivity method)</a>
+      <li><a href="digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.SolarActivity.get_solar_activity_values">get_solar_activity_values() (digital_twin.orbit_propagator.atmosphere_model.SolarActivity method)</a>
 </li>
       <li><a href="digital_twin.spacecraft.html#digital_twin.spacecraft.spacecraft.Spacecraft.get_telecom">get_telecom() (digital_twin.spacecraft.spacecraft.Spacecraft method)</a>
 </li>
@@ -596,9 +593,24 @@
   </ul></td>
 </tr></table>
 
+<h2 id="J">J</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.JB2008">JB2008 (class in digital_twin.orbit_propagator.atmosphere_model)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    main
+
+      <ul>
+        <li><a href="main.html#module-main">module</a>
+</li>
+      </ul></li>
       <li><a href="digital_twin.spacecraft.html#digital_twin.spacecraft.spacecraft.Spacecraft.mass">mass (digital_twin.spacecraft.spacecraft.Spacecraft attribute)</a>
 </li>
       <li><a href="digital_twin.spacecraft.eps.html#digital_twin.spacecraft.eps.eps.Eps.max_battery">max_battery (digital_twin.spacecraft.eps.eps.Eps attribute)</a>
@@ -689,6 +701,8 @@
 </li>
         <li><a href="digital_twin.html#module-digital_twin.utils">digital_twin.utils</a>
 </li>
+        <li><a href="main.html#module-main">main</a>
+</li>
       </ul></li>
   </ul></td>
 </tr></table>
@@ -721,6 +735,8 @@
       <li><a href="digital_twin.spacecraft.payload.html#digital_twin.spacecraft.payload.payload.Payload.nb_measurement_per_day">nb_measurement_per_day (digital_twin.spacecraft.payload.payload.Payload attribute)</a>
 </li>
       <li><a href="digital_twin.spacecraft.payload.html#digital_twin.spacecraft.payload.payload.Payload.nb_measurement_windows">nb_measurement_windows (digital_twin.spacecraft.payload.payload.Payload attribute)</a>
+</li>
+      <li><a href="digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.NRLMSISE00">NRLMSISE00 (class in digital_twin.orbit_propagator.atmosphere_model)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -817,7 +833,11 @@
       <li><a href="digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator.rho">rho (digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator attribute)</a>
 </li>
       <li><a href="digital_twin.html#digital_twin.simulation.Simulation.run">run() (digital_twin.simulation.Simulation method)</a>
+
+      <ul>
+        <li><a href="main.html#main.run">(in module main)</a>
 </li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -854,19 +874,21 @@
         <li><a href="digital_twin.spacecraft.html#digital_twin.spacecraft.spacecraft.Spacecraft.save_state">(digital_twin.spacecraft.spacecraft.Spacecraft method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="digital_twin.html#digital_twin.plotting.seconds_to_days">seconds_to_days() (in module digital_twin.plotting)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="digital_twin.html#digital_twin.plotting.seconds_to_hours">seconds_to_hours() (in module digital_twin.plotting)</a>
 </li>
       <li><a href="digital_twin.html#digital_twin.plotting.seconds_to_minutes">seconds_to_minutes() (in module digital_twin.plotting)</a>
 </li>
       <li><a href="digital_twin.html#digital_twin.simulation.Simulation">Simulation (class in digital_twin.simulation)</a>
 </li>
+      <li><a href="digital_twin.spacecraft.eps.html#digital_twin.spacecraft.eps.eps.SolarPanel.solar_flux">solar_flux (digital_twin.spacecraft.eps.eps.SolarPanel attribute)</a>
+</li>
       <li><a href="digital_twin.spacecraft.eps.html#digital_twin.spacecraft.eps.eps.Eps.solar_panels">solar_panels (digital_twin.spacecraft.eps.eps.Eps attribute)</a>
 </li>
-      <li><a href="digital_twin.spacecraft.eps.html#digital_twin.spacecraft.eps.eps.SolarPanel.solar_power">solar_power (digital_twin.spacecraft.eps.eps.SolarPanel attribute)</a>
+      <li><a href="digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.SolarActivity">SolarActivity (class in digital_twin.orbit_propagator.atmosphere_model)</a>
 </li>
       <li><a href="digital_twin.spacecraft.eps.html#digital_twin.spacecraft.eps.eps.SolarPanel">SolarPanel (class in digital_twin.spacecraft.eps.eps)</a>
 </li>

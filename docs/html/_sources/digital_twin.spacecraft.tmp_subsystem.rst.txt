@@ -1,0 +1,21 @@
+digital\_twin.spacecraft.tmp\_subsystem package
+===============================================
+
+Submodules
+----------
+
+digital\_twin.spacecraft.tmp\_subsystem.new\_class module
+---------------------------------------------------------
+
+.. automodule:: digital_twin.spacecraft.tmp_subsystem.new_class
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: digital_twin.spacecraft.tmp_subsystem
+   :members:
+   :undoc-members:
+   :show-inheritance:

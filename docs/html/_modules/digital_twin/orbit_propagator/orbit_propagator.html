@@ -93,11 +93,12 @@
 
 <span class="kn">from</span> <span class="nn">digital_twin.constants</span> <span class="kn">import</span> <span class="n">earth_R</span><span class="p">,</span> <span class="n">J2</span><span class="p">,</span> <span class="n">sun_R</span><span class="p">,</span> <span class="n">earth_k</span>
 <span class="kn">from</span> <span class="nn">digital_twin.orbit_propagator</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">AtmosphereModelCOESA76</span><span class="p">,</span>
-    <span class="n">AtmosphereModelNRLMSISE00</span><span class="p">,</span>
-    <span class="n">AtmosphereModelSolarActivity</span><span class="p">,</span>
-    <span class="n">AtmosphereModelJB2008</span><span class="p">,</span>
+    <span class="n">Coesa76</span><span class="p">,</span>
+    <span class="n">NRLMSISE00</span><span class="p">,</span>
+    <span class="n">SolarActivity</span><span class="p">,</span>
+    <span class="n">JB2008</span><span class="p">,</span>
 <span class="p">)</span>
+
 <span class="kn">from</span> <span class="nn">digital_twin.orbit_propagator.constants</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">attractor</span><span class="p">,</span>
     <span class="n">star_string</span><span class="p">,</span>
@@ -137,8 +138,9 @@
         <span class="n">epoch</span><span class="p">:</span> <span class="n">Time</span><span class="p">,</span>
         <span class="n">atmosphere_model</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">update_air_density_timestep</span><span class="p">:</span> <span class="n">Quantity</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">],</span>
+        <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Initializing the propagator...&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Initializing the propagator...&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">verbose</span> <span class="k">else</span> <span class="kc">None</span>
 
         <span class="c1"># INITAL CHECKS</span>
         <span class="k">if</span> <span class="n">star_string</span> <span class="o">!=</span> <span class="s2">&quot;Sun&quot;</span><span class="p">:</span>
@@ -187,13 +189,13 @@
 
         <span class="c1"># Choose atmospheric model</span>
         <span class="k">if</span> <span class="n">atmosphere_model</span> <span class="o">==</span> <span class="s2">&quot;nrlmsise00&quot;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">atmosphere_model</span> <span class="o">=</span> <span class="n">AtmosphereModelNRLMSISE00</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">atmosphere_model</span> <span class="o">=</span> <span class="n">NRLMSISE00</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">atmosphere_model</span> <span class="o">==</span> <span class="s2">&quot;solar_activity&quot;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">atmosphere_model</span> <span class="o">=</span> <span class="n">AtmosphereModelSolarActivity</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">atmosphere_model</span> <span class="o">=</span> <span class="n">SolarActivity</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">atmosphere_model</span> <span class="o">==</span> <span class="s2">&quot;jb2008&quot;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">atmosphere_model</span> <span class="o">=</span> <span class="n">AtmosphereModelJB2008</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">atmosphere_model</span> <span class="o">=</span> <span class="n">JB2008</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">atmosphere_model</span> <span class="o">=</span> <span class="n">AtmosphereModelCOESA76</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">atmosphere_model</span> <span class="o">=</span> <span class="n">Coesa76</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
 
         <span class="c1"># Rho is air density</span>
         <span class="c1"># Approximation updated every __update_rho_time_interval__</span>
@@ -410,6 +412,12 @@
         <span class="n">save_orbit_params</span><span class="p">[</span><span class="s2">&quot;epoch&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_orbit</span><span class="o">.</span><span class="n">epoch</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">save_orbit_params</span></div>
+
+
+<div class="viewcode-block" id="OrbitPropagator.get_density">
+<a class="viewcode-back" href="../../../digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.orbit_propagator.OrbitPropagator.get_density">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_density</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Quantity</span><span class="p">[</span><span class="s2">&quot;mass density&quot;</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rho</span></div>
 </div>
 
 </pre></div>

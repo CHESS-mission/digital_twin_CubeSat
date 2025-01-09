@@ -8,8 +8,7 @@ depending on the operating mode.
 
 Classes:
     SolarPanel: Represents the solar panel system responsible for power generation.
-    Eps: Represents the Electrical Power Subsystem (EPS) for managing power consumption, 
-         generation, and battery levels.
+    Eps: Represents the Electrical Power Subsystem (EPS) for managing power consumption, generation, and battery levels.
 """
 
 import copy

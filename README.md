@@ -1,6 +1,6 @@
 # A Digital Twin of the CHESS CubeSat
 
-This repository hosts a Python-based simulation framework developed to support the mission design and operations of the CHESS CubeSat. It has two main purposes:
+This repository hosts a Python-based simulation framework developed to support the mission design and operations of the CHESS CubeSat.
 
 ### Purposes
 
@@ -8,34 +8,38 @@ This repository hosts a Python-based simulation framework developed to support t
 
 2. *Foundation for a digital twin*: Serves as the groundwork for a digital twin capable of simulating real-time satellite operations, including anomaly detection.
 
-This framework was initially developed as part of a semester project with the EPFL Spacecraft Team in collaboration with the EPFL Space Center.
+This framework was initially developed as part of a semester project with the EPFL Spacecraft Team in collaboration with the EPFL Space Center. The semester project report under the *docs/* folder is a valuable ressource in addition to this README file.
 
 ## Table of Contents
 - [Libraries and Requirements](#libraries_and_requirements)
 - [Repository Structure](#repository_structure)
 - [Usage](#usage)
-- [Test Case](#test_case)
 - [Documentation](#documentation)
-- [Limitations and Future Work](#limitations_and_future_work)
+- [TODOs](#todos)
 - [Authors and Acknowledgement](#authors_acknowledgement)
 
 ## Libraries and Requirements
 
-This application runs with Python version 3.9 or above. All dependencies are listed in the file *digital_twin_env.yaml*. This file can be used to initiate the appropriate Conda environment and install necessary libraries with the command on the terminal, at the root of the repository: 
+This application requires **Python 3.9** or later. All necessary dependencies are specified in the *digital_twin_env.yaml* file. Follow these steps to create and activate the required **Conda** environment:
+
+1. Create the environment by running the following command from the root of the repository:
 
 ```bash
 conda env create -f digital_twin_env.yml
 ```
 
-The created Conda environment is named *digital_twin_env*. To activate it, use the following command:
+2. Activate the newly created environment:
 
 ```bash
 conda activate digital_twin_env
 ```
 
-You are ready to run a simulation!
+Once the environment is activated, you are ready to run simulations!
 
 ## Repository Structure
+
+The repository is organized as follows:
+
 
 ```bash
 ├── README.md
@@ -47,26 +51,26 @@ You are ready to run a simulation!
 │   ├── simulation						# Config files for simulation parameters
 │   └── spacecraft						# Config files for spacecraft parameters
 ├── digital_twin_env.yml 				# Environment configuration file for setting up dependencies
-├── docs								# Documentation
+├── docs								# Documentation and diagrams
 │   ├── UML_diagram.png					# UML class diagram of the framework
-│   ├── doc_generation					# Folder used to generate the HTML documentation
+│   ├── doc_generation					# Folder for generating HTML documentation
 │   ├── html							# HTML documentation
-│   └── parameters.xlsx					# Default parameters sources
-├── results								# Stores results
-│   ├── data							# Stores output numpy files (can be used for more visualizations with jupyter notebooks)
-│   └── figures							# Stores generated figures
+│   └── parameters.xlsx					# Default parameters descriptions and sources
+├── results								# Output directory for simulation results
+│   ├── data							# Numpy output files 
+│   └── figures							# Generated figures
 └── src									# Source code
     ├── digital_twin
     │   ├── constants.py				# General constants for the simulation
     │   ├── ground_station				# Ground station module
     │   │   └── ground_station.py
-    │   ├── mode_switch.py				# Implementation of the mode switch decision tree
+    │   ├── mode_switch.py				#  Mode switch decision tree implementation
     │   ├── orbit_propagator			# Orbit propagator module
-    │   │   ├── atmosphere_model.py		# Implementation of the atmosphere models
-    │   │   ├── constants.py			# Constants used for propagation
-    │   │   └── orbit_propagator.py		# Implementation of the propagator
-    │   ├── plotting.py					# Functions used to plot results
-    │   ├── report.py					# Functions used to generate outputs
+    │   │   ├── atmosphere_model.py		#  Atmosphere models implementation
+    │   │   ├── constants.py			# Constants for propagation
+    │   │   └── orbit_propagator.py		# Orbit propagator implementation
+    │   ├── plotting.py					# Functions to plot results
+    │   ├── report.py					# Functions to generate outputs
     │   ├── simulation.py				# Implementation of the Simulation class
     │   ├── spacecraft					# Spacecraft module
     │   │   ├── adcs					# ADCS module
@@ -77,29 +81,27 @@ You are ready to run a simulation!
     │   │   │   └── obc.py
     │   │   ├── payload					# Payload module
     │   │   │   └── payload.py
-    │   │   ├── spacecraft.py			# Implementation of the spacecraft class
+    │   │   ├── spacecraft.py			# Spacecraft class implementation
     │   │   ├── subsystem.py			# Subsystem interface
     │   │   └── telecom					# Telecom module
     │   │       └── telecom.py
-    │   └── utils.py					# Utils functions
-    ├── main.py						# Main file to run
-    └── notebooks					# Additional notebooks used for plots, experiments, and analysis of results
+    │   └── utils.py					# Utility functions
+    ├── main.py							# Main entry point for running the simulation
+    └── notebooks						# Notebooks for visualizations, experiments, and analysis
 ```
 
 ### Notes
 
-- *Notebooks/* folder: description of notebooks are provided at the beginning of these notebooks. They were generally used to either produce more complicated plots which plotting functions are not general enough to add them in the framework or do additional analysis, or to do experiments and test different functions that are suibsequently added to the framework.
 
-- *data/atmosphere_data/* folder: this folder does not need to be updated. It contrains data for the **NRLMSISE00**, **JB2008** and **solar_activity** atmosphere models. The data for the first two are frequently updated by the library using them (*ATMOS*) at the beginning of the simulations. Regarding the $3^{rd}$ model, the data does not need to be updated. It is solar activity data ($F10.7$ index and $Ap$) which were exrtracted from the software DRAMA.
+- *Notebooks/*: Each notebook includes a description at the beginning. They are used for advanced plotting, specific analyses, experiments, and testing functions later integrated into the framework.
 
-- *__init__.py* files are not written in the tree for clarity. However they exist in every folder that constitutes a module.
+- *data/atmosphere_data/*: Contains data for **NRLMSISE00**, **JB2008** and **solar_activity** atmosphere models. Data for the first two are updated automatically by the *ATMOS* library during simulations. Solar activity data ($F10.7$ index and $Ap$) for the third model are pre-extracted from DRAMA software and do not require updating.
 
-- *parameters.xlsx* file: this excel document gathers descriptions and sources for the default parameters for the CHESS CubeSat provided in the configuration files. If this framework has to be used for another satellite, those will need to be updated.
+- "\_\_init\_\_.py": These files exist in all module directories but are omitted for clarity in the tree.
 
-- *mode_switch.py*: the mode switch decision tree used for the implementation of the mode switch algorithm in the class `ModeSwitch` can be found in the Appendix of the report located in the *docs/* folder.
+- "mode_switch.py": the mode switch decision tree used for the `ModeSwitch` class implementation can be found in the Appendix of the report under the *docs/* folder.
 
-- The organization of the code as well as the main design choices are explained in details in the report located in the *docs/* folder.
-
+- The full code organization and design decisions are explained in detail in the report available in *docs/*.
 
 ## Usage
 
@@ -112,99 +114,165 @@ User parameters are divided into five categories, each with its own JSON configu
 - **Ground station**: Lists ground stations with their respective locations and elevation angles.
 - **Mission design**: Gathers parameters to generate a report (e.g., data to save, figures to generate) and additional user input, such as commands to initiate SAFE mode at specific times.
 
-Templates filled with default values for the configuration files can be found in the folder *data/* and subfolders *spacecraft/*, *orbit/*, *simulation/*, *ground_station/* and *mission_design*. It is important to place each of the 5 config files listed above in their respective folder.
+Default configuration templates for each category are located in the *data/* folder and its subdirectories (*spacecraft/*, *orbit/*, *simulation/*, *ground_station/*, and *mission_design/*). The file "parameters.xlsx" under *docs/* lists default parameter descriptions and sources for the CHESS CubeSat (for other satellite models, this file should be updated accordingly). Place the relevant configuration files in their corresponding subfolder before running a simulation.
 
-If for any reason want to change where to place them, change the path constants in "src/constands.py".
+**Units**
 
-By convention all the values provided in the  in *data/* folder are precised in kilograms ($kg$), seconds ($s$), kilometers ($km$) and degrees ($deg$), Watts ($W$), or any combination of those. However, there are some exceptions:
-- in the config files, when the used is asked to specified the unit for a specific parameters, they are free to use any. This occurs in ..... show
-- the consumption rates are expressed in $Watt-Hour ($Wh$) and not in Watt seconds. This is because they are provided with this unit in the EPFL Spacecraft Team power budget.
-- solar cell area in $m^2$ (because otherwise it is too small)
+Unless otherwise specified, all values in the configuration files under *data/* follow these standard units:
 
-=> check if there is any other!
+- Mass: **kilograms (kg)**
+- Time: **seconds (s)**
+- Distance: **kilometers (km)**
+- Angles: **degrees (deg)**
+- Power: **Watts (W)**
+- Data size: **Megabit (Mbit)**
 
-Arguments in the config files
-- arguments written with init are specific to the spacecraft state 
+Exceptions:
+
+1. Custom Units:
+	
+	Some parameters allow unit customization. In these cases, specify the unit explicitly within the configuration file.
+	
+	- Time: Choose from `"second"`, `"hour"`, `"day"`, or `"year"`
+	- Angle: Choose from `"degree"` or `"radian"`
+	
+	Example fields: `"units_duration_sim"` or `"unit_delta_t"` in the **simulation** config file, or `"elevation_angle_unit"` in the **ground station** config file.
+
+2. Battery Energy: 
+
+	Expressed in Watt-Hours (Wh) rather than Watt-seconds, following the EPFL Spacecraft Team's power budget conventions. This applies to initial battery energy, minimum and maximum thresholds, and energy-related parameters like UHF and X-band communication levels.
+
+3. Solar Cell Area: 
+
+	Measured in square meters (m²) for practicality due to small values.
 
 
-
-### Running a Simulation
+### Starting a Simulation
 
 In order to run a simulation, follow these steps:
 
 1. Place the 5 configuration files in their respective folder
 2. Activate the conda environment
-3. At the root directory run:
+3. Make sure you are connected to the internet (some files are automatically updated by libraries)
+3. At the root directory, run:
 
-```bash
-python3 -W"ignore" src/main.py simulation_template.json orbit_template.json spacecraft_template.json ground_station_template.json mission_design_template.json
+	```bash
+	python3 -W"ignore" src/main.py simulation_template.json orbit_template.json spacecraft_template.json ground_station_template.json mission_design_template.json
 
-```
+	```
 
-where the example was provided with the files with default values.
+This example provided uses the files with default values. It is important to keep the file arguments in the specified order.
 
-### Flow
+### Verbose 
 
-Once the above command has been executed, the following steps are performed:
-- If running the application for the first time or after a long gap, it automatically downloads the updated files required by the `astropy.utils.iers` module (tables with Earth orientation data). Otherwise, it displays a message indicating that the tables are already updated
-- if the parameter `"verbose"` is set to `"yes"` in the "simulation.json" configuration file, it displays the initialization of classes and the timesteps every 1000 timestep and the time it took to run.
-- if the parameter `"print_parameters"` is set to `"yes"` in the "simulation.json" configuration file, displays initial parameters before starting the main simulation loop.
-- run the simulation
-- add results in the folder provided in the "mission_design.json" configuration file.
+During the simulation, relevant information and progress updates can be displayed in the terminal:
+
+1. **Earth Orientation Data Update**: If running the application for the first time or after a prolonged period, the necessary Earth orientation data tables required by the `astropy.utils.iers`z
+ module are automatically downloaded and a message is displayed. If the tables are already up-to-date, a message confirms their current status.
+
+2. **Simulation Logging (Optional)**: If `"verbose"` is set to `"yes"` in the **simulation** configuration file, detailed logs are displayed, including class initializations and progress updates at every 1,000 timesteps, along with the final runtime.
+
+3. **Parameter Display (Optional)**: If `"print_parameters"` is set to `"yes"` in the **simulation** configuration file, the initial simulation parameters are printed before entering the main simulation loop.
 
 
 ### Output
 
-The output of the simulation depends on the parameters provided in the "mission_design.json" configuration file
-=> explain what all of those parameters mean!!!
-explain what kind of output can be given!
+Upon completing the simulation, all outputs are stored in the *results/* directory. The generated outputs depend on user choices specified in the **mission design** configuration file, where each field must be set to `"yes"` or `"no"` to enable or disable the respective output.
 
-possibility to save state!
+The outputs are divided into two categories:
 
-2 kinds of outputs can be saved: figures, and data
+- Data: Stores simulation results as numpy arrays (for each timestep), which can be used for further analysis or visualizations (refer to the notebooks for examples). Additionally, two JSON files are created to save the final states of the orbit and spacecraft, allowing them to be reused as starting configurations for subsequent simulations. The other three configuration files (**simulation**, **ground station**, **mission design**) are not directly linked to simulation states and are therefore not automatically saved.
 
+- Figures: Generates visual plots of various parameters.
 
-## Test Case
+**Detailed Output Description**
 
-For more background about this test case, refer to the report.
+- **data**:
+	- `"telecom_data"`: Visibility windows (1 = visible, 0 = not visible), data storage (total, housekeeping, scientific data)
+	- `"eps_data"`: Eclipse status (1 = eclipse, 0 = not in eclipse), battery energy level, power consumption, and generation
+	- `"modes"`: Operating modes (refer to "constants.py" for mode definitions)
+	- `"altitude_data"`: Satellite altitude
+	- `"orbital_element_data"`: Orbital elements including altitude, RAAN, AOP, ECC, and INC
+	- `"eclipse_data"`: Eclipse status (1 = eclipse, 0 = not in eclipse)
+	- `"orbit_state"`: Final orbit state as a JSON file
+	- `"spacecraft_state"`: Final spacecraft state as a JSON file
+	- `"density"`: Air density at the satellite's position.
 
+All data arrays are saved with an accompanying `"times.npy"` array for use in plotting.
 
+- **figures**:
+	- `"orbital_elem_evolution"`: Evolution of RAAN, AOP, ECC, INC, and altitude over time
+	- `"trajectory_2d"`: 2D plot of the initial orbit
+	- `"trajectory_3d"`: 3D plot showing the initial orbit and full trajectory
+	- `"groundtrack"`: Ground track of the satellite
+	- `"modes"`:  Horizontal bar plot of spacecraft operating modes during the simulation
+	- `"dashboard"`:  Combined plot showing operating modes, visibility windows, and eclipse status
+	- `"battery_energy"`:  Battery energy level over time
+	- `"power_consumption"`: Power consumption over time
+	- `"power_generation"`:  Power generation over time
+	- `"power_balance"`:  Net power (generation minus consumption) over time
+	- `"data_storage"`: Storage usage (total, scientific, and housekeeping data)
+	- `"visibility_windows"`: Boolean bar plot of visibility windows
+	- `"eclipse_windows"`: Boolean bar plot of eclipse status
 
 ## Documentation
 
-Detailed information about each function and class can be found in the **documentation**. To access it, open the file "index.html" in the folder *docs/html/*, where you can explore the available classes, functions, and modules
+Comprehensive information on all functions, classes, and modules is available in the generated documentation. To explore it, open the "index.html" file located in the *docs/html/* folder. This provides a user-friendly interface for navigating the code's structure and available features.
 
-If documentation needs to be generated again, follow these commands in the *build/* folder:
+The documentation is created using [*Sphinx*](https://www.sphinx-doc.org/en/master/) mainly following a [step-by-step tutorial](https://www.youtube.com/watch?v=BWIrhgCAae0).  If changes are made to the codebase structure (such as adding or removing modules or packages), the documentation tree must be updated. Follow these steps to regenerate it:
 
-   ```bash
-   cmake .. -DDOCUMENTATION=0N
-   make
-   ```
+1. Navigate to the *docs/doc_generation/* directory
+2. Remove all **.rst** files EXCEPT "index.rst" 
+3. Return to the projec's root repository
+4. Activate the virtual environment (**digital_twin_env**)
+5. Run the following command to rebuild the documentation structure:
 
+	```bash
+	sphinx-apidoc -o docs/doc_generation src/ --force
+	```
+5. Go back to the *docs/doc_generation/* directory
+6. Generate the HMTL documentation
+	```bash
+	make html
+	```
 
-doc_generation
+The updated documentation will be located in the *docs/html/* folder.
 
-In addition, the default parameters for the config files are in the excel file
+If only code changes are made (such as modifying functions or classes), and no new files are added or removed, simply run `make html` in the *docs/doc_generation/* directory to re-generate the documentation.
 
+### Type hints
 
-## Limitations and Future Work
+In this project, each function is defined with type hints to indicate the expected types of variables. While Python is not a statically typed language and does not enforce these types at runtime, type hints serve as helpful guidance for developers, providing insight into what type of data a function expects or returns. Additionally, tools like **Mypy** can be used for static type checking, allowing developers to detect type errors before runtime.
 
-Design assumptions and limitations are documented in detail within *docs/* in the file "report.pdf". This document needs to be updated when more is added to the project.
+Commonly used types include basic ones like `float`, `int`, `str`, and `bool`, as well as more complex types such as `list` (e.g., `list[int]`), `dict`, `set`, and `tuple`, or *Numpy* arrays (`np.ndarray`). When a variable can be either `None` or another type, its type hint is written as `Optional[other_type]`.
 
-The main design choices, as well as the assumptions and limitations of this application are detailed in the report, which can be found in the `docs/` folder.
+In this application, variables are frequently passed as `Quantity`. These are special objects from the **Astropy** library that allows to associate a number with a physical unit from the `astropy.units` module.
+
+The type hints for Quantities can be specified in two ways:
+
+- Specific Unit: When the unit is known, for example:
+	- `Quantity[u.km]` for a distance in kilometers.
+
+- Physical Type: When only the physical type is known (e.g., "length", "time", "angle", "bandwidth"), for example:
+	- `Quantity["length"]`
+
+For a comprehensive list of physical types available in Astropy, refer to this [link](https://docs.astropy.org/en/stable/units/ref_api.html#module-astropy.units.physical).
+
+For more details about type annotations with units, see the [Astropy documentation](https://docs.astropy.org/en/stable/units/type_hints.html#).
+
+## TODOs
+
+The next potential steps for this project are outlined in **Section 6** of the project report. You can find the report in the *docs/* folder.
 
 ## Authors and Acknowledgement
 
 ### Initial development (fall 2024)
 
-Author:
-- Mathilde Simoni, MSc in Computational Science and Engineering at EPFL
-
-Supervisors:
-- Andrew Price
-- Mathieu Udriot
-
-Referent Professor:
-- Jean-Paul Kneib
+- **Author**: Mathilde Simoni, MSc in Computational Science and Engineering at EPFL (mathilde.simoni@epfl.ch)
+- **Supervisors**:
+	- Andrew Price (andrew.prince@epfl.ch)
+	- Mathieu Udriot (mathieu.udriot@epfl.ch)
+- **Referent Professor**:
+	- Jean-Paul Kneib
 
 Future authors are encouraged to add their names and details as they contribute to this  project.

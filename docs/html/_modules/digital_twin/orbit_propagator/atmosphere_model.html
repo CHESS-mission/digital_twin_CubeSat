@@ -119,7 +119,8 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># this init function is called by all almosphere models</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Initializing the atmosphere model... &quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">verbose</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">pass</span>
 
 <div class="viewcode-block" id="AtmosphereModel.get_density">
@@ -136,9 +137,9 @@
 
 
 
-<div class="viewcode-block" id="AtmosphereModelCOESA76">
-<a class="viewcode-back" href="../../../digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelCOESA76">[docs]</a>
-<span class="k">class</span> <span class="nc">AtmosphereModelCOESA76</span><span class="p">(</span><span class="n">AtmosphereModel</span><span class="p">):</span>
+<div class="viewcode-block" id="Coesa76">
+<a class="viewcode-back" href="../../../digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.Coesa76">[docs]</a>
+<span class="k">class</span> <span class="nc">Coesa76</span><span class="p">(</span><span class="n">AtmosphereModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    COESA76 model for atmospheric density calculation.</span>
 
@@ -146,12 +147,12 @@
 <span class="sd">    commonly used as a &quot;simple&quot; model for calculating atmospheric properties at various altitudes.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">AtmosphereModelCOESA76</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Coesa76</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">verbose</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">COESA76</span><span class="p">()</span>
 
-<div class="viewcode-block" id="AtmosphereModelCOESA76.get_density">
-<a class="viewcode-back" href="../../../digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelCOESA76.get_density">[docs]</a>
+<div class="viewcode-block" id="Coesa76.get_density">
+<a class="viewcode-back" href="../../../digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.Coesa76.get_density">[docs]</a>
     <span class="k">def</span> <span class="nf">get_density</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">iso_date_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Quantity</span><span class="p">[</span><span class="s2">&quot;mass density&quot;</span><span class="p">]:</span>
@@ -162,13 +163,13 @@
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a string representation of the atmosphere model.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="s2">&quot;COESA76 atmosphere model (Poliastro wrapper)&quot;</span></div>
+        <span class="k">return</span> <span class="s2">&quot;Coesa76 atmosphere model (Poliastro wrapper)&quot;</span></div>
 
 
 
-<div class="viewcode-block" id="AtmosphereModelSolarActivity">
-<a class="viewcode-back" href="../../../digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelSolarActivity">[docs]</a>
-<span class="k">class</span> <span class="nc">AtmosphereModelSolarActivity</span><span class="p">(</span><span class="n">AtmosphereModel</span><span class="p">):</span>
+<div class="viewcode-block" id="SolarActivity">
+<a class="viewcode-back" href="../../../digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.SolarActivity">[docs]</a>
+<span class="k">class</span> <span class="nc">SolarActivity</span><span class="p">(</span><span class="n">AtmosphereModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Solar activity-based model for atmospheric density calculation.</span>
 
@@ -177,17 +178,21 @@
 <span class="sd">    using empirical formulas.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">AtmosphereModelSolarActivity</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">path_f10</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data/atmosphere_data/solar_activity/F10.npy&quot;</span><span class="p">,</span>
+        <span class="n">path_ap</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data/atmosphere_data/solar_activity/Ap.npy&quot;</span><span class="p">,</span>
+        <span class="n">path_times</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data/atmosphere_data/solar_activity/dates_sa.npy&quot;</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">SolarActivity</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">verbose</span><span class="p">)</span>
         <span class="c1"># SOLAR ACTIVITY VALUES</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">F10_7</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;../data/atmosphere_data/solar_activity/F10.npy&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">Ap</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;../data/atmosphere_data/solar_activity/Ap.npy&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span>
-            <span class="s2">&quot;../data/atmosphere_data/solar_activity/dates_sa.npy&quot;</span><span class="p">,</span> <span class="n">allow_pickle</span><span class="o">=</span><span class="kc">True</span>
-        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">F10_7</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path_f10</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Ap</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path_ap</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">times</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path_times</span><span class="p">,</span> <span class="n">allow_pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-<div class="viewcode-block" id="AtmosphereModelSolarActivity.get_solar_activity_values">
-<a class="viewcode-back" href="../../../digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelSolarActivity.get_solar_activity_values">[docs]</a>
+<div class="viewcode-block" id="SolarActivity.get_solar_activity_values">
+<a class="viewcode-back" href="../../../digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.SolarActivity.get_solar_activity_values">[docs]</a>
     <span class="k">def</span> <span class="nf">get_solar_activity_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iso_date_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve the solar activity values (F10.7 and Ap indices) for a given date.&quot;&quot;&quot;</span>
         <span class="n">target_date</span> <span class="o">=</span> <span class="n">Time</span><span class="p">(</span>
@@ -204,8 +209,8 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Date </span><span class="si">{</span><span class="n">iso_date_str</span><span class="si">}</span><span class="s2"> not found in times array.&quot;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="AtmosphereModelSolarActivity.calculate_density">
-<a class="viewcode-back" href="../../../digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelSolarActivity.calculate_density">[docs]</a>
+<div class="viewcode-block" id="SolarActivity.calculate_density">
+<a class="viewcode-back" href="../../../digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.SolarActivity.calculate_density">[docs]</a>
     <span class="k">def</span> <span class="nf">calculate_density</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">F10_7</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">Ap</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">alt</span><span class="p">:</span> <span class="nb">float</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Quantity</span><span class="p">[</span><span class="s2">&quot;mass density&quot;</span><span class="p">]:</span>
@@ -217,8 +222,8 @@
         <span class="k">return</span> <span class="n">rho</span> <span class="o">*</span> <span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">kg</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="AtmosphereModelSolarActivity.get_density">
-<a class="viewcode-back" href="../../../digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelSolarActivity.get_density">[docs]</a>
+<div class="viewcode-block" id="SolarActivity.get_density">
+<a class="viewcode-back" href="../../../digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.SolarActivity.get_density">[docs]</a>
     <span class="k">def</span> <span class="nf">get_density</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">iso_date_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Quantity</span><span class="p">[</span><span class="s2">&quot;mass density&quot;</span><span class="p">]:</span>
@@ -234,9 +239,9 @@
 
 
 
-<div class="viewcode-block" id="AtmosphereModelNRLMSISE00">
-<a class="viewcode-back" href="../../../digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelNRLMSISE00">[docs]</a>
-<span class="k">class</span> <span class="nc">AtmosphereModelNRLMSISE00</span><span class="p">(</span><span class="n">AtmosphereModel</span><span class="p">):</span>
+<div class="viewcode-block" id="NRLMSISE00">
+<a class="viewcode-back" href="../../../digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.NRLMSISE00">[docs]</a>
+<span class="k">class</span> <span class="nc">NRLMSISE00</span><span class="p">(</span><span class="n">AtmosphereModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    NRLMSISE-00 model for atmospheric density calculation.</span>
 
@@ -244,9 +249,11 @@
 <span class="sd">    space weather data such as solar activity to estimate the density at a given altitude.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">AtmosphereModelNRLMSISE00</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="n">swfile</span> <span class="o">=</span> <span class="n">download_sw_nrlmsise00</span><span class="p">(</span><span class="s2">&quot;../data/atmosphere_data/NRLMSISE00/&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data/atmosphere_data/NRLMSISE00/&quot;</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">NRLMSISE00</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="n">swfile</span> <span class="o">=</span> <span class="n">download_sw_nrlmsise00</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="c1"># Read the space weather data</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">swdata</span> <span class="o">=</span> <span class="n">read_sw_nrlmsise00</span><span class="p">(</span><span class="n">swfile</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">t_max</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span>
@@ -254,8 +261,8 @@
         <span class="p">)</span>  <span class="c1"># Maximum time for space weather data (checked experimentally)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cycle</span> <span class="o">=</span> <span class="n">relativedelta</span><span class="p">(</span><span class="n">years</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>  <span class="c1"># Solar activity cycle duration</span>
 
-<div class="viewcode-block" id="AtmosphereModelNRLMSISE00.get_density">
-<a class="viewcode-back" href="../../../digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelNRLMSISE00.get_density">[docs]</a>
+<div class="viewcode-block" id="NRLMSISE00.get_density">
+<a class="viewcode-back" href="../../../digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.NRLMSISE00.get_density">[docs]</a>
     <span class="k">def</span> <span class="nf">get_density</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">iso_date_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Quantity</span><span class="p">[</span><span class="s2">&quot;mass density&quot;</span><span class="p">]:</span>
@@ -289,9 +296,9 @@
 
 
 
-<div class="viewcode-block" id="AtmosphereModelJB2008">
-<a class="viewcode-back" href="../../../digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelJB2008">[docs]</a>
-<span class="k">class</span> <span class="nc">AtmosphereModelJB2008</span><span class="p">(</span><span class="n">AtmosphereModel</span><span class="p">):</span>
+<div class="viewcode-block" id="JB2008">
+<a class="viewcode-back" href="../../../digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.JB2008">[docs]</a>
+<span class="k">class</span> <span class="nc">JB2008</span><span class="p">(</span><span class="n">AtmosphereModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    JB2008 model for atmospheric density calculation.</span>
 
@@ -299,9 +306,11 @@
 <span class="sd">    solar activity and space weather data to estimate the density at a given altitude.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">AtmosphereModelJB2008</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="n">swfile</span> <span class="o">=</span> <span class="n">download_sw_jb2008</span><span class="p">(</span><span class="s2">&quot;../data/atmosphere_data/JB2008/&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data/atmosphere_data/JB2008/&quot;</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">JB2008</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="n">swfile</span> <span class="o">=</span> <span class="n">download_sw_jb2008</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="c1"># Read the space weather data</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">swdata</span> <span class="o">=</span> <span class="n">read_sw_jb2008</span><span class="p">(</span><span class="n">swfile</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">t_max</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span>
@@ -309,8 +318,8 @@
         <span class="p">)</span>  <span class="c1"># Maximum time for space weather data</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cycle</span> <span class="o">=</span> <span class="n">relativedelta</span><span class="p">(</span><span class="n">years</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>  <span class="c1"># Solar activity cycle duration</span>
 
-<div class="viewcode-block" id="AtmosphereModelJB2008.get_density">
-<a class="viewcode-back" href="../../../digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.AtmosphereModelJB2008.get_density">[docs]</a>
+<div class="viewcode-block" id="JB2008.get_density">
+<a class="viewcode-back" href="../../../digital_twin.orbit_propagator.html#digital_twin.orbit_propagator.atmosphere_model.JB2008.get_density">[docs]</a>
     <span class="k">def</span> <span class="nf">get_density</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">iso_date_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">position</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Quantity</span><span class="p">[</span><span class="s2">&quot;mass density&quot;</span><span class="p">]:</span>

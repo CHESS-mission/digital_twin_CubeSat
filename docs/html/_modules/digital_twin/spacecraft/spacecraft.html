@@ -109,8 +109,10 @@
 <span class="sd">        subsystems (list): List of all initialized subsystems.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">init_operating_mode</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Initializing the spacecraft...&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">init_operating_mode</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Initializing the spacecraft...&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">verbose</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">params</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;general&quot;</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">C_D</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;general&quot;</span><span class="p">][</span><span class="s2">&quot;C_D&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">one</span>
@@ -125,11 +127,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">B</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">C_D</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">A_over_m</span>  <span class="c1"># Approximation of the ballistic coefficient</span>
 
         <span class="c1"># SUBSYSTEMS INITIALIZATION</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">eps_subsystem</span> <span class="o">=</span> <span class="n">Eps</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;eps&quot;</span><span class="p">],</span> <span class="n">init_operating_mode</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">telecom_subsystem</span> <span class="o">=</span> <span class="n">Telecom</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;telecom&quot;</span><span class="p">],</span> <span class="n">init_operating_mode</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">adcs_subsystem</span> <span class="o">=</span> <span class="n">Adcs</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;adcs&quot;</span><span class="p">],</span> <span class="n">init_operating_mode</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">payload_subsystem</span> <span class="o">=</span> <span class="n">Payload</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;payload&quot;</span><span class="p">],</span> <span class="n">init_operating_mode</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">obc_subsystem</span> <span class="o">=</span> <span class="n">Obc</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;obc&quot;</span><span class="p">],</span> <span class="n">init_operating_mode</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eps_subsystem</span> <span class="o">=</span> <span class="n">Eps</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;eps&quot;</span><span class="p">],</span> <span class="n">init_operating_mode</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">telecom_subsystem</span> <span class="o">=</span> <span class="n">Telecom</span><span class="p">(</span>
+            <span class="n">params</span><span class="p">[</span><span class="s2">&quot;telecom&quot;</span><span class="p">],</span> <span class="n">init_operating_mode</span><span class="p">,</span> <span class="n">verbose</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adcs_subsystem</span> <span class="o">=</span> <span class="n">Adcs</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;adcs&quot;</span><span class="p">],</span> <span class="n">init_operating_mode</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">payload_subsystem</span> <span class="o">=</span> <span class="n">Payload</span><span class="p">(</span>
+            <span class="n">params</span><span class="p">[</span><span class="s2">&quot;payload&quot;</span><span class="p">],</span> <span class="n">init_operating_mode</span><span class="p">,</span> <span class="n">verbose</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">obc_subsystem</span> <span class="o">=</span> <span class="n">Obc</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;obc&quot;</span><span class="p">],</span> <span class="n">init_operating_mode</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">subsystems</span> <span class="o">=</span> <span class="p">[</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">eps_subsystem</span><span class="p">,</span>
@@ -209,6 +215,7 @@
             <span class="n">r_earth_sun</span><span class="p">,</span>
             <span class="n">rv</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="p">,</span>  <span class="c1"># position,</span>
             <span class="n">gs_coords</span><span class="p">,</span>
+            <span class="n">new_mode</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="c1"># Compute data change (generation by payload or removal by telecom) at current timestep</span>
