@@ -11,12 +11,12 @@ This repository hosts a Python-based simulation framework developed to support t
 This framework was initially developed as part of a semester project with the EPFL Spacecraft Team in collaboration with the EPFL Space Center. The semester project report under the *docs/* folder is a valuable ressource in addition to this README file.
 
 ## Table of Contents
-- [Libraries and Requirements](#libraries_and_requirements)
-- [Repository Structure](#repository_structure)
+- [Libraries and Requirements](#libraries-and-requirements)
+- [Repository Structure](#repository-structure)
 - [Usage](#usage)
 - [Documentation](#documentation)
 - [TODOs](#todos)
-- [Authors and Acknowledgement](#authors_acknowledgement)
+- [Authors](#authors)
 
 ## Libraries and Requirements
 
@@ -264,7 +264,7 @@ For more details about type annotations with units, see the [Astropy documentati
 
 The next potential steps for this project are outlined in **Section 6** of the project report. You can find the report in the *docs/* folder.
 
-## Authors and Acknowledgement
+## Authors
 
 ### Initial development (fall 2024)
 
