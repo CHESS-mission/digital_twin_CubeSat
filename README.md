@@ -167,8 +167,7 @@ This example provided uses the files with default values. It is important to kee
 
 During the simulation, relevant information and progress updates can be displayed in the terminal:
 
-1. **Earth Orientation Data Update**: If running the application for the first time or after a prolonged period, the necessary Earth orientation data tables required by the `astropy.utils.iers`z
- module are automatically downloaded and a message is displayed. If the tables are already up-to-date, a message confirms their current status.
+1. **Earth Orientation Data Update**: If running the application for the first time or after a prolonged period, the necessary Earth orientation data tables required by the `astropy.utils.iers` module are automatically downloaded and a message is displayed. If the tables are already up-to-date, a message confirms their current status.
 
 2. **Simulation Logging (Optional)**: If `"verbose"` is set to `"yes"` in the **simulation** configuration file, detailed logs are displayed, including class initializations and progress updates at every 1,000 timesteps, along with the final runtime.
 
@@ -196,7 +195,7 @@ The outputs are divided into two categories:
 	- `"eclipse_data"`: Eclipse status (1 = eclipse, 0 = not in eclipse)
 	- `"orbit_state"`: Final orbit state as a JSON file
 	- `"spacecraft_state"`: Final spacecraft state as a JSON file
-	- `"density"`: Air density at the satellite's position.
+	- `"density"`: Air density at the satellite's position
 
 All data arrays are saved with an accompanying `"times.npy"` array for use in plotting.
 
