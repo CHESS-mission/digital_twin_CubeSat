@@ -136,7 +136,7 @@ Exceptions:
 	- Time: Choose from `"second"`, `"hour"`, `"day"`, or `"year"`
 	- Angle: Choose from `"degree"` or `"radian"`
 	
-	Example fields: `"units_duration_sim"` or `"unit_delta_t"` in the **simulation** config file, or `"elevation_angle_unit"` in the **ground station** config file.
+	Example fields: `"duration_sim_unit"` or `"delta_t_unit"` in the **simulation** config file, or `"elevation_angle_unit"` in the **ground station** config file.
 
 2. Battery Energy: 
 
