@@ -57,16 +57,16 @@ The repository is organized as follows:
 │   ├── html						# HTML documentation
 │   └── parameters.xlsx					# Default parameters descriptions and sources
 ├── results						# Output directory for simulation results
-│   ├── data						# Numpy output files 
+│   ├── data						# Numpy and JSON output files 
 │   └── figures						# Generated figures
 └── src							# Source code
     ├── digital_twin
     │   ├── constants.py				# General constants for the simulation
     │   ├── ground_station				# Ground station module
     │   │   └── ground_station.py
-    │   ├── mode_switch.py				#  Mode switch decision tree implementation
+    │   ├── mode_switch.py				# Mode switch decision tree implementation
     │   ├── orbit_propagator				# Orbit propagator module
-    │   │   ├── atmosphere_model.py			#  Atmosphere models implementation
+    │   │   ├── atmosphere_model.py			# Atmosphere models implementation
     │   │   ├── constants.py				# Constants for propagation
     │   │   └── orbit_propagator.py			# Orbit propagator implementation
     │   ├── plotting.py					# Functions to plot results
