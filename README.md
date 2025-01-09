@@ -47,47 +47,47 @@ The repository is organized as follows:
 │   ├── atmosphere_data					# Files for atmosphere models
 │   ├── ground_station					# Config files for ground stations
 │   ├── mission_design					# Config files for mission design parameters
-│   ├── orbit							# Config files for orbit parameters
-│   ├── simulation						# Config files for simulation parameters
-│   └── spacecraft						# Config files for spacecraft parameters
+│   ├── orbit						# Config files for orbit parameters
+│   ├── simulation					# Config files for simulation parameters
+│   └── spacecraft					# Config files for spacecraft parameters
 ├── digital_twin_env.yml 				# Environment configuration file for setting up dependencies
-├── docs								# Documentation and diagrams
+├── docs						# Documentation and diagrams
 │   ├── UML_diagram.png					# UML class diagram of the framework
 │   ├── doc_generation					# Folder for generating HTML documentation
-│   ├── html							# HTML documentation
+│   ├── html						# HTML documentation
 │   └── parameters.xlsx					# Default parameters descriptions and sources
-├── results								# Output directory for simulation results
-│   ├── data							# Numpy output files 
-│   └── figures							# Generated figures
-└── src									# Source code
+├── results						# Output directory for simulation results
+│   ├── data						# Numpy output files 
+│   └── figures						# Generated figures
+└── src							# Source code
     ├── digital_twin
     │   ├── constants.py				# General constants for the simulation
     │   ├── ground_station				# Ground station module
     │   │   └── ground_station.py
     │   ├── mode_switch.py				#  Mode switch decision tree implementation
-    │   ├── orbit_propagator			# Orbit propagator module
-    │   │   ├── atmosphere_model.py		#  Atmosphere models implementation
-    │   │   ├── constants.py			# Constants for propagation
-    │   │   └── orbit_propagator.py		# Orbit propagator implementation
+    │   ├── orbit_propagator				# Orbit propagator module
+    │   │   ├── atmosphere_model.py			#  Atmosphere models implementation
+    │   │   ├── constants.py				# Constants for propagation
+    │   │   └── orbit_propagator.py			# Orbit propagator implementation
     │   ├── plotting.py					# Functions to plot results
     │   ├── report.py					# Functions to generate outputs
     │   ├── simulation.py				# Implementation of the Simulation class
     │   ├── spacecraft					# Spacecraft module
     │   │   ├── adcs					# ADCS module
     │   │   │   └── adcs.py
-    │   │   ├── eps						# EPS module
+│   │   ├── eps						# EPS module
     │   │   │   └── eps.py
-    │   │   ├── obc						# OBC module
+│   │   ├── obc						# OBC module
     │   │   │   └── obc.py
     │   │   ├── payload					# Payload module
     │   │   │   └── payload.py
-    │   │   ├── spacecraft.py			# Spacecraft class implementation
-    │   │   ├── subsystem.py			# Subsystem interface
+    │   │   ├── spacecraft.py				# Spacecraft class implementation
+    │   │   ├── subsystem.py				# Subsystem interface
     │   │   └── telecom					# Telecom module
     │   │       └── telecom.py
     │   └── utils.py					# Utility functions
-    ├── main.py							# Main entry point for running the simulation
-    └── notebooks						# Notebooks for visualizations, experiments, and analysis
+    ├── main.py						# Main entry point for running the simulation
+    └── notebooks					# Notebooks for visualizations, experiments, and analysis
 ```
 
 ### Notes
