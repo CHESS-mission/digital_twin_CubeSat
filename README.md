@@ -273,7 +273,7 @@ The next potential steps for this project are outlined in **Section 6** of the p
 
 ### Initial development (fall 2024)
 
-- **Author**: Mathilde Simoni, MSc in Computational Science and Engineering at EPFL (mathilde.simoni@epfl.ch)
+- **Author**: Mathilde Simoni (mathilde.simoni@epfl.ch)
 - **Supervisors**:
 	- Andrew Price (andrew.prince@epfl.ch)
 	- Mathieu Udriot (mathieu.udriot@epfl.ch)
