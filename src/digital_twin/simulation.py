@@ -41,12 +41,12 @@ class Simulation:
         self.sim_unit = simulation_unit
         self.delta_t = (
             simulation_params["delta_t"]
-            * get_astropy_unit_time(simulation_params["units_delta_t"])
+            * get_astropy_unit_time(simulation_params["delta_t_unit"])
         ).to(self.sim_unit)
         init_time_local = 0 * self.sim_unit
 
         self.duration_sim = simulation_params["duration_sim"] * get_astropy_unit_time(
-            simulation_params["units_duration_sim"]
+            simulation_params["duration_sim_unit"]
         )
         self.n_timesteps = int(
             self.duration_sim.to_value(self.sim_unit) / self.delta_t.value

@@ -114,7 +114,13 @@ User parameters are divided into five categories, each with its own JSON configu
 - **Ground station**: Lists ground stations with their respective locations and elevation angles.
 - **Mission design**: Gathers parameters to generate a report (e.g., data to save, figures to generate) and additional user input, such as commands to initiate SAFE mode at specific times.
 
-Default configuration templates for each category are located in the *data/* folder and its subdirectories (*spacecraft/*, *orbit/*, *simulation/*, *ground_station/*, and *mission_design/*). The file "parameters.xlsx" under *docs/* lists default parameter descriptions and sources for the CHESS CubeSat (for other satellite models, this file should be updated accordingly). Place the relevant configuration files in their corresponding subfolder before running a simulation.
+Default configuration templates for each category are located in the *data/* folder and its subdirectories (*spacecraft/*, *orbit/*, *simulation/*, *ground_station/*, and *mission_design/*). 
+
+The **Spacecraft**, **Orbit**, and **Ground station** configuration files are intented to be used by the engineers of the CHESS CubeSat as the parameters are mission specific. The file "parameters.xlsx" under *docs/* lists default parameter descriptions and sources for the CHESS satellite.
+
+The two other files, **mission design** and **simulation** are intended to be used by developers and users.
+
+**Note**: It is important to place the relevant configuration files in their corresponding subfolder before running a simulation.
 
 **Units**
 
