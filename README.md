@@ -75,9 +75,9 @@ The repository is organized as follows:
     │   ├── spacecraft					# Spacecraft module
     │   │   ├── adcs					# ADCS module
     │   │   │   └── adcs.py
-│   │   ├── eps						# EPS module
+    │   ├── eps						# EPS module
     │   │   │   └── eps.py
-│   │   ├── obc						# OBC module
+    │   ├── obc						# OBC module
     │   │   │   └── obc.py
     │   │   ├── payload					# Payload module
     │   │   │   └── payload.py
