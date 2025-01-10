@@ -47,47 +47,47 @@ The repository is organized as follows:
 │   ├── atmosphere_data					# Files for atmosphere models
 │   ├── ground_station					# Config files for ground stations
 │   ├── mission_design					# Config files for mission design parameters
-│   ├── orbit							# Config files for orbit parameters
-│   ├── simulation						# Config files for simulation parameters
-│   └── spacecraft						# Config files for spacecraft parameters
+│   ├── orbit						# Config files for orbit parameters
+│   ├── simulation					# Config files for simulation parameters
+│   └── spacecraft					# Config files for spacecraft parameters
 ├── digital_twin_env.yml 				# Environment configuration file for setting up dependencies
-├── docs								# Documentation and diagrams
+├── docs						# Documentation and diagrams
 │   ├── UML_diagram.png					# UML class diagram of the framework
 │   ├── doc_generation					# Folder for generating HTML documentation
-│   ├── html							# HTML documentation
+│   ├── html						# HTML documentation
 │   └── parameters.xlsx					# Default parameters descriptions and sources
-├── results								# Output directory for simulation results
-│   ├── data							# Numpy output files 
-│   └── figures							# Generated figures
-└── src									# Source code
+├── results						# Output directory for simulation results
+│   ├── data						# Numpy and JSON output files 
+│   └── figures						# Generated figures
+└── src							# Source code
     ├── digital_twin
     │   ├── constants.py				# General constants for the simulation
     │   ├── ground_station				# Ground station module
     │   │   └── ground_station.py
-    │   ├── mode_switch.py				#  Mode switch decision tree implementation
-    │   ├── orbit_propagator			# Orbit propagator module
-    │   │   ├── atmosphere_model.py		#  Atmosphere models implementation
-    │   │   ├── constants.py			# Constants for propagation
-    │   │   └── orbit_propagator.py		# Orbit propagator implementation
+    │   ├── mode_switch.py				# Mode switch decision tree implementation
+    │   ├── orbit_propagator				# Orbit propagator module
+    │   │   ├── atmosphere_model.py			# Atmosphere models implementation
+    │   │   ├── constants.py				# Constants for propagation
+    │   │   └── orbit_propagator.py			# Orbit propagator implementation
     │   ├── plotting.py					# Functions to plot results
     │   ├── report.py					# Functions to generate outputs
     │   ├── simulation.py				# Implementation of the Simulation class
     │   ├── spacecraft					# Spacecraft module
     │   │   ├── adcs					# ADCS module
     │   │   │   └── adcs.py
-    │   │   ├── eps						# EPS module
+│   │   ├── eps						# EPS module
     │   │   │   └── eps.py
-    │   │   ├── obc						# OBC module
+│   │   ├── obc						# OBC module
     │   │   │   └── obc.py
     │   │   ├── payload					# Payload module
     │   │   │   └── payload.py
-    │   │   ├── spacecraft.py			# Spacecraft class implementation
-    │   │   ├── subsystem.py			# Subsystem interface
+    │   │   ├── spacecraft.py				# Spacecraft class implementation
+    │   │   ├── subsystem.py				# Subsystem interface
     │   │   └── telecom					# Telecom module
     │   │       └── telecom.py
     │   └── utils.py					# Utility functions
-    ├── main.py							# Main entry point for running the simulation
-    └── notebooks						# Notebooks for visualizations, experiments, and analysis
+    ├── main.py						# Main entry point for running the simulation
+    └── notebooks					# Notebooks for visualizations, experiments, and analysis
 ```
 
 ### Notes
@@ -142,7 +142,7 @@ Exceptions:
 	- Time: Choose from `"second"`, `"hour"`, `"day"`, or `"year"`
 	- Angle: Choose from `"degree"` or `"radian"`
 	
-	Example fields: `"units_duration_sim"` or `"unit_delta_t"` in the **simulation** config file, or `"elevation_angle_unit"` in the **ground station** config file.
+	Example fields: `"duration_sim_unit"` or `"delta_t_unit"` in the **simulation** config file, or `"elevation_angle_unit"` in the **ground station** config file.
 
 2. Battery Energy: 
 
@@ -173,8 +173,7 @@ This example provided uses the files with default values. It is important to kee
 
 During the simulation, relevant information and progress updates can be displayed in the terminal:
 
-1. **Earth Orientation Data Update**: If running the application for the first time or after a prolonged period, the necessary Earth orientation data tables required by the `astropy.utils.iers`z
- module are automatically downloaded and a message is displayed. If the tables are already up-to-date, a message confirms their current status.
+1. **Earth Orientation Data Update**: If running the application for the first time or after a prolonged period, the necessary Earth orientation data tables required by the `astropy.utils.iers` module are automatically downloaded and a message is displayed. If the tables are already up-to-date, a message confirms their current status.
 
 2. **Simulation Logging (Optional)**: If `"verbose"` is set to `"yes"` in the **simulation** configuration file, detailed logs are displayed, including class initializations and progress updates at every 1,000 timesteps, along with the final runtime.
 
@@ -202,7 +201,7 @@ The outputs are divided into two categories:
 	- `"eclipse_data"`: Eclipse status (1 = eclipse, 0 = not in eclipse)
 	- `"orbit_state"`: Final orbit state as a JSON file
 	- `"spacecraft_state"`: Final spacecraft state as a JSON file
-	- `"density"`: Air density at the satellite's position.
+	- `"density"`: Air density at the satellite's position
 
 All data arrays are saved with an accompanying `"times.npy"` array for use in plotting.
 
