@@ -122,7 +122,9 @@ class Simulation:
         power_consumption[0] = self.spacecraft.get_eps().get_power_consumption().value
         power_generation = np.zeros(self.n_timesteps + 1)
         power_generation[0] = self.spacecraft.get_eps().get_power_generation().value
-
+        solar_cells_efficiency = np.zeros(self.n_timesteps + 1)
+        solar_cells_efficiency[0] = self.spacecraft.get_eps().get_solar_cells_efficiency().value
+        
         data_storage = np.zeros(self.n_timesteps + 1)
         data_storage_GNSS_TOF = np.zeros(self.n_timesteps + 1)
         data_storage_HK = np.zeros(self.n_timesteps + 1)
@@ -166,8 +168,10 @@ class Simulation:
             eph[t + 1, :3] = rv[:3]
             eph[t + 1, 3:] = rv[3:]
 
-            if t % 1000 == 0:  # For debugging
-                print("> iter ", t) if self.verbose else None
+            step_10_percent = max(1, self.n_timesteps // 10)
+            if t % step_10_percent == 0 and self.verbose:
+                percent = int((t / self.n_timesteps) * 100)
+                print(f"> iter {t} ({percent}%)")
 
             # For simulations where only propagation matters, skip the next steps
             if not self.propagation_only:
@@ -219,6 +223,7 @@ class Simulation:
                     self.delta_t,
                     r_earth_sun,
                     gs_coords,
+                    t
                 )
 
                 # 7. Save data at current timestep
@@ -233,6 +238,10 @@ class Simulation:
                 power_generation[t + 1] = (
                     self.spacecraft.get_eps().get_power_generation().value
                 )
+                solar_cells_efficiency[t + 1] = (
+                    self.spacecraft.get_eps().get_solar_cells_efficiency().value
+                )
+                
                 all, GNSS_TOF, HK = self.spacecraft.get_obc().get_data()
                 data_storage[t + 1] = all.value
                 data_storage_GNSS_TOF[t + 1] = GNSS_TOF.value
@@ -276,6 +285,7 @@ class Simulation:
             battery_energies = battery_energies[:last_ind]
             power_consumption = power_consumption[:last_ind]
             power_generation = power_generation[:last_ind]
+            solar_cells_efficiency[:last_ind]
             data_storage = data_storage[:last_ind]
             data_storage_GNSS_TOF = data_storage_GNSS_TOF[:last_ind]
             data_storage_HK = data_storage_HK[:last_ind]
@@ -320,6 +330,7 @@ class Simulation:
             "orbit_state": orbit_state,
             "spacecraft_state": spacecraft_state,
             "density_array": density_array,
+            "solar_cells_efficiency": solar_cells_efficiency
         }
 
         # Produce report

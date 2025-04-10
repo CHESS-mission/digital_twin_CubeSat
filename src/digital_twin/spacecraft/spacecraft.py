@@ -91,6 +91,7 @@ class Spacecraft:
         delta_t: TimeDelta,
         r_earth_sun: Quantity["length"],
         gs_coords: Optional[np.ndarray],
+        t: int
     ) -> None:
         """Update all subsystems and spacecraft properties based on current conditions.
 
@@ -103,7 +104,7 @@ class Spacecraft:
             delta_t (TimeDelta): Time step for the update.
             r_earth_sun (Quantity["length"]): Vector from Earth to the Sun.
             gs_coords (Optional[np.ndarray]): Coordinates of the ground station if satellite is in visibility window.
-
+            t (int): Current timestep.
         Updates:
             - Individual updates for each subsystem.
             - EPS battery level.
@@ -141,6 +142,7 @@ class Spacecraft:
             rv[:3] * u.km,  # position,
             gs_coords,
             new_mode,
+            t
         )
 
         # Compute data change (generation by payload or removal by telecom) at current timestep

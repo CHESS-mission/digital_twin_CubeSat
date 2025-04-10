@@ -21,6 +21,10 @@ from poliastro.twobody import Orbit
 
 from digital_twin.constants import mode_dict
 
+import pandas as pd
+import os
+
+    
 
 def plot_1d(
     x: np.ndarray,
@@ -518,6 +522,7 @@ def plot_groundtrack(
     stations_names: np.ndarray = None,
     stations_colors: str = "red",
     show: bool = False,
+    csv_folder: str = None,
 ) -> None:
     """Plot a satellite groundtrack on Earth."""
     # For building geo traces
@@ -542,6 +547,20 @@ def plot_groundtrack(
             line={"color": traj_color, "width": traj_width},
         )
     )
+    
+    # Convert to degrees
+    latitudes = itrs_latlon.lat.to(u.deg).value
+    longitudes = itrs_latlon.lon.to(u.deg).value
+
+    # Create a DataFrame
+    df = pd.DataFrame({
+        "latitude_deg": latitudes,
+        "longitude_deg": longitudes
+    })
+
+    # Save to CSV
+    csv_filename = os.path.join(csv_folder, "trajectory_coords.csv")
+    df.to_csv(csv_filename, index=False)
 
     # Add ground station
     if stations_coords is not None:

@@ -5,6 +5,10 @@ import json
 import astropy.units as u
 import numpy as np
 
+import pandas as pd
+import os
+
+
 from digital_twin.orbit_propagator.constants import attractor_string
 from digital_twin.plotting import (
     plot_1d,
@@ -37,12 +41,16 @@ def produce_report(
     figures_folder = folder + "figures/"
     check_and_empty_folder(figures_folder)
     data_folder = folder + "data/"
+    data_folder_csv = folder + "csv/"
     check_and_empty_folder(data_folder)
-    generate_figures(data, report_params["figures"], figures_folder)
+    check_and_empty_folder(data_folder_csv)
+    generate_figures(data, report_params["figures"], figures_folder, data_folder_csv)
     save_data(data, report_params["data"], data_folder)
+    save_csv(data, report_params["data"], data_folder_csv)
 
 
-def generate_figures(data: dict, figure_params: dict, folder: str) -> None:
+
+def generate_figures(data: dict, figure_params: dict, folder: str, csv_folder:str) -> None:
     """Generate and save figures based on the simulation results."""
 
     if figure_params["orbital_elem_evolution"] == "yes":
@@ -92,6 +100,7 @@ def generate_figures(data: dict, figure_params: dict, folder: str) -> None:
             stations_coords=np.array(stations_coords),
             stations_names=np.array(stations_names),
             stations_colors=np.array(stations_colors),
+            csv_folder=csv_folder,
         )
 
     if figure_params["modes"] == "yes":
@@ -156,6 +165,24 @@ def generate_figures(data: dict, figure_params: dict, folder: str) -> None:
             x_label_f=x_label_f,
             show=False,
             save_filename=folder + "power_consumption.png",
+            markersize_plot=0,
+        )
+    
+    
+    if figure_params["solar_cells_efficiency"] == "yes":
+        plot_1d(
+            data["tofs"].to_value("second")[1:],
+            data["solar_cells_efficiency"][1:],
+            "Solar cells efficiency Over Time",
+            x_label,
+            r"Solar cells efficiency",
+            step=1,
+            fill_under=False,
+            remove_box=True,
+            scatter=False,
+            x_label_f=x_label_f,
+            show=False,
+            save_filename=folder + "solar_cells_efficiency.png",
             markersize_plot=0,
         )
 
@@ -291,6 +318,8 @@ def save_data(data: dict, data_params: dict, folder: str) -> None:
             np.save(f, data["generation"])
         with open(folder + "eclipse.npy", "wb") as f:
             np.save(f, data["eclipse"])
+        with open(folder + "solar_cells_efficiency.npy", "wb") as f:
+            np.save(f, data["solar_cells_efficiency"])
 
     if data_params["modes"] == "yes":
         with open(folder + "times.npy", "wb") as f:
@@ -341,3 +370,66 @@ def save_data(data: dict, data_params: dict, folder: str) -> None:
             np.save(f, data["tofs"].to_value("second"))
         with open(folder + "density.npy", "wb") as f:
             np.save(f, data["density_array"])
+
+
+
+def save_csv(data: dict, data_params: dict, folder: str) -> None:
+    """Save all simulation data into a single CSV file with labeled columns."""
+    
+    df_data = {}
+
+    def to_1d(array):
+        """Convert to NumPy array and ensure it's 1D."""
+        return np.array(array).flatten()
+
+    # telecom data
+    df_data["times_telecom"] = to_1d(data["tofs"].to_value("second"))
+    df_data["visibility"] = to_1d(data["vis"])
+    df_data["data"] = to_1d(data["storage"])
+    df_data["data_GNSS_TOF"] = to_1d(data["storage_GNSS_TOF"])
+    df_data["data_HK"] = to_1d(data["storage_HK"])
+
+    # eps data
+    df_data["times_eps"] = to_1d(data["tofs"].to_value("second"))
+    df_data["battery"] = to_1d(data["battery"])
+    df_data["consumption"] = to_1d(data["consumption"])
+    df_data["generation"] = to_1d(data["generation"])
+    df_data["eclipse"] = to_1d(data["eclipse"])
+    df_data["solar_cells_efficiency"] = to_1d(data["solar_cells_efficiency"])
+
+    # modes data
+    df_data["times_modes"] = to_1d(data["tofs"].to_value("second"))
+    df_data["modes"] = to_1d(data["modes"])
+
+    # altitude data
+    df_data["times_altitude"] = to_1d(data["tofs"].to_value("second"))
+    df_data["altitude"] = to_1d(data["altitudes"])
+
+    # orbital element data
+    df_data["times_orbital"] = to_1d(data["tofs"].to_value("second"))
+    df_data["altitude"] = to_1d(data["altitudes"])
+    df_data["RAAN"] = to_1d(data["RAANs"])
+    df_data["AOP"] = to_1d(data["AOPs"])
+    df_data["ECC"] = to_1d(data["ECCs"])
+    df_data["INC"] = to_1d(data["INCs"])
+
+    # orbit state data
+    df_data["times_eclipse"] = to_1d(data["tofs"].to_value("second"))
+    df_data["eclipse"] = to_1d(data["eclipse"])
+
+    # spacecraft state data 
+    df_data["times_density"] = to_1d(data["tofs"].to_value("second"))
+    df_data["density"] = to_1d(data["density_array"])
+
+
+    # add nan padding to ensure all columns have the same length
+    max_length = max(len(v) for v in df_data.values())
+    for key in df_data:
+        current_length = len(df_data[key])
+        if current_length < max_length:
+            df_data[key] = np.pad(df_data[key], (0, max_length - current_length), constant_values=np.nan)
+
+
+    df = pd.DataFrame(df_data)
+    csv_filename = os.path.join(folder, "simulation_data.csv")
+    df.to_csv(csv_filename, index=False)
