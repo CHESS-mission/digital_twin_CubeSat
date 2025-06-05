@@ -2,20 +2,20 @@
     "report":{
         "figures" : {
             "title_figures": "CHESS_1",
-            "orbital_elem_evolution": "yes",
+            "orbital_elem_evolution": "no",
             "trajectory_2d": "no",
             "trajectory_3d": "no",
             "groundtrack": "yes",
-            "modes": "yes",
-            "dashboard": "yes",
-            "battery_energy": "yes",
-            "power_consumption": "yes",
-            "power_generation": "yes",
-            "power_balance": "yes",
-            "data_storage": "ye",
-            "visibility_windows": "yes",
-            "eclipse_windows": "yes",
-            "solar_cells_efficiency": "yes"
+            "modes": "no",
+            "dashboard": "no",
+            "battery_energy": "no",
+            "power_consumption": "no",
+            "power_generation": "no",
+            "power_balance": "no",
+            "data_storage": "no",
+            "visibility_windows": "no",
+            "eclipse_windows": "no",
+            "solar_cells_efficiency": "no"
         },
         "data" : {
             "telecom_data": "yes",

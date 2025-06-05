@@ -114,12 +114,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">sim_unit</span> <span class="o">=</span> <span class="n">simulation_unit</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">delta_t</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">simulation_params</span><span class="p">[</span><span class="s2">&quot;delta_t&quot;</span><span class="p">]</span>
-            <span class="o">*</span> <span class="n">get_astropy_unit_time</span><span class="p">(</span><span class="n">simulation_params</span><span class="p">[</span><span class="s2">&quot;units_delta_t&quot;</span><span class="p">])</span>
+            <span class="o">*</span> <span class="n">get_astropy_unit_time</span><span class="p">(</span><span class="n">simulation_params</span><span class="p">[</span><span class="s2">&quot;delta_t_unit&quot;</span><span class="p">])</span>
         <span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sim_unit</span><span class="p">)</span>
         <span class="n">init_time_local</span> <span class="o">=</span> <span class="mi">0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_unit</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">duration_sim</span> <span class="o">=</span> <span class="n">simulation_params</span><span class="p">[</span><span class="s2">&quot;duration_sim&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">get_astropy_unit_time</span><span class="p">(</span>
-            <span class="n">simulation_params</span><span class="p">[</span><span class="s2">&quot;units_duration_sim&quot;</span><span class="p">]</span>
+            <span class="n">simulation_params</span><span class="p">[</span><span class="s2">&quot;duration_sim_unit&quot;</span><span class="p">]</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">duration_sim</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sim_unit</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_t</span><span class="o">.</span><span class="n">value</span>
@@ -197,7 +197,9 @@
         <span class="n">power_consumption</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_eps</span><span class="p">()</span><span class="o">.</span><span class="n">get_power_consumption</span><span class="p">()</span><span class="o">.</span><span class="n">value</span>
         <span class="n">power_generation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">power_generation</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_eps</span><span class="p">()</span><span class="o">.</span><span class="n">get_power_generation</span><span class="p">()</span><span class="o">.</span><span class="n">value</span>
-
+        <span class="n">solar_cells_efficiency</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">solar_cells_efficiency</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_eps</span><span class="p">()</span><span class="o">.</span><span class="n">get_solar_cells_efficiency</span><span class="p">()</span><span class="o">.</span><span class="n">value</span>
+        
         <span class="n">data_storage</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">data_storage_GNSS_TOF</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">data_storage_HK</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
@@ -241,8 +243,10 @@
             <span class="n">eph</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">rv</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
             <span class="n">eph</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">:]</span> <span class="o">=</span> <span class="n">rv</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span>
 
-            <span class="k">if</span> <span class="n">t</span> <span class="o">%</span> <span class="mi">1000</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># For debugging</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&gt; iter &quot;</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="n">step_10_percent</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">//</span> <span class="mi">10</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">t</span> <span class="o">%</span> <span class="n">step_10_percent</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+                <span class="n">percent</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">t</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&gt; iter </span><span class="si">{</span><span class="n">t</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">percent</span><span class="si">}</span><span class="s2">%)&quot;</span><span class="p">)</span>
 
             <span class="c1"># For simulations where only propagation matters, skip the next steps</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">propagation_only</span><span class="p">:</span>
@@ -294,6 +298,7 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">delta_t</span><span class="p">,</span>
                     <span class="n">r_earth_sun</span><span class="p">,</span>
                     <span class="n">gs_coords</span><span class="p">,</span>
+                    <span class="n">t</span>
                 <span class="p">)</span>
 
                 <span class="c1"># 7. Save data at current timestep</span>
@@ -308,6 +313,10 @@
                 <span class="n">power_generation</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_eps</span><span class="p">()</span><span class="o">.</span><span class="n">get_power_generation</span><span class="p">()</span><span class="o">.</span><span class="n">value</span>
                 <span class="p">)</span>
+                <span class="n">solar_cells_efficiency</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_eps</span><span class="p">()</span><span class="o">.</span><span class="n">get_solar_cells_efficiency</span><span class="p">()</span><span class="o">.</span><span class="n">value</span>
+                <span class="p">)</span>
+                
                 <span class="nb">all</span><span class="p">,</span> <span class="n">GNSS_TOF</span><span class="p">,</span> <span class="n">HK</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_obc</span><span class="p">()</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
                 <span class="n">data_storage</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">all</span><span class="o">.</span><span class="n">value</span>
                 <span class="n">data_storage_GNSS_TOF</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">GNSS_TOF</span><span class="o">.</span><span class="n">value</span>
@@ -351,6 +360,7 @@
             <span class="n">battery_energies</span> <span class="o">=</span> <span class="n">battery_energies</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
             <span class="n">power_consumption</span> <span class="o">=</span> <span class="n">power_consumption</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
             <span class="n">power_generation</span> <span class="o">=</span> <span class="n">power_generation</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
+            <span class="n">solar_cells_efficiency</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
             <span class="n">data_storage</span> <span class="o">=</span> <span class="n">data_storage</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
             <span class="n">data_storage_GNSS_TOF</span> <span class="o">=</span> <span class="n">data_storage_GNSS_TOF</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
             <span class="n">data_storage_HK</span> <span class="o">=</span> <span class="n">data_storage_HK</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
@@ -395,6 +405,7 @@
             <span class="s2">&quot;orbit_state&quot;</span><span class="p">:</span> <span class="n">orbit_state</span><span class="p">,</span>
             <span class="s2">&quot;spacecraft_state&quot;</span><span class="p">:</span> <span class="n">spacecraft_state</span><span class="p">,</span>
             <span class="s2">&quot;density_array&quot;</span><span class="p">:</span> <span class="n">density_array</span><span class="p">,</span>
+            <span class="s2">&quot;solar_cells_efficiency&quot;</span><span class="p">:</span> <span class="n">solar_cells_efficiency</span>
         <span class="p">}</span>
 
         <span class="c1"># Produce report</span>

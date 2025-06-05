@@ -57,6 +57,7 @@ The repository is organized as follows:
 │   ├── html						# HTML documentation
 │   └── parameters.xlsx					# Default parameters descriptions and sources
 ├── results						# Output directory for simulation results
+│   ├── csv							# CSV data to visualize with Grafana and InfluxDB
 │   ├── data						# Numpy and JSON output files 
 │   └── figures						# Generated figures
 └── src							# Source code
@@ -219,6 +220,13 @@ All data arrays are saved with an accompanying `"times.npy"` array for use in pl
 	- `"data_storage"`: Storage usage (total, scientific, and housekeeping data)
 	- `"visibility_windows"`: Boolean bar plot of visibility windows
 	- `"eclipse_windows"`: Boolean bar plot of eclipse status
+	- `"solar cells efficiency"`: Evolution of the solar cells efficiency over time
+
+- **csv**:
+	- `"simulation_data.csv"`: All the previous fields, in a CSV format
+	- `"trajectory_coords.csv"`: The groundracks in a CSV format
+
+
 
 ## Documentation
 
@@ -264,6 +272,17 @@ The type hints for Quantities can be specified in two ways:
 For a comprehensive list of physical types available in Astropy, refer to this [link](https://docs.astropy.org/en/stable/units/ref_api.html#module-astropy.units.physical).
 
 For more details about type annotations with units, see the [Astropy documentation](https://docs.astropy.org/en/stable/units/type_hints.html#).
+
+## New updates (spring 2025)
+- Solar cells efficiency: to simulate linearly decreasing performances in the solar cells efficiency
+
+- Grafana interface: The simulation's results can be directly uploaded to an InfluxDB database for visualization with a Grafana-based interface.
+Everything runs locally for now, you then need to install the local versions of InfluxDB (https://docs.influxdata.com/influxdb3/core/install/) and Grafana (https://grafana.com/docs/grafana/latest/setup-grafana/installation/).
+Once this is done, you will have to launch two terminals to activate the processes : one for InfluxDB and the other for Grafana. These terminals need to run for the whole visualization time. To upload the data into InfluxDB, take a look at the notebook INFLUX_DB_LOCAL.ipynb and the documentation relative to the Grafana interface.
+
+
+
+
 
 ## TODOs
 

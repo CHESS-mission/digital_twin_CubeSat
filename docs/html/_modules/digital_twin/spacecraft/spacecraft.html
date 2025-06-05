@@ -166,6 +166,7 @@
         <span class="n">delta_t</span><span class="p">:</span> <span class="n">TimeDelta</span><span class="p">,</span>
         <span class="n">r_earth_sun</span><span class="p">:</span> <span class="n">Quantity</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">],</span>
         <span class="n">gs_coords</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+        <span class="n">t</span><span class="p">:</span> <span class="nb">int</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Update all subsystems and spacecraft properties based on current conditions.</span>
 
@@ -178,7 +179,7 @@
 <span class="sd">            delta_t (TimeDelta): Time step for the update.</span>
 <span class="sd">            r_earth_sun (Quantity[&quot;length&quot;]): Vector from Earth to the Sun.</span>
 <span class="sd">            gs_coords (Optional[np.ndarray]): Coordinates of the ground station if satellite is in visibility window.</span>
-
+<span class="sd">            t (int): Current timestep.</span>
 <span class="sd">        Updates:</span>
 <span class="sd">            - Individual updates for each subsystem.</span>
 <span class="sd">            - EPS battery level.</span>
@@ -216,6 +217,7 @@
             <span class="n">rv</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">km</span><span class="p">,</span>  <span class="c1"># position,</span>
             <span class="n">gs_coords</span><span class="p">,</span>
             <span class="n">new_mode</span><span class="p">,</span>
+            <span class="n">t</span>
         <span class="p">)</span>
 
         <span class="c1"># Compute data change (generation by payload or removal by telecom) at current timestep</span>

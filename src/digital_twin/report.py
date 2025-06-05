@@ -8,7 +8,6 @@ import numpy as np
 import pandas as pd
 import os
 
-
 from digital_twin.orbit_propagator.constants import attractor_string
 from digital_twin.plotting import (
     plot_1d,
@@ -390,7 +389,7 @@ def save_csv(data: dict, data_params: dict, folder: str) -> None:
     df_data["data_HK"] = to_1d(data["storage_HK"])
 
     # eps data
-    df_data["times_eps"] = to_1d(data["tofs"].to_value("second"))
+    # df_data["times_eps"] = to_1d(data["tofs"].to_value("second"))
     df_data["battery"] = to_1d(data["battery"])
     df_data["consumption"] = to_1d(data["consumption"])
     df_data["generation"] = to_1d(data["generation"])
@@ -398,24 +397,16 @@ def save_csv(data: dict, data_params: dict, folder: str) -> None:
     df_data["solar_cells_efficiency"] = to_1d(data["solar_cells_efficiency"])
 
     # modes data
-    df_data["times_modes"] = to_1d(data["tofs"].to_value("second"))
+    # df_data["times_modes"] = to_1d(data["tofs"].to_value("second"))
     df_data["modes"] = to_1d(data["modes"])
 
-    # altitude data
-    df_data["times_altitude"] = to_1d(data["tofs"].to_value("second"))
-    df_data["altitude"] = to_1d(data["altitudes"])
-
     # orbital element data
-    df_data["times_orbital"] = to_1d(data["tofs"].to_value("second"))
+    # df_data["times_orbital"] = to_1d(data["tofs"].to_value("second"))
     df_data["altitude"] = to_1d(data["altitudes"])
     df_data["RAAN"] = to_1d(data["RAANs"])
     df_data["AOP"] = to_1d(data["AOPs"])
     df_data["ECC"] = to_1d(data["ECCs"])
     df_data["INC"] = to_1d(data["INCs"])
-
-    # orbit state data
-    df_data["times_eclipse"] = to_1d(data["tofs"].to_value("second"))
-    df_data["eclipse"] = to_1d(data["eclipse"])
 
     # spacecraft state data 
     df_data["times_density"] = to_1d(data["tofs"].to_value("second"))
@@ -429,7 +420,8 @@ def save_csv(data: dict, data_params: dict, folder: str) -> None:
         if current_length < max_length:
             df_data[key] = np.pad(df_data[key], (0, max_length - current_length), constant_values=np.nan)
 
-
     df = pd.DataFrame(df_data)
     csv_filename = os.path.join(folder, "simulation_data.csv")
     df.to_csv(csv_filename, index=False)
+    
+    return
