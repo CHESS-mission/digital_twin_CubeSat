@@ -299,4 +299,9 @@ The next potential steps for this project are outlined in **Section 6** of the p
 - **Referent Professor**:
 	- Jean-Paul Kneib
 
+ 
+### Grafana visualization + small improvements (spring 2025)
+
+- **Author**: Kilian Pouderoux (kilian.pouderoux@epfl.ch)
+
 Future authors are encouraged to add their names and details as they contribute to this  project.
