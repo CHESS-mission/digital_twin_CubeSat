@@ -57,7 +57,7 @@ The repository is organized as follows:
 │   ├── html						# HTML documentation
 │   └── parameters.xlsx					# Default parameters descriptions and sources
 ├── results						# Output directory for simulation results
-│   ├── csv							# CSV data to visualize with Grafana and InfluxDB
+│   ├── csv						# CSV data to visualize with Grafana and InfluxDB
 │   ├── data						# Numpy and JSON output files 
 │   └── figures						# Generated figures
 └── src							# Source code
