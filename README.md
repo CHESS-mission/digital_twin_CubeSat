@@ -50,6 +50,7 @@ The repository is organized as follows:
 │   ├── orbit						# Config files for orbit parameters
 │   ├── simulation					# Config files for simulation parameters
 │   └── spacecraft					# Config files for spacecraft parameters
+├── digital_twin_dashboard_grafana.json # JSON-export of dashboard for import into grafana
 ├── digital_twin_env.yml 				# Environment configuration file for setting up dependencies
 ├── docs						# Documentation and diagrams
 │   ├── UML_diagram.png					# UML class diagram of the framework
