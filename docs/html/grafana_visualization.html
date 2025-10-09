@@ -100,7 +100,7 @@
 <h1>Grafana Visualization Documentation<a class="headerlink" href="#grafana-visualization-documentation" title="Link to this heading"></a></h1>
 <section id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
-<p>Grafana is a software used for data visualization. It queries data from multiple databases and displays it a* <strong>Export &amp; Import Dashboards</strong>: <a class="reference external" href="https://doc.sitecore.com/xp/en/developers/101/managed-cloud/import-and-export-your-grafana-dashboards.html#export-your-grafana-dashboard's">https://doc.sitecore.com/xp/en/developers/101/managed-cloud/import-and-export-your-grafana-dashboards.html#export-your-grafana-dashboard’s</a> a very versatile tool, many programming languages are allowed and we can create and personalize as many visualizations as we want. Thanks to its dynamic visualization, it allows to better visualize, zoom, and slide in the data, compared to fixed plots.</p>
+<p>Grafana is a software used for data visualization. It queries data from multiple databases and displays it a very versatile tool, many programming languages are allowed and we can create and personalize as many visualizations as we want. Thanks to its dynamic visualization, it allows to better visualize, zoom, and slide in the data, compared to fixed plots.</p>
 <p>For now, it’s used to visualize the data coming from the digital twin but its ultimate goal is to visualize in real time all the data coming from the satellite to assess and monitor its health and operations.</p>
 <figure class="align-center" id="id1">
 <a class="reference internal image-reference" href="_images/FinalDashboard.png"><img alt="Final Grafana Dashboard" src="_images/FinalDashboard.png" style="width: 800px;" />
@@ -150,6 +150,13 @@
 <p><span class="caption-text">Generating an API token in InfluxDB</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
 </figcaption>
 </figure>
+<p>You can save it in a <code class="docutils literal notranslate"><span class="pre">.env</span></code> file you create in the root directory of the project, that looks like this:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>INFLUXDB_TOKEN=&lt;your_token_here&gt;
+INFLUXDB_ORG=EST
+INFLUXDB_URL=http://localhost:8086
+</pre></div>
+</div>
+<p>This way it can automatically be loaded when running the python script.</p>
 </section>
 </section>
 <section id="grafana-setup">
@@ -257,7 +264,7 @@
 </section>
 <section id="dashboard-import-export">
 <h3>Dashboard Import/Export<a class="headerlink" href="#dashboard-import-export" title="Link to this heading"></a></h3>
-<p>You can import the dashboard <code class="docutils literal notranslate"><span class="pre">GRAFANA_dashboard.json</span></code> directly in the Dashboards menu in Grafana. At the end of your semester, you can then export the dashboard (save it as json) and store it in the drive for the next people to use.</p>
+<p>You can import the dashboard <code class="docutils literal notranslate"><span class="pre">digital_twin_dashboard_grafana.json</span></code> directly in the Dashboards menu in Grafana. At the end of your semester, you can then export the dashboard (save it as json) and store it in the drive for the next people to use.</p>
 </section>
 <section id="data-upload-process">
 <h3>Data Upload Process<a class="headerlink" href="#data-upload-process" title="Link to this heading"></a></h3>

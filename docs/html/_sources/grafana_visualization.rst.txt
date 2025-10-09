@@ -4,7 +4,7 @@ Grafana Visualization Documentation
 Overview
 --------
 
-Grafana is a software used for data visualization. It queries data from multiple databases and displays it a* **Export & Import Dashboards**: https://doc.sitecore.com/xp/en/developers/101/managed-cloud/import-and-export-your-grafana-dashboards.html#export-your-grafana-dashboard's a very versatile tool, many programming languages are allowed and we can create and personalize as many visualizations as we want. Thanks to its dynamic visualization, it allows to better visualize, zoom, and slide in the data, compared to fixed plots.
+Grafana is a software used for data visualization. It queries data from multiple databases and displays it a very versatile tool, many programming languages are allowed and we can create and personalize as many visualizations as we want. Thanks to its dynamic visualization, it allows to better visualize, zoom, and slide in the data, compared to fixed plots.
 
 For now, it's used to visualize the data coming from the digital twin but its ultimate goal is to visualize in real time all the data coming from the satellite to assess and monitor its health and operations.
 
@@ -59,6 +59,16 @@ We also need a token for authentication and API access, both in the python and G
    :width: 600px
    
    Generating an API token in InfluxDB
+
+You can save it in a ``.env`` file you create in the root directory of the project, that looks like this:
+
+.. code-block:: text
+
+   INFLUXDB_TOKEN=<your_token_here>
+   INFLUXDB_ORG=EST
+   INFLUXDB_URL=http://localhost:8086
+
+This way it can automatically be loaded when running the python script.
 
 Grafana Setup
 -------------
@@ -183,7 +193,7 @@ Access: http://localhost:3000/
 Dashboard Import/Export
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-You can import the dashboard ``GRAFANA_dashboard.json`` directly in the Dashboards menu in Grafana. At the end of your semester, you can then export the dashboard (save it as json) and store it in the drive for the next people to use.
+You can import the dashboard ``digital_twin_dashboard_grafana.json`` directly in the Dashboards menu in Grafana. At the end of your semester, you can then export the dashboard (save it as json) and store it in the drive for the next people to use.
 
 Data Upload Process
 ~~~~~~~~~~~~~~~~~~~
