@@ -11,6 +11,7 @@ Welcome to Digital Twin of the CHESS CubeSat's documentation!
    :caption: Contents:
 
    digital_twin
+   grafana_visualization
 
 
 

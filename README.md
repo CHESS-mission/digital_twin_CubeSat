@@ -235,7 +235,7 @@ Comprehensive information on all functions, classes, and modules is available in
 The documentation is created using [*Sphinx*](https://www.sphinx-doc.org/en/master/) mainly following a [step-by-step tutorial](https://www.youtube.com/watch?v=BWIrhgCAae0).  If changes are made to the codebase structure (such as adding or removing modules or packages), the documentation tree must be updated. Follow these steps to regenerate it:
 
 1. Navigate to the *docs/doc_generation/* directory
-2. Remove all **.rst** files EXCEPT "index.rst" 
+2. Remove all auto-generated **.rst** files EXCEPT "index.rst" and "grafana_visualization.rst"
 3. Return to the projec's root repository
 4. Activate the virtual environment (**digital_twin_env**)
 5. Run the following command to rebuild the documentation structure:
@@ -243,13 +243,15 @@ The documentation is created using [*Sphinx*](https://www.sphinx-doc.org/en/mast
 	```bash
 	sphinx-apidoc -o docs/doc_generation src/ --force
 	```
-5. Go back to the *docs/doc_generation/* directory
-6. Generate the HMTL documentation
+6. Go back to the *docs/doc_generation/* directory
+7. Generate the HMTL documentation
 	```bash
 	make html
 	```
 
 The updated documentation will be located in the *docs/html/* folder.
+
+**Important Note**: The `grafana_visualization.rst` file contains manually created documentation for the Grafana interface and should NOT be deleted when rebuilding documentation.
 
 If only code changes are made (such as modifying functions or classes), and no new files are added or removed, simply run `make html` in the *docs/doc_generation/* directory to re-generate the documentation.
 

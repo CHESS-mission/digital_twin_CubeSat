@@ -42,6 +42,7 @@
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../digital_twin.html">digital_twin package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../grafana_visualization.html">Grafana Visualization Documentation</a></li>
 </ul>
 
         </div>
@@ -126,7 +127,7 @@
     <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># User arguments provided as separate strings</span>
         <span class="n">run</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">run</span><span class="p">([])</span>  <span class="c1"># No user argument</span>
+        <span class="n">run</span><span class="p">([</span><span class="s2">&quot;simulation_template.json&quot;</span><span class="p">,</span><span class="s2">&quot;orbit_template.json&quot;</span><span class="p">,</span><span class="s2">&quot;spacecraft_template.json&quot;</span><span class="p">,</span><span class="s2">&quot;ground_station_template.json&quot;</span><span class="p">,</span><span class="s2">&quot;mission_design_template.json&quot;</span><span class="p">])</span>  <span class="c1"># No user argument</span>
 </pre></div>
 
            </div>
