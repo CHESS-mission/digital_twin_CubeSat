@@ -1,8 +1,8 @@
-# A Digital Twin of the CHESS CubeSat
+# README for the Digital Twin of the CHESS CubeSat
 
 This repository hosts a Python-based simulation framework developed to support the mission design and operations of the CHESS CubeSat.
 
-### Purposes
+## Purposes
 
 1. *Simulation tool for mission design*: Provides tools for modeling and simulating different subsystems of the CHESS CubeSat to inform decisions and help in the development, testing, and validation tasks.
 
@@ -162,11 +162,9 @@ In order to run a simulation, follow these steps:
 1. Place the 5 configuration files in their respective folder
 2. Activate the conda environment
 3. Make sure you are connected to the internet (some files are automatically updated by libraries)
-3. At the root directory, run:
-
+4. At the root directory, run:
 	```bash
 	python3 -W"ignore" src/main.py simulation_template.json orbit_template.json spacecraft_template.json ground_station_template.json mission_design_template.json
-
 	```
 
 This example provided uses the files with default values. It is important to keep the file arguments in the specified order.
@@ -236,11 +234,10 @@ Comprehensive information on all functions, classes, and modules is available in
 The documentation is created using [*Sphinx*](https://www.sphinx-doc.org/en/master/) mainly following a [step-by-step tutorial](https://www.youtube.com/watch?v=BWIrhgCAae0).  If changes are made to the codebase structure (such as adding or removing modules or packages), the documentation tree must be updated. Follow these steps to regenerate it:
 
 1. Navigate to the *docs/doc_generation/* directory
-2. Remove all auto-generated **.rst** files EXCEPT "index.rst" and "grafana_visualization.rst"
-3. Return to the projec's root repository
+2. Remove all auto-generated **.rst** files EXCEPT `"index.rst"`, `"readme.rst"` and `"grafana_visualization.rst"`
+3. Return to the project's root repository
 4. Activate the virtual environment (**digital_twin_env**)
 5. Run the following command to rebuild the documentation structure:
-
 	```bash
 	sphinx-apidoc -o docs/doc_generation src/ --force
 	```
@@ -282,9 +279,6 @@ For more details about type annotations with units, see the [Astropy documentati
 - Grafana interface: The simulation's results can be directly uploaded to an InfluxDB database for visualization with a Grafana-based interface.
 Everything runs locally for now, you then need to install the local versions of InfluxDB (https://docs.influxdata.com/influxdb3/core/install/) and Grafana (https://grafana.com/docs/grafana/latest/setup-grafana/installation/).
 Once this is done, you will have to launch two terminals to activate the processes : one for InfluxDB and the other for Grafana. These terminals need to run for the whole visualization time. To upload the data into InfluxDB, take a look at the notebook INFLUX_DB_LOCAL.ipynb and the documentation relative to the Grafana interface.
-
-
-
 
 
 ## TODOs
