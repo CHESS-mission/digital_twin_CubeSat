@@ -1582,33 +1582,28 @@
               "options": {
                 "0": {
                   "color": "green",
-                  "index": 4,
-                  "text": "IDLE"
+                  "index": 0,
+                  "text": "IDLE/CHARGING"
                 },
                 "1": {
-                  "color": "red",
-                  "index": 5,
-                  "text": "SAFE"
+                  "color": "purple",
+                  "index": 1,
+                  "text": "MEASUREMENT"
                 },
                 "2": {
-                  "color": "blue",
-                  "index": 3,
-                  "text": "Charging"
+                  "color": "red",
+                  "index": 2,
+                  "text": "SAFE"
                 },
                 "3": {
                   "color": "orange",
-                  "index": 2,
+                  "index": 3,
                   "text": "UHF_COM"
                 },
                 "4": {
                   "color": "#4b3535",
-                  "index": 1,
+                  "index": 4,
                   "text": "X_BAND_COM"
-                },
-                "5": {
-                  "color": "purple",
-                  "index": 0,
-                  "text": "Measurement"
                 }
               },
               "type": "value"
@@ -1711,7 +1706,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "IDLE"
+                "value": "IDLE/CHARGING"
               },
               {
                 "id": "color",
@@ -1725,31 +1720,12 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "satellite_data.count { mode: 2 }"
+              "options": "satellite_data.count { mode: 1 }"
             },
             "properties": [
               {
                 "id": "displayName",
-                "value": "Charging"
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "blue",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "satellite_data.count { mode: 5 }"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Measurement"
+                "value": "MEASUREMENT"
               },
               {
                 "id": "color",
@@ -1801,7 +1777,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "satellite_data.count { mode: 1 }"
+              "options": "satellite_data.count { mode: 2 }"
             },
             "properties": [
               {
@@ -2070,33 +2046,28 @@
               "options": {
                 "0": {
                   "color": "green",
-                  "index": 5,
-                  "text": "IDLE"
+                  "index": 0,
+                  "text": "IDLE/CHARGING"
                 },
                 "1": {
-                  "color": "red",
-                  "index": 4,
-                  "text": "SAFE"
+                  "color": "purple",
+                  "index": 1,
+                  "text": "MEASUREMENT"
                 },
                 "2": {
-                  "color": "blue",
-                  "index": 3,
-                  "text": "Charging"
+                  "color": "red",
+                  "index": 2,
+                  "text": "SAFE"
                 },
                 "3": {
                   "color": "orange",
-                  "index": 2,
+                  "index": 3,
                   "text": "UHF_COM"
                 },
                 "4": {
-                  "color": "#493a3a",
-                  "index": 1,
+                  "color": "#4b3535",
+                  "index": 4,
                   "text": "X_BAND_COM"
-                },
-                "5": {
-                  "color": "purple",
-                  "index": 0,
-                  "text": "Measurement"
                 }
               },
               "type": "value"
@@ -2183,28 +2154,28 @@
               "options": {
                 "0": {
                   "color": "green",
-                  "index": 4,
-                  "text": "IDLE"
+                  "index": 0,
+                  "text": "IDLE/CHARGING"
+                },
+                "1": {
+                  "color": "purple",
+                  "index": 1,
+                  "text": "MEASUREMENT"
                 },
                 "2": {
-                  "color": "blue",
-                  "index": 3,
-                  "text": "Charging"
+                  "color": "red",
+                  "index": 2,
+                  "text": "SAFE"
                 },
                 "3": {
                   "color": "orange",
-                  "index": 2,
+                  "index": 3,
                   "text": "UHF_COM"
                 },
                 "4": {
                   "color": "#4b3535",
-                  "index": 1,
+                  "index": 4,
                   "text": "X_BAND_COM"
-                },
-                "5": {
-                  "color": "purple",
-                  "index": 0,
-                  "text": "Measurement"
                 }
               },
               "type": "value"

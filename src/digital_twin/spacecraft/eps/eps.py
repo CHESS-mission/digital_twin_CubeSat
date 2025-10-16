@@ -86,7 +86,7 @@ class SolarPanel:
         eff: Quantity[""] = self.solar_cells_efficiency(delta_t=delta_t, temperature=60, t=t)  # Example temperature
 
         hardcode = False
-        if hardcode and mode == 1:
+        if hardcode and mode == 2:
             return 0 * u.W, eff
 
         if not eclipse_status:
@@ -288,7 +288,7 @@ class Eps(SubSystem):
         """
         # SAFE FLAG HANDLING
         # Check safe flag triggers (cannot generate a safe flag if already in safe mode)
-        if new_mode != 1 and self.safe_flag == False:
+        if new_mode != 2 and self.safe_flag == False:
             if self.battery_level < self.min_battery:
                 self.safe_flag = True  # battery_level < battery_min?
         # Check safe flag resolution

@@ -41,6 +41,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">README for the Digital Twin of the CHESS CubeSat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../digital_twin.html">digital_twin package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../grafana_visualization.html">Grafana Visualization Documentation</a></li>
 </ul>
@@ -127,7 +128,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">match</span> <span class="bp">self</span><span class="o">.</span><span class="n">operating_mode</span><span class="p">:</span>
                 <span class="k">case</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">mode_switch_from_IDLE</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">mode_switch_from_IDLE_CHARGING</span><span class="p">(</span>
                         <span class="n">eps</span><span class="p">,</span>
                         <span class="n">data_storage</span><span class="p">,</span>
                         <span class="n">com_window</span><span class="p">,</span>
@@ -135,23 +136,16 @@
                         <span class="n">measurement_session</span><span class="p">,</span>
                     <span class="p">)</span>
                 <span class="k">case</span> <span class="mi">1</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">mode_switch_from_SAFE</span><span class="p">()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">mode_switch_from_MEASUREMENT</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="n">data_storage</span><span class="p">)</span>
                 <span class="k">case</span> <span class="mi">2</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">mode_switch_from_CHARGING</span><span class="p">(</span>
-                        <span class="n">eps</span><span class="p">,</span>
-                        <span class="n">data_storage</span><span class="p">,</span>
-                        <span class="n">com_window</span><span class="p">,</span>
-                        <span class="n">eclipse_status</span><span class="p">,</span>
-                        <span class="n">measurement_session</span><span class="p">,</span>
-                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">mode_switch_from_SAFE</span><span class="p">()</span>                    
                 <span class="k">case</span> <span class="mi">3</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">mode_switch_from_UHF_COM</span><span class="p">(</span>
                         <span class="n">eps</span><span class="p">,</span> <span class="n">telecom</span><span class="p">,</span> <span class="n">data_storage</span><span class="p">,</span> <span class="n">com_window</span>
                     <span class="p">)</span>
                 <span class="k">case</span> <span class="mi">4</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">mode_switch_from_X_BAND_COM</span><span class="p">(</span><span class="n">data_storage</span><span class="p">,</span> <span class="n">com_window</span><span class="p">)</span>
-                <span class="k">case</span> <span class="mi">5</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">mode_switch_from_MEASUREMENT</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="n">data_storage</span><span class="p">)</span>
+                
                 <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span>
                         <span class="sa">f</span><span class="s2">&quot;The current operating mode (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">operating_mode</span><span class="si">}</span><span class="s2">) does not exist&quot;</span>
@@ -166,9 +160,9 @@
     <span class="k">def</span> <span class="nf">operating_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_operating_mode</span> <span class="o">=</span> <span class="n">mode</span>
 
-<div class="viewcode-block" id="ModeSwitch.mode_switch_from_IDLE">
-<a class="viewcode-back" href="../../digital_twin.html#digital_twin.mode_switch.ModeSwitch.mode_switch_from_IDLE">[docs]</a>
-    <span class="k">def</span> <span class="nf">mode_switch_from_IDLE</span><span class="p">(</span>
+<div class="viewcode-block" id="ModeSwitch.mode_switch_from_IDLE_CHARGING">
+<a class="viewcode-back" href="../../digital_twin.html#digital_twin.mode_switch.ModeSwitch.mode_switch_from_IDLE_CHARGING">[docs]</a>
+    <span class="k">def</span> <span class="nf">mode_switch_from_IDLE_CHARGING</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">eps</span><span class="p">:</span> <span class="n">Eps</span><span class="p">,</span>
         <span class="n">data_storage</span><span class="p">:</span> <span class="n">DataStorage</span><span class="p">,</span>
@@ -176,28 +170,29 @@
         <span class="n">eclipse_status</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
         <span class="n">measurement_session</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle transitions from IDLE mode.&quot;&quot;&quot;</span>
-        <span class="c1"># Charging in priority if low battery (if possible)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">eclipse_status</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">eps</span><span class="o">.</span><span class="n">battery_level</span> <span class="o">&lt;=</span> <span class="n">eps</span><span class="o">.</span><span class="n">min_battery</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">operating_mode</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle transitions from IDLE/CHARGING mode.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">eps</span><span class="o">.</span><span class="n">battery_level</span> <span class="o">&gt;=</span> <span class="n">eps</span><span class="o">.</span><span class="n">measure_threshold</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">data_storage</span><span class="o">.</span><span class="n">data_storage_full</span><span class="p">())</span>
+            <span class="ow">and</span> <span class="p">(</span><span class="n">measurement_session</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">operating_mode</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="k">elif</span> <span class="p">(</span><span class="n">eps</span><span class="o">.</span><span class="n">battery_level</span> <span class="o">&gt;=</span> <span class="n">eps</span><span class="o">.</span><span class="n">com_threshold</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">com_window</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">operating_mode</span> <span class="o">=</span> <span class="mi">3</span></div>
+
+            
+<div class="viewcode-block" id="ModeSwitch.mode_switch_from_MEASUREMENT">
+<a class="viewcode-back" href="../../digital_twin.html#digital_twin.mode_switch.ModeSwitch.mode_switch_from_MEASUREMENT">[docs]</a>
+    <span class="k">def</span> <span class="nf">mode_switch_from_MEASUREMENT</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">Payload</span><span class="p">,</span> <span class="n">data_storage</span><span class="p">:</span> <span class="n">DataStorage</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle transitions from MEASUREMENT mode.&quot;&quot;&quot;</span>
+        <span class="c1"># Go to idle after measurement ends</span>
+        <span class="k">if</span> <span class="n">data_storage</span><span class="o">.</span><span class="n">data_storage_full</span><span class="p">()</span> <span class="ow">or</span> <span class="n">payload</span><span class="o">.</span><span class="n">campaign_finished</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">operating_mode</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># Else try to measure</span>
-            <span class="k">if</span> <span class="p">(</span>
-                <span class="p">(</span><span class="n">eps</span><span class="o">.</span><span class="n">battery_level</span> <span class="o">&gt;=</span> <span class="n">eps</span><span class="o">.</span><span class="n">measure_threshold</span><span class="p">)</span>
-                <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">data_storage</span><span class="o">.</span><span class="n">data_storage_full</span><span class="p">())</span>
-                <span class="ow">and</span> <span class="p">(</span><span class="n">measurement_session</span><span class="p">)</span>
-            <span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">operating_mode</span> <span class="o">=</span> <span class="mi">5</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="c1"># Else try to communicate</span>
-                <span class="k">if</span> <span class="p">(</span><span class="n">eps</span><span class="o">.</span><span class="n">battery_level</span> <span class="o">&gt;=</span> <span class="n">eps</span><span class="o">.</span><span class="n">com_threshold</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">com_window</span><span class="p">):</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">operating_mode</span> <span class="o">=</span> <span class="mi">3</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="c1"># Else try to charge (if possible)</span>
-                    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">eclipse_status</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">eps</span><span class="o">.</span><span class="n">battery_level</span> <span class="o">&lt;</span> <span class="n">eps</span><span class="o">.</span><span class="n">max_battery</span><span class="p">):</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">operating_mode</span> <span class="o">=</span> <span class="mi">2</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">operating_mode</span> <span class="o">=</span> <span class="mi">0</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">operating_mode</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># Stay in measurement mode!</span></div>
 
 
 <div class="viewcode-block" id="ModeSwitch.mode_switch_from_SAFE">
@@ -205,37 +200,6 @@
     <span class="k">def</span> <span class="nf">mode_switch_from_SAFE</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle transitions from SAFE mode.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">operating_mode</span> <span class="o">=</span> <span class="mi">0</span></div>
-
-
-<div class="viewcode-block" id="ModeSwitch.mode_switch_from_CHARGING">
-<a class="viewcode-back" href="../../digital_twin.html#digital_twin.mode_switch.ModeSwitch.mode_switch_from_CHARGING">[docs]</a>
-    <span class="k">def</span> <span class="nf">mode_switch_from_CHARGING</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">eps</span><span class="p">:</span> <span class="n">Eps</span><span class="p">,</span>
-        <span class="n">data_storage</span><span class="p">:</span> <span class="n">DataStorage</span><span class="p">,</span>
-        <span class="n">com_window</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
-        <span class="n">eclipse_status</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
-        <span class="n">measurement_session</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle transitions from CHARGING mode.&quot;&quot;&quot;</span>
-        <span class="c1"># Try to measure</span>
-        <span class="k">if</span> <span class="p">(</span>
-            <span class="p">(</span><span class="n">eps</span><span class="o">.</span><span class="n">battery_level</span> <span class="o">&gt;=</span> <span class="n">eps</span><span class="o">.</span><span class="n">measure_threshold</span><span class="p">)</span>
-            <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">data_storage</span><span class="o">.</span><span class="n">data_storage_full</span><span class="p">())</span>
-            <span class="ow">and</span> <span class="p">(</span><span class="n">measurement_session</span><span class="p">)</span>
-        <span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">operating_mode</span> <span class="o">=</span> <span class="mi">5</span>
-
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># Else try to communicate</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">eps</span><span class="o">.</span><span class="n">battery_level</span> <span class="o">&gt;=</span> <span class="n">eps</span><span class="o">.</span><span class="n">com_threshold</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">com_window</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">operating_mode</span> <span class="o">=</span> <span class="mi">3</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="c1"># Else stop charging if in eclipse or battery is full</span>
-                <span class="k">if</span> <span class="p">(</span><span class="n">eclipse_status</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">eps</span><span class="o">.</span><span class="n">battery_level</span> <span class="o">&gt;=</span> <span class="n">eps</span><span class="o">.</span><span class="n">max_battery</span><span class="p">):</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">operating_mode</span> <span class="o">=</span> <span class="mi">0</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">operating_mode</span> <span class="o">=</span> <span class="mi">2</span></div>
 
 
 <div class="viewcode-block" id="ModeSwitch.mode_switch_from_UHF_COM">
@@ -282,20 +246,8 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">operating_mode</span> <span class="o">=</span> <span class="mi">0</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">operating_mode</span> <span class="o">=</span> <span class="mi">4</span>  <span class="c1"># Stay in x-band</span></div>
-
-
-<div class="viewcode-block" id="ModeSwitch.mode_switch_from_MEASUREMENT">
-<a class="viewcode-back" href="../../digital_twin.html#digital_twin.mode_switch.ModeSwitch.mode_switch_from_MEASUREMENT">[docs]</a>
-    <span class="k">def</span> <span class="nf">mode_switch_from_MEASUREMENT</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="n">Payload</span><span class="p">,</span> <span class="n">data_storage</span><span class="p">:</span> <span class="n">DataStorage</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle transitions from MEASUREMENT mode.&quot;&quot;&quot;</span>
-        <span class="c1"># Go to idle after measurement ends</span>
-        <span class="k">if</span> <span class="n">data_storage</span><span class="o">.</span><span class="n">data_storage_full</span><span class="p">()</span> <span class="ow">or</span> <span class="n">payload</span><span class="o">.</span><span class="n">campaign_finished</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">operating_mode</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">operating_mode</span> <span class="o">=</span> <span class="mi">5</span>  <span class="c1"># Stay in measurement mode!</span></div>
 </div>
+
 
 </pre></div>
 

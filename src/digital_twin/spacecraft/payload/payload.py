@@ -133,7 +133,7 @@ class Payload(SubSystem):
             eclipse_status (bool): Indicate if the spacecraft is in eclipse.
             delta_t (TimeDelta): Timestep for the update.
         """
-        if new_mode == 5:  # MEASUREMENT
+        if new_mode == 1:  # MEASUREMENT
             if old_mode != new_mode:  # Just switched to measurement mode
                 self.measurement_duration = 0.0 * u.s
                 self.nb_measurement_windows += 1
@@ -180,13 +180,13 @@ class Payload(SubSystem):
         """
         data = 0.0 * u.Mbit
         if (
-            new_mode == 5
+            new_mode == 1
             and self.measurement_duration >= self.start_measurement
             and self.measurement_duration < self.stop_measurement
         ):  # Only add data if in measurement mode and after/before pre/post conditioning (power budget)
             data += self.measurement_TOF_rate * delta_t
 
-        if new_mode != 1:  # If not in safe mode, GNSS continuously add data
+        if new_mode != 2:  # If not in safe mode, GNSS continuously add data
             data += self.measurement_GNSS_rate * delta_t
 
         return (

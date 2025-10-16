@@ -185,7 +185,7 @@ class Telecom(SubSystem):
 
         # SAFE FLAG HANDLING
         # check safe flag triggers (cannot generate a safe flag if already in safe mode)
-        if new_mode != 1 and self.safe_flag == False:
+        if new_mode != 2 and self.safe_flag == False:
             # there might be other safe flag triggers later
             if self.t_no_com > self.t_max_no_com:
                 self.safe_flag = True
@@ -217,7 +217,7 @@ class Telecom(SubSystem):
             if self.safe_flag_reason == 2:
                 if (
                     self.is_visible
-                    and new_mode == 1  # SAFE mode
+                    and new_mode == 2  # SAFE mode
                     and self.vis_window_count
                     != self.vis_window_triggered  # different vis window
                     and (self.vis_window_count in self.uplink_safe_mode.keys())

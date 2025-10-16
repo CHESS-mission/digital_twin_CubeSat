@@ -41,6 +41,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../readme.html">README for the Digital Twin of the CHESS CubeSat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../digital_twin.html">digital_twin package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../grafana_visualization.html">Grafana Visualization Documentation</a></li>
 </ul>
@@ -215,7 +216,7 @@
 <span class="sd">            eclipse_status (bool): Indicate if the spacecraft is in eclipse.</span>
 <span class="sd">            delta_t (TimeDelta): Timestep for the update.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">new_mode</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>  <span class="c1"># MEASUREMENT</span>
+        <span class="k">if</span> <span class="n">new_mode</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># MEASUREMENT</span>
             <span class="k">if</span> <span class="n">old_mode</span> <span class="o">!=</span> <span class="n">new_mode</span><span class="p">:</span>  <span class="c1"># Just switched to measurement mode</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">measurement_duration</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">nb_measurement_windows</span> <span class="o">+=</span> <span class="mi">1</span>
@@ -268,13 +269,13 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">data</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">Mbit</span>
         <span class="k">if</span> <span class="p">(</span>
-            <span class="n">new_mode</span> <span class="o">==</span> <span class="mi">5</span>
+            <span class="n">new_mode</span> <span class="o">==</span> <span class="mi">1</span>
             <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">measurement_duration</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_measurement</span>
             <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">measurement_duration</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop_measurement</span>
         <span class="p">):</span>  <span class="c1"># Only add data if in measurement mode and after/before pre/post conditioning (power budget)</span>
             <span class="n">data</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">measurement_TOF_rate</span> <span class="o">*</span> <span class="n">delta_t</span>
 
-        <span class="k">if</span> <span class="n">new_mode</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># If not in safe mode, GNSS continuously add data</span>
+        <span class="k">if</span> <span class="n">new_mode</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># If not in safe mode, GNSS continuously add data</span>
             <span class="n">data</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">measurement_GNSS_rate</span> <span class="o">*</span> <span class="n">delta_t</span>
 
         <span class="k">return</span> <span class="p">(</span>

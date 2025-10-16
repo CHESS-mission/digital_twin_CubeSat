@@ -207,7 +207,7 @@ class Obc(SubSystem):
 
         # SAFE FLAG HANDLING
         # Check safe flag triggers (cannot generate a safe flag if already in safe mode)
-        if new_mode != 1 and self.safe_flag == False:
+        if new_mode != 2 and self.safe_flag == False:
             pass  # Not implemented yet for this subsystem
         # Check safe flag resolution
         if self.safe_flag == True:

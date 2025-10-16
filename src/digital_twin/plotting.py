@@ -619,7 +619,7 @@ def plot_operating_modes(
 
     # Mode names
     mode_labels = [mode_dict[key] for key in sorted(mode_dict.keys())]
-    colors = ["#5cb85c", "#d9534f", "#5bc0de", "#f0ad4e", "#a0522d", "#6f42c1"]
+    colors = ["#5cb85c","#6f42c1", "#d9534f", "#f0ad4e", "#a0522d" ]
 
     plt.figure(figsize=(6, 3.5))
     plt.ylim(-0.6, len(mode_labels) - 0.3)  # Adjust limits to avoid space
@@ -789,14 +789,13 @@ def plot_dashboard(
     """Plot operating modes during simulation to visualize them throughout time with the ecplipse status and visibility windows."""
 
     mode_remap = {
-        0: 1,
+        0: 0,
         1: 2,
-        2: 0,
-        3: 4,
-        4: 5,
-        5: 3,
+        2: 1,
+        3: 3,
+        4: 4,
     }  # to change plot order on the y axis, so that charging mode is next to eclipse bar and xband next to the visibility bar
-    new_mode_order = [2, 0, 1, 5, 3, 4]
+    new_mode_order = [1, 0, 4, 2, 3]
 
     # Apply the remapping
     modes = [mode_remap[int(mode)] for mode in modes]
@@ -807,7 +806,7 @@ def plot_dashboard(
     # Mode names
     mode_labels = [mode_dict[key] for key in sorted(mode_dict.keys())]
     mode_labels = [mode_dict[key] for key in new_mode_order]
-    colors = ["#5cb85c", "#d9534f", "#5bc0de", "#f0ad4e", "#a0522d", "#6f42c1"]
+    colors = ["#5cb85c","#6f42c1", "#d9534f", "#f0ad4e", "#a0522d" ]
     colors = [colors[i] for i in new_mode_order]
 
     fig, axes = plt.subplots(

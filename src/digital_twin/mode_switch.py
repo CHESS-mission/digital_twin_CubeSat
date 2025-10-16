@@ -48,7 +48,7 @@ class ModeSwitch:
         else:
             match self.operating_mode:
                 case 0:
-                    self.mode_switch_from_IDLE(
+                    self.mode_switch_from_IDLE_CHARGING(
                         eps,
                         data_storage,
                         com_window,
@@ -56,23 +56,16 @@ class ModeSwitch:
                         measurement_session,
                     )
                 case 1:
-                    self.mode_switch_from_SAFE()
+                    self.mode_switch_from_MEASUREMENT(payload, data_storage)
                 case 2:
-                    self.mode_switch_from_CHARGING(
-                        eps,
-                        data_storage,
-                        com_window,
-                        eclipse_status,
-                        measurement_session,
-                    )
+                    self.mode_switch_from_SAFE()                    
                 case 3:
                     self.mode_switch_from_UHF_COM(
                         eps, telecom, data_storage, com_window
                     )
                 case 4:
                     self.mode_switch_from_X_BAND_COM(data_storage, com_window)
-                case 5:
-                    self.mode_switch_from_MEASUREMENT(payload, data_storage)
+                
                 case _:
                     raise AssertionError(
                         f"The current operating mode ({self.operating_mode}) does not exist"
@@ -86,7 +79,7 @@ class ModeSwitch:
     def operating_mode(self, mode: int) -> None:
         self._operating_mode = mode
 
-    def mode_switch_from_IDLE(
+    def mode_switch_from_IDLE_CHARGING(
         self,
         eps: Eps,
         data_storage: DataStorage,
@@ -94,60 +87,30 @@ class ModeSwitch:
         eclipse_status: bool,
         measurement_session: bool,
     ) -> None:
-        """Handle transitions from IDLE mode."""
-        # Charging in priority if low battery (if possible)
-        if not (eclipse_status) and (eps.battery_level <= eps.min_battery):
-            self.operating_mode = 2
-        else:
-            # Else try to measure
-            if (
-                (eps.battery_level >= eps.measure_threshold)
-                and (not data_storage.data_storage_full())
-                and (measurement_session)
-            ):
-                self.operating_mode = 5
-            else:
-                # Else try to communicate
-                if (eps.battery_level >= eps.com_threshold) and (com_window):
-                    self.operating_mode = 3
-                else:
-                    # Else try to charge (if possible)
-                    if (not eclipse_status) and (eps.battery_level < eps.max_battery):
-                        self.operating_mode = 2
-                    else:
-                        self.operating_mode = 0
-
-    def mode_switch_from_SAFE(self) -> None:
-        """Handle transitions from SAFE mode."""
-        self.operating_mode = 0
-
-    def mode_switch_from_CHARGING(
-        self,
-        eps: Eps,
-        data_storage: DataStorage,
-        com_window: bool,
-        eclipse_status: bool,
-        measurement_session: bool,
-    ) -> None:
-        """Handle transitions from CHARGING mode."""
-        # Try to measure
+        """Handle transitions from IDLE/CHARGING mode."""
         if (
             (eps.battery_level >= eps.measure_threshold)
             and (not data_storage.data_storage_full())
             and (measurement_session)
         ):
-            self.operating_mode = 5
+            self.operating_mode = 1
 
-        else:
-            # Else try to communicate
-            if (eps.battery_level >= eps.com_threshold) and (com_window):
+        elif (eps.battery_level >= eps.com_threshold) and (com_window):
                 self.operating_mode = 3
-            else:
-                # Else stop charging if in eclipse or battery is full
-                if (eclipse_status) or (eps.battery_level >= eps.max_battery):
-                    self.operating_mode = 0
-                else:
-                    self.operating_mode = 2
+            
+    def mode_switch_from_MEASUREMENT(
+        self, payload: Payload, data_storage: DataStorage
+    ) -> None:
+        """Handle transitions from MEASUREMENT mode."""
+        # Go to idle after measurement ends
+        if data_storage.data_storage_full() or payload.campaign_finished():
+            self.operating_mode = 0
+        else:
+            self.operating_mode = 1  # Stay in measurement mode!
+
+    def mode_switch_from_SAFE(self) -> None:
+        """Handle transitions from SAFE mode."""
+        self.operating_mode = 0
 
     def mode_switch_from_UHF_COM(
         self,
@@ -189,12 +152,3 @@ class ModeSwitch:
             else:
                 self.operating_mode = 4  # Stay in x-band
 
-    def mode_switch_from_MEASUREMENT(
-        self, payload: Payload, data_storage: DataStorage
-    ) -> None:
-        """Handle transitions from MEASUREMENT mode."""
-        # Go to idle after measurement ends
-        if data_storage.data_storage_full() or payload.campaign_finished():
-            self.operating_mode = 0
-        else:
-            self.operating_mode = 5  # Stay in measurement mode!
