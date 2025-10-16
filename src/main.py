@@ -52,4 +52,5 @@ if __name__ == "__main__":
     elif len(sys.argv) > 2:  # User arguments provided as separate strings
         run(sys.argv[1:])
     else:
-        run([])  # No user argument
+        print("No user arguments provided, running with default template paths: simulation_template.json orbit_template.json spacecraft_template.json ground_station_template.json mission_design_template.json")
+        run(["simulation_template.json","orbit_template.json","spacecraft_template.json","ground_station_template.json","mission_design_template.json"])  # No user argument
