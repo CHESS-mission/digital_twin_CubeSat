@@ -236,17 +236,17 @@ def generate_figures(data: dict, figure_params: dict, folder: str, csv_folder:st
         )
         plot_1d(
             data["tofs"].to_value("second"),
-            data["storage_GNSS_TOF"],
-            "Data Storage Over Time (GNSS and TOF)",
+            data["storage_payload"],
+            "Data Storage Over Time (GNSS and TOF/Camera)",
             x_label,
-            r"GNSS/TOF Data Storage ($Mbit$)",
+            r"GNSS and TOF/Camera Data Storage ($Mbit$)",
             step=step,
             fill_under=False,
             remove_box=True,
             scatter=False,
             x_label_f=x_label_f,
             show=False,
-            save_filename=folder + "data_storage_GNSS_TOF.png",
+            save_filename=folder + "data_storage_payload.png",
         )
         plot_1d(
             data["tofs"].to_value("second"),
@@ -301,8 +301,8 @@ def save_data(data: dict, data_params: dict, folder: str) -> None:
             np.save(f, data["vis"])
         with open(folder + "data.npy", "wb") as f:
             np.save(f, data["storage"])
-        with open(folder + "data_GNSS_TOF.npy", "wb") as f:
-            np.save(f, data["storage_GNSS_TOF"])
+        with open(folder + "data_payload.npy", "wb") as f:
+            np.save(f, data["storage_payload"])
         with open(folder + "data_HK.npy", "wb") as f:
             np.save(f, data["storage_HK"])
 
@@ -385,7 +385,7 @@ def save_csv(data: dict, data_params: dict, folder: str) -> None:
     df_data["times_telecom"] = to_1d(data["tofs"].to_value("second"))
     df_data["visibility"] = to_1d(data["vis"])
     df_data["data"] = to_1d(data["storage"])
-    df_data["data_GNSS_TOF"] = to_1d(data["storage_GNSS_TOF"])
+    df_data["data_payload"] = to_1d(data["storage_payload"])
     df_data["data_HK"] = to_1d(data["storage_HK"])
 
     # eps data

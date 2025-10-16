@@ -898,12 +898,12 @@
 
     <span class="n">mode_remap</span> <span class="o">=</span> <span class="p">{</span>
         <span class="mi">0</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="mi">1</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
-        <span class="mi">2</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="mi">2</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
         <span class="mi">3</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
         <span class="mi">4</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
     <span class="p">}</span>  <span class="c1"># to change plot order on the y axis, so that charging mode is next to eclipse bar and xband next to the visibility bar</span>
-    <span class="n">new_mode_order</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+    <span class="n">new_mode_order</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span>
 
     <span class="c1"># Apply the remapping</span>
     <span class="n">modes</span> <span class="o">=</span> <span class="p">[</span><span class="n">mode_remap</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">mode</span><span class="p">)]</span> <span class="k">for</span> <span class="n">mode</span> <span class="ow">in</span> <span class="n">modes</span><span class="p">]</span>

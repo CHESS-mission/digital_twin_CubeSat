@@ -126,11 +126,11 @@ class Simulation:
         solar_cells_efficiency[0] = self.spacecraft.get_eps().get_solar_cells_efficiency().value
         
         data_storage = np.zeros(self.n_timesteps + 1)
-        data_storage_GNSS_TOF = np.zeros(self.n_timesteps + 1)
+        data_storage_payload = np.zeros(self.n_timesteps + 1)
         data_storage_HK = np.zeros(self.n_timesteps + 1)
-        all, GNSS_TOF, HK = self.spacecraft.get_obc().get_data()
+        all, payload, HK = self.spacecraft.get_obc().get_data()
         data_storage[0] = all.value
-        data_storage_GNSS_TOF[0] = GNSS_TOF.value
+        data_storage_payload[0] = payload.value
         data_storage_HK[0] = HK.value
 
         vis_windows = np.zeros(
@@ -242,9 +242,9 @@ class Simulation:
                     self.spacecraft.get_eps().get_solar_cells_efficiency().value
                 )
                 
-                all, GNSS_TOF, HK = self.spacecraft.get_obc().get_data()
+                all, payload, HK = self.spacecraft.get_obc().get_data()
                 data_storage[t + 1] = all.value
-                data_storage_GNSS_TOF[t + 1] = GNSS_TOF.value
+                data_storage_payload[t + 1] = payload.value
                 data_storage_HK[t + 1] = HK.value
 
                 density_array[t + 1] = self.propagator.get_density().value
@@ -287,7 +287,7 @@ class Simulation:
             power_generation = power_generation[:last_ind]
             solar_cells_efficiency[:last_ind]
             data_storage = data_storage[:last_ind]
-            data_storage_GNSS_TOF = data_storage_GNSS_TOF[:last_ind]
+            data_storage_payload = data_storage_payload[:last_ind]
             data_storage_HK = data_storage_HK[:last_ind]
             eclipse_windows = eclipse_windows[:last_ind]
             density_array = density_array[:last_ind]
@@ -321,7 +321,7 @@ class Simulation:
             "consumption": power_consumption,
             "generation": power_generation,
             "storage": data_storage,
-            "storage_GNSS_TOF": data_storage_GNSS_TOF,
+            "storage_payload": data_storage_payload,
             "storage_HK": data_storage_HK,
             "duration_sim": self.duration_sim,
             "epochs_array": self.epochs_array,

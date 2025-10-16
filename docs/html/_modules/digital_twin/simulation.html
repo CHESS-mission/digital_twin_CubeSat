@@ -41,6 +41,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">README for the Digital Twin of the CHESS CubeSat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../digital_twin.html">digital_twin package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../grafana_visualization.html">Grafana Visualization Documentation</a></li>
 </ul>
@@ -202,11 +203,11 @@
         <span class="n">solar_cells_efficiency</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_eps</span><span class="p">()</span><span class="o">.</span><span class="n">get_solar_cells_efficiency</span><span class="p">()</span><span class="o">.</span><span class="n">value</span>
         
         <span class="n">data_storage</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="n">data_storage_GNSS_TOF</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">data_storage_payload</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">data_storage_HK</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="nb">all</span><span class="p">,</span> <span class="n">GNSS_TOF</span><span class="p">,</span> <span class="n">HK</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_obc</span><span class="p">()</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+        <span class="nb">all</span><span class="p">,</span> <span class="n">payload</span><span class="p">,</span> <span class="n">HK</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_obc</span><span class="p">()</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
         <span class="n">data_storage</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">all</span><span class="o">.</span><span class="n">value</span>
-        <span class="n">data_storage_GNSS_TOF</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">GNSS_TOF</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">data_storage_payload</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">value</span>
         <span class="n">data_storage_HK</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">HK</span><span class="o">.</span><span class="n">value</span>
 
         <span class="n">vis_windows</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
@@ -318,9 +319,9 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_eps</span><span class="p">()</span><span class="o">.</span><span class="n">get_solar_cells_efficiency</span><span class="p">()</span><span class="o">.</span><span class="n">value</span>
                 <span class="p">)</span>
                 
-                <span class="nb">all</span><span class="p">,</span> <span class="n">GNSS_TOF</span><span class="p">,</span> <span class="n">HK</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_obc</span><span class="p">()</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+                <span class="nb">all</span><span class="p">,</span> <span class="n">payload</span><span class="p">,</span> <span class="n">HK</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_obc</span><span class="p">()</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
                 <span class="n">data_storage</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">all</span><span class="o">.</span><span class="n">value</span>
-                <span class="n">data_storage_GNSS_TOF</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">GNSS_TOF</span><span class="o">.</span><span class="n">value</span>
+                <span class="n">data_storage_payload</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">value</span>
                 <span class="n">data_storage_HK</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">HK</span><span class="o">.</span><span class="n">value</span>
 
                 <span class="n">density_array</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">propagator</span><span class="o">.</span><span class="n">get_density</span><span class="p">()</span><span class="o">.</span><span class="n">value</span>
@@ -363,7 +364,7 @@
             <span class="n">power_generation</span> <span class="o">=</span> <span class="n">power_generation</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
             <span class="n">solar_cells_efficiency</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
             <span class="n">data_storage</span> <span class="o">=</span> <span class="n">data_storage</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
-            <span class="n">data_storage_GNSS_TOF</span> <span class="o">=</span> <span class="n">data_storage_GNSS_TOF</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
+            <span class="n">data_storage_payload</span> <span class="o">=</span> <span class="n">data_storage_payload</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
             <span class="n">data_storage_HK</span> <span class="o">=</span> <span class="n">data_storage_HK</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
             <span class="n">eclipse_windows</span> <span class="o">=</span> <span class="n">eclipse_windows</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
             <span class="n">density_array</span> <span class="o">=</span> <span class="n">density_array</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
@@ -397,7 +398,7 @@
             <span class="s2">&quot;consumption&quot;</span><span class="p">:</span> <span class="n">power_consumption</span><span class="p">,</span>
             <span class="s2">&quot;generation&quot;</span><span class="p">:</span> <span class="n">power_generation</span><span class="p">,</span>
             <span class="s2">&quot;storage&quot;</span><span class="p">:</span> <span class="n">data_storage</span><span class="p">,</span>
-            <span class="s2">&quot;storage_GNSS_TOF&quot;</span><span class="p">:</span> <span class="n">data_storage_GNSS_TOF</span><span class="p">,</span>
+            <span class="s2">&quot;storage_payload&quot;</span><span class="p">:</span> <span class="n">data_storage_payload</span><span class="p">,</span>
             <span class="s2">&quot;storage_HK&quot;</span><span class="p">:</span> <span class="n">data_storage_HK</span><span class="p">,</span>
             <span class="s2">&quot;duration_sim&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">duration_sim</span><span class="p">,</span>
             <span class="s2">&quot;epochs_array&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">epochs_array</span><span class="p">,</span>

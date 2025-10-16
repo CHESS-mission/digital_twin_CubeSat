@@ -2570,7 +2570,7 @@
             [
               {
                 "params": [
-                  "data_GNSS_TOF"
+                  "data_payload"
                 ],
                 "type": "field"
               }
@@ -2579,7 +2579,7 @@
           "tags": []
         }
       ],
-      "title": "Data GNSS TOF",
+      "title": "Data GNSS TOF/Camera",
       "type": "timeseries"
     },
     {

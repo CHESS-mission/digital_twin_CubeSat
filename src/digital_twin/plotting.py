@@ -790,12 +790,12 @@ def plot_dashboard(
 
     mode_remap = {
         0: 0,
-        1: 2,
-        2: 1,
+        1: 1,
+        2: 2,
         3: 3,
         4: 4,
     }  # to change plot order on the y axis, so that charging mode is next to eclipse bar and xband next to the visibility bar
-    new_mode_order = [1, 0, 4, 2, 3]
+    new_mode_order = [0,1,2,3,4]
 
     # Apply the remapping
     modes = [mode_remap[int(mode)] for mode in modes]

@@ -41,6 +41,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../readme.html">README for the Digital Twin of the CHESS CubeSat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../digital_twin.html">digital_twin package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../grafana_visualization.html">Grafana Visualization Documentation</a></li>
 </ul>
@@ -222,21 +223,21 @@
         <span class="p">)</span>
 
         <span class="c1"># Compute data change (generation by payload or removal by telecom) at current timestep</span>
-        <span class="n">data_update_TOF_GNSS</span> <span class="o">=</span> <span class="mi">0</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">Mbit</span>
+        <span class="n">data_update_payload</span> <span class="o">=</span> <span class="mi">0</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">Mbit</span>
         <span class="n">data_update_HK</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">Mbit</span>
-        <span class="n">TOF_GNSS_telecom</span><span class="p">,</span> <span class="n">HK_telecom</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">telecom_subsystem</span><span class="o">.</span><span class="n">compute_data_update</span><span class="p">(</span>
+        <span class="n">payload_telecom</span><span class="p">,</span> <span class="n">HK_telecom</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">telecom_subsystem</span><span class="o">.</span><span class="n">compute_data_update</span><span class="p">(</span>
             <span class="n">new_mode</span><span class="p">,</span> <span class="n">delta_t</span>
         <span class="p">)</span>
-        <span class="n">data_update_TOF_GNSS</span> <span class="o">+=</span> <span class="n">TOF_GNSS_telecom</span>
+        <span class="n">data_update_payload</span> <span class="o">+=</span> <span class="n">payload_telecom</span>
         <span class="n">data_update_HK</span> <span class="o">+=</span> <span class="n">HK_telecom</span>
 
-        <span class="n">TOF_GNSS_payload</span><span class="p">,</span> <span class="n">HK_payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">payload_subsystem</span><span class="o">.</span><span class="n">compute_data_update</span><span class="p">(</span>
+        <span class="n">payload_payload</span><span class="p">,</span> <span class="n">HK_payload</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">payload_subsystem</span><span class="o">.</span><span class="n">compute_data_update</span><span class="p">(</span>
             <span class="n">new_mode</span><span class="p">,</span> <span class="n">delta_t</span>
         <span class="p">)</span>
-        <span class="n">data_update_TOF_GNSS</span> <span class="o">+=</span> <span class="n">TOF_GNSS_payload</span>
+        <span class="n">data_update_payload</span> <span class="o">+=</span> <span class="n">payload_payload</span>
         <span class="n">data_update_HK</span> <span class="o">+=</span> <span class="n">HK_payload</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">obc_subsystem</span><span class="o">.</span><span class="n">update_data_storage</span><span class="p">(</span>
-            <span class="n">data_update_TOF_GNSS</span><span class="p">,</span> <span class="n">data_update_HK</span><span class="p">,</span> <span class="n">delta_t</span>
+            <span class="n">data_update_payload</span><span class="p">,</span> <span class="n">data_update_HK</span><span class="p">,</span> <span class="n">delta_t</span>
         <span class="p">)</span>
 
         <span class="c1"># Check if any safe flag is raised by subsystem and update OBC</span>
@@ -345,11 +346,11 @@
         <span class="p">)</span>
 
         <span class="c1"># Update data storage variables</span>
-        <span class="n">full</span><span class="p">,</span> <span class="n">TOF_GNSS</span><span class="p">,</span> <span class="n">HK</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">obc_subsystem</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+        <span class="n">full</span><span class="p">,</span> <span class="n">payload</span><span class="p">,</span> <span class="n">HK</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">obc_subsystem</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
         <span class="n">spacecraft_state</span><span class="p">[</span><span class="s2">&quot;obc&quot;</span><span class="p">][</span><span class="s2">&quot;data_storage&quot;</span><span class="p">][</span><span class="s2">&quot;init_data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">full</span><span class="o">.</span><span class="n">to_value</span><span class="p">()</span>
         <span class="n">spacecraft_state</span><span class="p">[</span><span class="s2">&quot;obc&quot;</span><span class="p">][</span><span class="s2">&quot;data_storage&quot;</span><span class="p">][</span>
-            <span class="s2">&quot;init_data_TOF_GNSS&quot;</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="n">TOF_GNSS</span><span class="o">.</span><span class="n">to_value</span><span class="p">()</span>
+            <span class="s2">&quot;init_data_payload&quot;</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">to_value</span><span class="p">()</span>
         <span class="n">spacecraft_state</span><span class="p">[</span><span class="s2">&quot;obc&quot;</span><span class="p">][</span><span class="s2">&quot;data_storage&quot;</span><span class="p">][</span><span class="s2">&quot;init_data_HK&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">HK</span><span class="o">.</span><span class="n">to_value</span><span class="p">()</span>
         <span class="n">spacecraft_state</span><span class="p">[</span><span class="s2">&quot;obc&quot;</span><span class="p">][</span><span class="s2">&quot;data_storage&quot;</span><span class="p">][</span><span class="s2">&quot;init_data_to_downlink&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">obc_subsystem</span><span class="o">.</span><span class="n">get_data_storage</span><span class="p">()</span><span class="o">.</span><span class="n">get_data_to_downlink</span><span class="p">()</span><span class="o">.</span><span class="n">to_value</span><span class="p">()</span>

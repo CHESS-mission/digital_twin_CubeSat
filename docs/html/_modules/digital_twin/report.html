@@ -314,17 +314,17 @@
         <span class="p">)</span>
         <span class="n">plot_1d</span><span class="p">(</span>
             <span class="n">data</span><span class="p">[</span><span class="s2">&quot;tofs&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="s2">&quot;second&quot;</span><span class="p">),</span>
-            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;storage_GNSS_TOF&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;Data Storage Over Time (GNSS and TOF)&quot;</span><span class="p">,</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;storage_payload&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;Data Storage Over Time (GNSS and TOF/Camera)&quot;</span><span class="p">,</span>
             <span class="n">x_label</span><span class="p">,</span>
-            <span class="sa">r</span><span class="s2">&quot;GNSS/TOF Data Storage ($Mbit$)&quot;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">&quot;GNSS and TOF/Camera Data Storage ($Mbit$)&quot;</span><span class="p">,</span>
             <span class="n">step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span>
             <span class="n">fill_under</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">remove_box</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">scatter</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">x_label_f</span><span class="o">=</span><span class="n">x_label_f</span><span class="p">,</span>
             <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">save_filename</span><span class="o">=</span><span class="n">folder</span> <span class="o">+</span> <span class="s2">&quot;data_storage_GNSS_TOF.png&quot;</span><span class="p">,</span>
+            <span class="n">save_filename</span><span class="o">=</span><span class="n">folder</span> <span class="o">+</span> <span class="s2">&quot;data_storage_payload.png&quot;</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">plot_1d</span><span class="p">(</span>
             <span class="n">data</span><span class="p">[</span><span class="s2">&quot;tofs&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="s2">&quot;second&quot;</span><span class="p">),</span>
@@ -382,8 +382,8 @@
             <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;vis&quot;</span><span class="p">])</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">folder</span> <span class="o">+</span> <span class="s2">&quot;data.npy&quot;</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;storage&quot;</span><span class="p">])</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">folder</span> <span class="o">+</span> <span class="s2">&quot;data_GNSS_TOF.npy&quot;</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;storage_GNSS_TOF&quot;</span><span class="p">])</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">folder</span> <span class="o">+</span> <span class="s2">&quot;data_payload.npy&quot;</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;storage_payload&quot;</span><span class="p">])</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">folder</span> <span class="o">+</span> <span class="s2">&quot;data_HK.npy&quot;</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;storage_HK&quot;</span><span class="p">])</span>
 
@@ -469,7 +469,7 @@
     <span class="n">df_data</span><span class="p">[</span><span class="s2">&quot;times_telecom&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_1d</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;tofs&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="s2">&quot;second&quot;</span><span class="p">))</span>
     <span class="n">df_data</span><span class="p">[</span><span class="s2">&quot;visibility&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_1d</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;vis&quot;</span><span class="p">])</span>
     <span class="n">df_data</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_1d</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;storage&quot;</span><span class="p">])</span>
-    <span class="n">df_data</span><span class="p">[</span><span class="s2">&quot;data_GNSS_TOF&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_1d</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;storage_GNSS_TOF&quot;</span><span class="p">])</span>
+    <span class="n">df_data</span><span class="p">[</span><span class="s2">&quot;data_payload&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_1d</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;storage_payload&quot;</span><span class="p">])</span>
     <span class="n">df_data</span><span class="p">[</span><span class="s2">&quot;data_HK&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_1d</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;storage_HK&quot;</span><span class="p">])</span>
 
     <span class="c1"># eps data</span>

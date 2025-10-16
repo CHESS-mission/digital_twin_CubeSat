@@ -89,7 +89,7 @@
         "data_storage": {
             "max_storage": 2097152, 
             "init_data": 0,
-            "init_data_TOF_GNSS": 0,
+            "init_data_payload": 0,
             "init_data_HK": 0,
             "init_data_to_downlink": 0
         },
@@ -103,16 +103,16 @@
             "3": 0.61,
             "4": 0.61
         },
-        "consumption_tof": {
+        "consumption_measurment": {
             "0": 0,
-            "1": 7.98,
+            "1": 1,
             "2": 0,
             "3": 0,
             "4": 0
         },
-        "measurement_TOF_rate": 0.111,
-        "measurement_GNSS_rate": 0.00650,
-        "max_duration": 10560,
+        "data_rate_measurment": 0.000333,
+        "data_rate_GNSS": 0.00650,
+        "max_duration": 600,
         "max_duration_unit": "second",
         "nb_measurements_per_day": 1,
         "measurement_pre_conditioning_time": 1500,
