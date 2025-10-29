@@ -10,8 +10,8 @@
         "total_energy": 76.32,
         "min_battery": 15.264,
         "max_battery": 61.056,
-        "init_battery_level": 76.32,
-        "measure_threshold": 46.4,
+        "init_battery_level": 61.056,
+        "measure_threshold": 26.27,
         "com_threshold": 15.63,
         "xb_threshold": 18.08,
         "consumption": {
@@ -39,8 +39,8 @@
     },
     "telecom": {
         "consumption_uhf": {
-            "0": 2.1,
-            "1": 2.1,
+            "0": 0,
+            "1": 2.2,
             "2": 2.1,
             "3": 2.1,
             "4": 2.1
@@ -105,7 +105,7 @@
         },
         "consumption_measurment": {
             "0": 0,
-            "1": 1,
+            "1": 1.0,
             "2": 0,
             "3": 0,
             "4": 0
