@@ -12,6 +12,8 @@ SPACECRAFT_FOLDER = "data/spacecraft/"
 GROUND_STATION_FOLDER = "data/ground_station/"
 MISSION_DESIGN_FOLDER = "data/mission_design/"
 
+ENV_FILE = ".env"
+
 # Defining result paths
 RESULTS_FOLDER = "results/"
 
@@ -38,7 +40,7 @@ def run(args: list[str]) -> None:
         ground_station_params,
         mission_design_params,
     )
-    simulation.run(results_folder=RESULTS_FOLDER)
+    simulation.run(results_folder=RESULTS_FOLDER, env_file=ENV_FILE)
 
 
 if __name__ == "__main__":

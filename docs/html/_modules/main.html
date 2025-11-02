@@ -85,6 +85,8 @@
 <span class="n">GROUND_STATION_FOLDER</span> <span class="o">=</span> <span class="s2">&quot;data/ground_station/&quot;</span>
 <span class="n">MISSION_DESIGN_FOLDER</span> <span class="o">=</span> <span class="s2">&quot;data/mission_design/&quot;</span>
 
+<span class="n">ENV_FILE</span> <span class="o">=</span> <span class="s2">&quot;.env&quot;</span>
+
 <span class="c1"># Defining result paths</span>
 <span class="n">RESULTS_FOLDER</span> <span class="o">=</span> <span class="s2">&quot;results/&quot;</span>
 
@@ -113,7 +115,7 @@
         <span class="n">ground_station_params</span><span class="p">,</span>
         <span class="n">mission_design_params</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">simulation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">results_folder</span><span class="o">=</span><span class="n">RESULTS_FOLDER</span><span class="p">)</span></div>
+    <span class="n">simulation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">results_folder</span><span class="o">=</span><span class="n">RESULTS_FOLDER</span><span class="p">,</span> <span class="n">env_file</span><span class="o">=</span><span class="n">ENV_FILE</span><span class="p">)</span></div>
 
 
 

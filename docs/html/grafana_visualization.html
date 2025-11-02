@@ -43,8 +43,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="readme.html">Project README</a></li>
-<li class="toctree-l1"><a class="reference internal" href="readme.html#a-digital-twin-of-the-chess-cubesat">A Digital Twin of the CHESS CubeSat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readme.html">README for the Digital Twin of the CHESS CubeSat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="digital_twin.html">digital_twin package</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Grafana Visualization Documentation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
@@ -266,15 +265,12 @@ INFLUXDB_URL=http://localhost:8086
 </section>
 <section id="dashboard-import-export">
 <h3>Dashboard Import/Export<a class="headerlink" href="#dashboard-import-export" title="Link to this heading"></a></h3>
-<p>You can import the dashboard <code class="docutils literal notranslate"><span class="pre">digital_twin_dashboard_grafana.json</span></code> directly in the Dashboards menu in Grafana. At the end of your semester, you can then export the dashboard (save it as json) and store it in the drive for the next people to use.</p>
+<p>You can import the dashboard <code class="docutils literal notranslate"><span class="pre">digital_twin_dashboard_grafana.json</span></code> directly in the Dashboards menu in Grafana. You can then export the dashboard (save it as json) and update the version in the repository if you make any changes.</p>
 </section>
 <section id="data-upload-process">
 <h3>Data Upload Process<a class="headerlink" href="#data-upload-process" title="Link to this heading"></a></h3>
-<p>To upload the data to the database:</p>
-<ol class="arabic simple">
-<li><p>Run the simulation to generate the data</p></li>
-<li><p>Run <code class="docutils literal notranslate"><span class="pre">INFLUX_DB_LOCAL.ipynb</span></code> to upload it to InfluxDB</p></li>
-</ol>
+<p>The data should be uploaded automatically when running the simulation via the function <code class="docutils literal notranslate"><span class="pre">upload_to_influxdb</span></code> in <code class="docutils literal notranslate"><span class="pre">report.py</span></code>.</p>
+<p>For Debugging or manual upload, you can also use the <code class="docutils literal notranslate"><span class="pre">INFLUX_DB_LOCAL.ipynb</span></code> notebook after running the simulation.</p>
 </section>
 </section>
 <section id="references">

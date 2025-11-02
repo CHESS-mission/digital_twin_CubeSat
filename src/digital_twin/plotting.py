@@ -521,8 +521,7 @@ def plot_groundtrack(
     stations_coords: np.ndarray = None,
     stations_names: np.ndarray = None,
     stations_colors: str = "red",
-    show: bool = False,
-    csv_folder: str = None,
+    show: bool = False
 ) -> None:
     """Plot a satellite groundtrack on Earth."""
     # For building geo traces
@@ -547,20 +546,6 @@ def plot_groundtrack(
             line={"color": traj_color, "width": traj_width},
         )
     )
-    
-    # Convert to degrees
-    latitudes = itrs_latlon.lat.to(u.deg).value
-    longitudes = itrs_latlon.lon.to(u.deg).value
-
-    # Create a DataFrame
-    df = pd.DataFrame({
-        "latitude_deg": latitudes,
-        "longitude_deg": longitudes
-    })
-
-    # Save to CSV
-    csv_filename = os.path.join(csv_folder, "trajectory_coords.csv")
-    df.to_csv(csv_filename, index=False)
 
     # Add ground station
     if stations_coords is not None:
@@ -956,7 +941,7 @@ def plot_orbital_elem_evolution(
     x_label, x_label_f = find_x_scale(duration_sim)
 
     # update how many values to step to obtain clear plotting (approximately 100 points)
-    step = int(len(tofs) / 100)
+    step = np.max([int(len(tofs) / 100), 1])
 
     plot_1d(
         tofs.to_value("second"),

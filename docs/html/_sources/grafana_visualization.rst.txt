@@ -193,15 +193,14 @@ Access: http://localhost:3000/
 Dashboard Import/Export
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-You can import the dashboard ``digital_twin_dashboard_grafana.json`` directly in the Dashboards menu in Grafana. At the end of your semester, you can then export the dashboard (save it as json) and store it in the drive for the next people to use.
+You can import the dashboard ``digital_twin_dashboard_grafana.json`` directly in the Dashboards menu in Grafana. You can then export the dashboard (save it as json) and update the version in the repository if you make any changes.
 
 Data Upload Process
 ~~~~~~~~~~~~~~~~~~~
 
-To upload the data to the database:
+The data should be uploaded automatically when running the simulation via the function ``upload_to_influxdb`` in ``report.py``.
 
-1. Run the simulation to generate the data
-2. Run ``INFLUX_DB_LOCAL.ipynb`` to upload it to InfluxDB
+For Debugging or manual upload, you can also use the ``INFLUX_DB_LOCAL.ipynb`` notebook after running the simulation.
 
 References
 ----------

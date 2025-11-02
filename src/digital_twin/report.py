@@ -8,6 +8,13 @@ import numpy as np
 import pandas as pd
 import os
 
+from astropy.coordinates import (
+    GCRS,
+    ITRS,
+    CartesianRepresentation,
+    SphericalRepresentation,
+)
+
 from digital_twin.orbit_propagator.constants import attractor_string
 from digital_twin.plotting import (
     plot_1d,
@@ -23,10 +30,15 @@ from digital_twin.plotting import (
 from digital_twin.utils import (
     check_and_empty_folder,
 )
-
+import influxdb_client, os
+from influxdb_client import InfluxDBClient, Point, WritePrecision
+from influxdb_client.client.write_api import SYNCHRONOUS
+import pandas as pd
+from datetime import datetime, timedelta
+from dotenv import load_dotenv
 
 def produce_report(
-    data: dict, report_params: dict, results_folder, verbose=False
+    data: dict, report_params: dict, results_folder, env_file, verbose=False
 ) -> None:
     """Generates various plots based on the provided parameters and saves the report data in the specified folders.
 
@@ -46,6 +58,7 @@ def produce_report(
     generate_figures(data, report_params["figures"], figures_folder, data_folder_csv)
     save_data(data, report_params["data"], data_folder)
     save_csv(data, report_params["data"], data_folder_csv)
+    upload_to_influxdb(env_file, data_folder_csv)
 
 
 
@@ -99,7 +112,6 @@ def generate_figures(data: dict, figure_params: dict, folder: str, csv_folder:st
             stations_coords=np.array(stations_coords),
             stations_names=np.array(stations_names),
             stations_colors=np.array(stations_colors),
-            csv_folder=csv_folder,
         )
 
     if figure_params["modes"] == "yes":
@@ -131,7 +143,7 @@ def generate_figures(data: dict, figure_params: dict, folder: str, csv_folder:st
             )
 
     x_label, x_label_f = find_x_scale(data["duration_sim"])
-    step = int(len(data["tofs"]) / 100)
+    step = np.max([int(len(data["tofs"]) / 100), 1])
 
     if figure_params["battery_energy"] == "yes":
         plot_1d(
@@ -423,5 +435,97 @@ def save_csv(data: dict, data_params: dict, folder: str) -> None:
     df = pd.DataFrame(df_data)
     csv_filename = os.path.join(folder, "simulation_data.csv")
     df.to_csv(csv_filename, index=False)
+
+    # trajectory coordinates
+    raw_xyz = CartesianRepresentation(data["rr"], xyz_axis=-1)
+    raw_obstime = data["epochs_array"]
+    gcrs_xyz = GCRS(
+        raw_xyz, obstime=raw_obstime, representation_type=CartesianRepresentation
+    )
+    itrs_xyz = gcrs_xyz.transform_to(ITRS(obstime=raw_obstime))  # Converts raw coordinates to ITRS ones.
+    itrs_latlon = itrs_xyz.represent_as(SphericalRepresentation)
     
+    # Convert to degrees
+    latitudes = itrs_latlon.lat.to(u.deg).value
+    longitudes = itrs_latlon.lon.to(u.deg).value
+
+    # Create a DataFrame
+    df = pd.DataFrame({
+        "latitude_deg": latitudes,
+        "longitude_deg": longitudes
+    })
+
+    # Save to CSV
+    csv_filename = os.path.join(folder, "trajectory_coords.csv")
+    df.to_csv(csv_filename, index=False)  
+    return
+
+
+def upload_to_influxdb(env_file:str, csv_folder: str) -> None:
+    """Upload simulation data to InfluxDB from CSV files."""
+
+    # Securely retrieve credentials from environment variables
+    load_dotenv(env_file)
+    token = os.environ.get("INFLUXDB_TOKEN")
+    org = os.environ.get("INFLUXDB_ORG", "EST")  # Default to "EST" if not set
+    url = os.environ.get("INFLUXDB_URL", "http://localhost:8086")  # Default URL
+
+    if not token:
+        print("Error: INFLUXDB_TOKEN not found in environment variables. Upload aborted.")
+        return
+
+    client = influxdb_client.InfluxDBClient(url=url, token=token, org=org)
+
+    df = pd.read_csv(os.path.join(csv_folder, "simulation_data.csv"), delimiter=',') # all the data
+    traj_df = pd.read_csv(os.path.join(csv_folder, "trajectory_coords.csv"), delimiter=',') # the trajectory data
+
+    # we artificially add a timestamp to the data to convert to datetime
+    now = datetime(2025, 1, 1, 0, 0, 0)
+    df['times_telecom'] = df['times_telecom'].apply(lambda x: now + timedelta(seconds=x))
+
+    # the full df
+    df = pd.concat([df.reset_index(drop=True), traj_df.reset_index(drop=True)], axis=1)
+
+    # Write data to InfluxDB
+    bucket="NICE"
+    write_api = client.write_api(write_options=SYNCHRONOUS)
+    delete_api = client.delete_api()
+
+    # Delete all previous data from bucket
+    start = "1970-01-01T00:00:00Z"
+    stop =  datetime(2070, 1, 1, 0, 0, 0)
+    delete_api.delete(start, stop, '', bucket=bucket, org=org)
+
+    # the subsystems' times are not included because for now they are the same for all
+    # the .tag are used to index the data, and can be used for filtering
+    # Pre-build list of points
+    points = [
+        Point("satellite_data")
+            .tag("mode", int(row["modes"]))
+            .tag("visible", int(row["visibility"]))
+            .field("visibility", float(row["visibility"]))
+            .field("data", float(row["data"]))
+            .field("data_payload", float(row["data_payload"]))
+            .field("data_HK", float(row["data_HK"]))
+            .field("battery", float(row["battery"]))
+            .field("consumption", float(row["consumption"]))
+            .field("generation", float(row["generation"]))
+            .field("eclipse", float(row["eclipse"]))
+            .field("modes", float(row["modes"]))
+            .field("altitude", float(row["altitude"]))
+            .field("RAAN", float(row["RAAN"]))
+            .field("AOP", float(row["AOP"]))
+            .field("ECC", float(row["ECC"]))
+            .field("INC", float(row["INC"]))
+            .field("density", float(row["density"]))
+            .field("Lat", float(row["latitude_deg"]))
+            .field("Lng", float(row["longitude_deg"]))
+            .field("solar_cells_efficiency", float(row["solar_cells_efficiency"]))
+            .time(row["times_telecom"], write_precision=WritePrecision.NS)
+        for _, row in df.iterrows()
+    ]
+
+    # Send all points at once
+    write_api.write(bucket=bucket, org=org, record=points)
+    print("Upload complete.")
     return

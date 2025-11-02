@@ -181,7 +181,7 @@
 
 <div class="viewcode-block" id="Simulation.run">
 <a class="viewcode-back" href="../../digital_twin.html#digital_twin.simulation.Simulation.run">[docs]</a>
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results_folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;results/&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results_folder</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;results/&quot;</span><span class="p">,</span> <span class="n">env_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;.env&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Function to run the simulation, which contains the main simulation loop.&quot;&quot;&quot;</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Simulation running...&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="k">else</span> <span class="kc">None</span>
 
@@ -411,7 +411,7 @@
         <span class="p">}</span>
 
         <span class="c1"># Produce report</span>
-        <span class="n">produce_report</span><span class="p">(</span><span class="n">data_results</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">report_params</span><span class="p">,</span> <span class="n">results_folder</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="n">produce_report</span><span class="p">(</span><span class="n">data_results</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">report_params</span><span class="p">,</span> <span class="n">results_folder</span><span class="p">,</span> <span class="n">env_file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Results saved!&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="k">else</span> <span class="kc">None</span></div>
 
 
