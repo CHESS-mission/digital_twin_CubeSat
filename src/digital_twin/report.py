@@ -8,13 +8,6 @@ import numpy as np
 import pandas as pd
 import os
 
-from astropy.coordinates import (
-    GCRS,
-    ITRS,
-    CartesianRepresentation,
-    SphericalRepresentation,
-)
-
 from digital_twin.orbit_propagator.constants import attractor_string
 from digital_twin.plotting import (
     plot_1d,
@@ -28,7 +21,7 @@ from digital_twin.plotting import (
     plot_orbital_elem_evolution,
 )
 from digital_twin.utils import (
-    check_and_empty_folder,
+    check_and_empty_folder, convert_cartesian_to_spherical
 )
 import influxdb_client, os
 from influxdb_client import InfluxDBClient, Point, WritePrecision
@@ -38,7 +31,7 @@ from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
 def produce_report(
-    data: dict, report_params: dict, results_folder, env_file, verbose=False
+    data: dict, report_params: dict, results_folder, verbose=False
 ) -> None:
     """Generates various plots based on the provided parameters and saves the report data in the specified folders.
 
@@ -57,8 +50,7 @@ def produce_report(
     check_and_empty_folder(data_folder_csv)
     generate_figures(data, report_params["figures"], figures_folder, data_folder_csv)
     save_data(data, report_params["data"], data_folder)
-    save_csv(data, report_params["data"], data_folder_csv)
-    upload_to_influxdb(env_file, data_folder_csv)
+    save_to_csv(data, data_folder_csv)
 
 
 
@@ -383,149 +375,29 @@ def save_data(data: dict, data_params: dict, folder: str) -> None:
             np.save(f, data["density_array"])
 
 
-
-def save_csv(data: dict, data_params: dict, folder: str) -> None:
+def save_to_csv(data: dict, csv_folder: str) -> None:
     """Save all simulation data into a single CSV file with labeled columns."""
-    
     df_data = {}
 
-    def to_1d(array):
-        """Convert to NumPy array and ensure it's 1D."""
-        return np.array(array).flatten()
+    for key in data.keys():
+        if key in ["tofs"]:
+            df_data[key] =np.array(data[key].to_value("second")).flatten()
+        if key in ["vis", "storage", "storage_payload", "storage_HK",
+                   "battery", "consumption", "generation",
+                   "eclipse", "modes", "altitudes",
+                   "RAANs", "AOPs", "ECCs", "INCs",
+                   "density_array", "solar_cells_efficiency"]:
+            df_data[key] = np.array(data[key]).flatten()
 
-    # telecom data
-    df_data["times_telecom"] = to_1d(data["tofs"].to_value("second"))
-    df_data["visibility"] = to_1d(data["vis"])
-    df_data["data"] = to_1d(data["storage"])
-    df_data["data_payload"] = to_1d(data["storage_payload"])
-    df_data["data_HK"] = to_1d(data["storage_HK"])
-
-    # eps data
-    # df_data["times_eps"] = to_1d(data["tofs"].to_value("second"))
-    df_data["battery"] = to_1d(data["battery"])
-    df_data["consumption"] = to_1d(data["consumption"])
-    df_data["generation"] = to_1d(data["generation"])
-    df_data["eclipse"] = to_1d(data["eclipse"])
-    df_data["solar_cells_efficiency"] = to_1d(data["solar_cells_efficiency"])
-
-    # modes data
-    # df_data["times_modes"] = to_1d(data["tofs"].to_value("second"))
-    df_data["modes"] = to_1d(data["modes"])
-
-    # orbital element data
-    # df_data["times_orbital"] = to_1d(data["tofs"].to_value("second"))
-    df_data["altitude"] = to_1d(data["altitudes"])
-    df_data["RAAN"] = to_1d(data["RAANs"])
-    df_data["AOP"] = to_1d(data["AOPs"])
-    df_data["ECC"] = to_1d(data["ECCs"])
-    df_data["INC"] = to_1d(data["INCs"])
-
-    # spacecraft state data 
-    df_data["times_density"] = to_1d(data["tofs"].to_value("second"))
-    df_data["density"] = to_1d(data["density_array"])
-
-
-    # add nan padding to ensure all columns have the same length
-    max_length = max(len(v) for v in df_data.values())
-    for key in df_data:
-        current_length = len(df_data[key])
-        if current_length < max_length:
-            df_data[key] = np.pad(df_data[key], (0, max_length - current_length), constant_values=np.nan)
+    latitude_deg, longitude_deg = convert_cartesian_to_spherical(
+        data["rr"], data["epochs_array"]
+    )
+    df_data["latitude_deg"] = latitude_deg
+    df_data["longitude_deg"] = longitude_deg
 
     df = pd.DataFrame(df_data)
-    csv_filename = os.path.join(folder, "simulation_data.csv")
-    df.to_csv(csv_filename, index=False)
-
-    # trajectory coordinates
-    raw_xyz = CartesianRepresentation(data["rr"], xyz_axis=-1)
-    raw_obstime = data["epochs_array"]
-    gcrs_xyz = GCRS(
-        raw_xyz, obstime=raw_obstime, representation_type=CartesianRepresentation
-    )
-    itrs_xyz = gcrs_xyz.transform_to(ITRS(obstime=raw_obstime))  # Converts raw coordinates to ITRS ones.
-    itrs_latlon = itrs_xyz.represent_as(SphericalRepresentation)
-    
-    # Convert to degrees
-    latitudes = itrs_latlon.lat.to(u.deg).value
-    longitudes = itrs_latlon.lon.to(u.deg).value
-
-    # Create a DataFrame
-    df = pd.DataFrame({
-        "latitude_deg": latitudes,
-        "longitude_deg": longitudes
-    })
 
     # Save to CSV
-    csv_filename = os.path.join(folder, "trajectory_coords.csv")
-    df.to_csv(csv_filename, index=False)  
-    return
-
-
-def upload_to_influxdb(env_file:str, csv_folder: str) -> None:
-    """Upload simulation data to InfluxDB from CSV files."""
-
-    # Securely retrieve credentials from environment variables
-    load_dotenv(env_file)
-    token = os.environ.get("INFLUXDB_TOKEN")
-    org = os.environ.get("INFLUXDB_ORG", "EST")  # Default to "EST" if not set
-    url = os.environ.get("INFLUXDB_URL", "http://localhost:8086")  # Default URL
-
-    if not token:
-        print("Error: INFLUXDB_TOKEN not found in environment variables. Upload aborted.")
-        return
-
-    client = influxdb_client.InfluxDBClient(url=url, token=token, org=org)
-
-    df = pd.read_csv(os.path.join(csv_folder, "simulation_data.csv"), delimiter=',') # all the data
-    traj_df = pd.read_csv(os.path.join(csv_folder, "trajectory_coords.csv"), delimiter=',') # the trajectory data
-
-    # we artificially add a timestamp to the data to convert to datetime
-    now = datetime(2025, 1, 1, 0, 0, 0)
-    df['times_telecom'] = df['times_telecom'].apply(lambda x: now + timedelta(seconds=x))
-
-    # the full df
-    df = pd.concat([df.reset_index(drop=True), traj_df.reset_index(drop=True)], axis=1)
-
-    # Write data to InfluxDB
-    bucket="NICE"
-    write_api = client.write_api(write_options=SYNCHRONOUS)
-    delete_api = client.delete_api()
-
-    # Delete all previous data from bucket
-    start = "1970-01-01T00:00:00Z"
-    stop =  datetime(2070, 1, 1, 0, 0, 0)
-    delete_api.delete(start, stop, '', bucket=bucket, org=org)
-
-    # the subsystems' times are not included because for now they are the same for all
-    # the .tag are used to index the data, and can be used for filtering
-    # Pre-build list of points
-    points = [
-        Point("satellite_data")
-            .tag("mode", int(row["modes"]))
-            .tag("visible", int(row["visibility"]))
-            .field("visibility", float(row["visibility"]))
-            .field("data", float(row["data"]))
-            .field("data_payload", float(row["data_payload"]))
-            .field("data_HK", float(row["data_HK"]))
-            .field("battery", float(row["battery"]))
-            .field("consumption", float(row["consumption"]))
-            .field("generation", float(row["generation"]))
-            .field("eclipse", float(row["eclipse"]))
-            .field("modes", float(row["modes"]))
-            .field("altitude", float(row["altitude"]))
-            .field("RAAN", float(row["RAAN"]))
-            .field("AOP", float(row["AOP"]))
-            .field("ECC", float(row["ECC"]))
-            .field("INC", float(row["INC"]))
-            .field("density", float(row["density"]))
-            .field("Lat", float(row["latitude_deg"]))
-            .field("Lng", float(row["longitude_deg"]))
-            .field("solar_cells_efficiency", float(row["solar_cells_efficiency"]))
-            .time(row["times_telecom"], write_precision=WritePrecision.NS)
-        for _, row in df.iterrows()
-    ]
-
-    # Send all points at once
-    write_api.write(bucket=bucket, org=org, record=points)
-    print("Upload complete.")
+    csv_filename = os.path.join(csv_folder, "simulation_data.csv")
+    df.to_csv(csv_filename, index=False)
     return

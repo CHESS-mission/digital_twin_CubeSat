@@ -59,7 +59,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#dashboard-creation">Dashboard Creation</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#python-integration">Python Integration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#installation-setup">Installation &amp; Setup</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#default-credentials">Default Credentials</a></li>
@@ -155,6 +154,7 @@
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>INFLUXDB_TOKEN=&lt;your_token_here&gt;
 INFLUXDB_ORG=EST
 INFLUXDB_URL=http://localhost:8086
+INFLUXDB_BUCKET=NICE
 </pre></div>
 </div>
 <p>This way it can automatically be loaded when running the python script.</p>
@@ -225,10 +225,6 @@ INFLUXDB_URL=http://localhost:8086
 </figure>
 </section>
 </section>
-<section id="python-integration">
-<h2>Python Integration<a class="headerlink" href="#python-integration" title="Link to this heading"></a></h2>
-<p>The simulation outputs csv files that store all the data of interest. We need to read these files, connect to the database and send the data. Everything is explained in the file <code class="docutils literal notranslate"><span class="pre">INFLUX_DB_LOCAL.ipynb</span></code>.</p>
-</section>
 <section id="installation-setup">
 <h2>Installation &amp; Setup<a class="headerlink" href="#installation-setup" title="Link to this heading"></a></h2>
 <section id="prerequisites">
@@ -269,8 +265,11 @@ INFLUXDB_URL=http://localhost:8086
 </section>
 <section id="data-upload-process">
 <h3>Data Upload Process<a class="headerlink" href="#data-upload-process" title="Link to this heading"></a></h3>
-<p>The data should be uploaded automatically when running the simulation via the function <code class="docutils literal notranslate"><span class="pre">upload_to_influxdb</span></code> in <code class="docutils literal notranslate"><span class="pre">report.py</span></code>.</p>
-<p>For Debugging or manual upload, you can also use the <code class="docutils literal notranslate"><span class="pre">INFLUX_DB_LOCAL.ipynb</span></code> notebook after running the simulation.</p>
+<p>The data can be uploaded live during the simulation by settig the parameters <code class="docutils literal notranslate"><span class="pre">influxdb_delta_t</span></code> and <code class="docutils literal notranslate"><span class="pre">influxdb_delta_t_unit</span></code> in the simulation configuration json file.
+The data will then be sent to InfluxDB every specified simulated time interval and at the end of the simulation.
+The upload can be deactivated by not setting <code class="docutils literal notranslate"><span class="pre">influxdb_delta_t</span></code> or settig it to -1.
+If the timeinterval is greater than the simulation time, the data will only be sent at the end of the simulation.</p>
+<p>For Debugging or manual upload, you can also use the <code class="docutils literal notranslate"><span class="pre">INFLUX_DB_LOCAL.ipynb</span></code> notebook after running the simulation to upload the data saved to the csv file.</p>
 </section>
 </section>
 <section id="references">

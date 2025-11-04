@@ -8,5 +8,7 @@
     "update_air_density_timestep_unit": "day",
     "propagation_only": "no",
     "verbose": "yes",
-    "print_initial_parameters": "yes"
+    "print_initial_parameters": "yes",
+    "influxdb_delta_t": 1,
+    "influxdb_delta_t_unit": "hour"
 }

@@ -39,8 +39,9 @@ def run(args: list[str]) -> None:
         spacecraft_params,
         ground_station_params,
         mission_design_params,
+        ENV_FILE,
     )
-    simulation.run(results_folder=RESULTS_FOLDER, env_file=ENV_FILE)
+    simulation.run(results_folder=RESULTS_FOLDER)
 
 
 if __name__ == "__main__":

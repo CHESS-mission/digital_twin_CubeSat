@@ -41,6 +41,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">README for the Digital Twin of the CHESS CubeSat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../digital_twin.html">digital_twin package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../grafana_visualization.html">Grafana Visualization Documentation</a></li>
 </ul>
@@ -81,6 +82,14 @@
 <span class="kn">from</span> <span class="nn">astropy.units</span> <span class="kn">import</span> <span class="n">Unit</span>
 <span class="kn">from</span> <span class="nn">poliastro.core.elements</span> <span class="kn">import</span> <span class="n">rv2coe</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">astropy.coordinates</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">GCRS</span><span class="p">,</span>
+    <span class="n">ITRS</span><span class="p">,</span>
+    <span class="n">CartesianRepresentation</span><span class="p">,</span>
+    <span class="n">SphericalRepresentation</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">astropy.time</span> <span class="kn">import</span> <span class="n">Time</span>
 
 <span class="kn">from</span> <span class="nn">digital_twin.constants</span> <span class="kn">import</span> <span class="n">earth_R</span><span class="p">,</span> <span class="n">earth_k</span>
 
@@ -145,7 +154,17 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">rr</span> <span class="o">=</span> <span class="n">eph</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span>
     <span class="n">vv</span> <span class="o">=</span> <span class="n">eph</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">:]</span>
-    <span class="n">orbital_params</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">rv2coe</span><span class="p">(</span><span class="n">earth_k</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">rr</span><span class="p">,</span> <span class="n">vv</span><span class="p">)])</span>
+    
+    <span class="c1"># Create vectorized version of rv2coe</span>
+    <span class="k">def</span> <span class="nf">rv2coe_wrapper</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">rv2coe</span><span class="p">(</span><span class="n">earth_k</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">v</span><span class="p">))</span>
+    
+    <span class="n">vectorized_rv2coe</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span>
+        <span class="n">rv2coe_wrapper</span><span class="p">,</span> 
+        <span class="n">signature</span><span class="o">=</span><span class="s1">&#39;(3),(3)-&gt;(6)&#39;</span>
+    <span class="p">)</span>
+    <span class="n">orbital_params</span> <span class="o">=</span> <span class="n">vectorized_rv2coe</span><span class="p">(</span><span class="n">rr</span><span class="p">,</span> <span class="n">vv</span><span class="p">)</span>
+    
     <span class="n">ps</span> <span class="o">=</span> <span class="n">orbital_params</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
     <span class="n">ECCs</span> <span class="o">=</span> <span class="n">orbital_params</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
     <span class="n">INCs</span> <span class="o">=</span> <span class="n">orbital_params</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span>
@@ -211,6 +230,35 @@
     <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
     <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="convert_cartesian_to_spherical">
+<a class="viewcode-back" href="../../digital_twin.html#digital_twin.utils.convert_cartesian_to_spherical">[docs]</a>
+<span class="k">def</span> <span class="nf">convert_cartesian_to_spherical</span><span class="p">(</span><span class="n">rr</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">epochs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">target_seconds</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert Cartesian coordinates to latitude and longitude in degrees and optionally interpolate to target times.&quot;&quot;&quot;</span>
+
+    <span class="c1"># Convert trajectory to ITRS at original times, then interpolate lat/lon directly</span>
+    <span class="n">raw_xyz</span> <span class="o">=</span> <span class="n">CartesianRepresentation</span><span class="p">(</span><span class="n">rr</span><span class="p">,</span> <span class="n">xyz_axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">raw_obstime</span> <span class="o">=</span> <span class="n">Time</span><span class="p">(</span><span class="n">epochs</span><span class="p">)</span>
+
+    <span class="c1"># transform once to ITRS and get spherical representation (lat/lon) at raw times</span>
+    <span class="n">gcrs_xyz</span> <span class="o">=</span> <span class="n">GCRS</span><span class="p">(</span><span class="n">raw_xyz</span><span class="p">,</span> <span class="n">obstime</span><span class="o">=</span><span class="n">raw_obstime</span><span class="p">,</span> <span class="n">representation_type</span><span class="o">=</span><span class="n">CartesianRepresentation</span><span class="p">)</span>
+    <span class="n">itrs_xyz</span> <span class="o">=</span> <span class="n">gcrs_xyz</span><span class="o">.</span><span class="n">transform_to</span><span class="p">(</span><span class="n">ITRS</span><span class="p">(</span><span class="n">obstime</span><span class="o">=</span><span class="n">raw_obstime</span><span class="p">))</span>
+    <span class="n">itrs_sph</span> <span class="o">=</span> <span class="n">itrs_xyz</span><span class="o">.</span><span class="n">represent_as</span><span class="p">(</span><span class="n">SphericalRepresentation</span><span class="p">)</span>
+
+    <span class="n">lat</span> <span class="o">=</span> <span class="n">itrs_sph</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">lon</span> <span class="o">=</span> <span class="n">itrs_sph</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="c1"># interpolate to target times if provided</span>
+    <span class="k">if</span> <span class="n">target_seconds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">raw_seconds</span> <span class="o">=</span> <span class="p">(</span><span class="n">raw_obstime</span> <span class="o">-</span> <span class="n">raw_obstime</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">sec</span>
+        <span class="c1"># interpolate latitude directly</span>
+        <span class="n">lat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">target_seconds</span><span class="p">,</span> <span class="n">raw_seconds</span><span class="p">,</span> <span class="n">lat</span><span class="p">)</span>
+
+        <span class="c1"># handle longitude wrap-around by unwrapping in radians, interpolating, then re-wrapping</span>
+        <span class="n">lon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">target_seconds</span><span class="p">,</span> <span class="n">raw_seconds</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">unwrap</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">lon</span><span class="p">))))</span>
+        <span class="n">lon</span> <span class="o">=</span> <span class="p">((</span><span class="n">lon</span> <span class="o">+</span> <span class="mf">180.0</span><span class="p">)</span> <span class="o">%</span> <span class="mf">360.0</span><span class="p">)</span> <span class="o">-</span> <span class="mf">180.0</span>  <span class="c1"># normalize to [-180, 180)</span>
+
+    <span class="k">return</span> <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span></div>
 
 </pre></div>
 

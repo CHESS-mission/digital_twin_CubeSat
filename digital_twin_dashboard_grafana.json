@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 5,
+  "id": 7,
   "links": [],
   "panels": [
     {
@@ -2701,11 +2701,11 @@
     "list": []
   },
   "time": {
-    "from": "2024-12-31T23:00:00.000Z",
-    "to": "2025-01-01T23:00:00.000Z"
+    "from": "2028-05-01T09:00:00.000Z",
+    "to": "2028-05-02T09:00:00.000Z"
   },
   "timepicker": {},
-  "timezone": "browser",
+  "timezone": "utc",
   "title": "Digital_Twin_Dashboard_Grafana",
   "uid": "Digital_Twin_Dashboard_Grafana_01",
   "version": 1

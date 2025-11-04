@@ -20,8 +20,14 @@ from digital_twin.spacecraft import Spacecraft
 from digital_twin.utils import (
     get_astropy_unit_time,
     extract_propagation_data_from_ephemeris,
+    convert_cartesian_to_spherical,
 )
-
+import influxdb_client, os
+from influxdb_client import InfluxDBClient, Point, WritePrecision
+from influxdb_client.client.write_api import SYNCHRONOUS
+import pandas as pd
+from datetime import datetime, timedelta
+from dotenv import load_dotenv
 
 class Simulation:
     """Manager class which gathers simulation objects and runs the main simulation loop."""
@@ -33,6 +39,7 @@ class Simulation:
         spacecraft_params: dict,
         station_params: dict,
         mission_design_params: dict,
+        env_file: str,
     ) -> None:
         self.verbose = True if simulation_params["verbose"] == "yes" else False
 
@@ -60,7 +67,7 @@ class Simulation:
         self.tofs = TimeDelta(
             np.linspace(init_time_local, end_time_local, num=self.n_timesteps + 1)
         )  # Gives the results in days
-        self.epochs_array = np.array(epoch + self.tofs)
+        self.epochs_array = epoch + self.tofs
 
         # MODE SWITCH ALGORITHM INITIALIZATION
         self.switch_algo = ModeSwitch(
@@ -104,7 +111,30 @@ class Simulation:
         if simulation_params["print_initial_parameters"] == "yes":
             self.print_parameters()  # Print user parameters
 
-    def run(self, results_folder: str = "results/", env_file: str = ".env") -> None:
+        # InfluxDB initialization
+        if simulation_params.get("influxdb_delta_t", -1) > 0:
+            self.influxdb_delta_t = (simulation_params["influxdb_delta_t"] * get_astropy_unit_time(simulation_params.get("influxdb_delta_t_unit", simulation_params["delta_t_unit"]))).to(self.sim_unit) 
+            load_dotenv(env_file)
+            token = os.environ.get("INFLUXDB_TOKEN")
+            url = os.environ.get("INFLUXDB_URL", "http://localhost:8086")  # Default URL
+            self.influxdborg = os.environ.get("INFLUXDB_ORG", "EST")  # Default to "EST" if not set
+            self.influxdbbucket = os.environ.get("INFLUXDB_BUCKET", "NICE")
+            if not token:
+                raise ValueError("InfluxDB token not found in environment variables.")
+
+            client = influxdb_client.InfluxDBClient(url=url, token=token, org=self.influxdborg)
+
+            # Delete all previous data from bucket
+            start = "1970-01-01T00:00:00Z"
+            stop =  datetime(2070, 1, 1, 0, 0, 0)
+            client.delete_api().delete(start, stop, '', bucket=self.influxdbbucket, org=self.influxdborg)
+
+            self.write_api = client.write_api(write_options=SYNCHRONOUS)
+            self.influxdb_last_upload_t = -1
+        else:
+            self.influxdb_delta_t = -1 * self.sim_unit
+
+    def run(self, results_folder: str = "results/") -> None:
         """Function to run the simulation, which contains the main simulation loop."""
         print("Simulation running...") if self.verbose else None
 
@@ -249,6 +279,98 @@ class Simulation:
 
                 density_array[t + 1] = self.propagator.get_density().value
 
+
+                # 8. If live InfluxDB upload is activated, send data to database
+                if self.influxdb_delta_t > 0:
+                    # Check if enough simulation time has passed since the last upload or we're at the final timestep
+                    last_tof = self.tofs[self.influxdb_last_upload_t] if self.influxdb_last_upload_t >=0 else 0
+                    elapsed_since_last = (self.tofs[t] - last_tof).to(self.sim_unit)
+                    enough_time_elapsed = elapsed_since_last >= self.influxdb_delta_t
+                    is_final_timestep = (t == self.n_timesteps - 1)
+                    if enough_time_elapsed or is_final_timestep:
+
+                        print("Uploading data to InfluxDB...") if self.verbose else None
+
+                        # Only compute data for the new points since last upload
+                        start_idx = self.influxdb_last_upload_t + 1
+                        end_idx = t + 1
+                        n_new_points = end_idx - start_idx
+
+                        # Extract orbital elements
+                        rr_new, vv_new, SMAs_new, ECCs_new, INCs_new, RAANs_new, AOPs_new, TAs_new, altitudes_new = (
+                            extract_propagation_data_from_ephemeris(eph[start_idx:end_idx])
+                        )
+                        
+                        # Convert coordinates
+                        latitude_deg_new, longitude_deg_new = convert_cartesian_to_spherical(rr_new, self.epochs_array[start_idx:end_idx])
+                        
+                        # Handle visibility data
+                        vis_slice = vis_windows[start_idx:end_idx]
+                        if vis_slice.ndim > 1:  # Multiple ground stations
+                            vis_sums = np.sum(vis_slice, axis=1).astype(int)
+                            is_visible = (vis_sums > 0).astype(int)
+                        else:  # Single ground station or already summed
+                            vis_sums = vis_slice.astype(int)
+                            is_visible = vis_sums
+
+                        timestamps = self.epochs_array[start_idx:end_idx].to_datetime()
+
+                        # Extract all data slices as numpy arrays
+                        data_arrays = {
+                            'modes': modes[start_idx:end_idx].astype(int),
+                            'storage': data_storage[start_idx:end_idx],
+                            'storage_payload': data_storage_payload[start_idx:end_idx],
+                            'storage_hk': data_storage_HK[start_idx:end_idx],
+                            'battery': battery_energies[start_idx:end_idx],
+                            'consumption': power_consumption[start_idx:end_idx],
+                            'generation': power_generation[start_idx:end_idx],
+                            'eclipse': eclipse_windows[start_idx:end_idx].astype(int),
+                            'density': density_array[start_idx:end_idx],
+                            'solar_eff': solar_cells_efficiency[start_idx:end_idx],
+                            'altitudes': altitudes_new,
+                            'RAANs': RAANs_new,
+                            'AOPs': AOPs_new,
+                            'ECCs': ECCs_new,
+                            'INCs': INCs_new,
+                            'latitude': latitude_deg_new,
+                            'longitude': longitude_deg_new,
+                            'vis_sums': vis_sums,
+                            'is_visible': is_visible
+                        }
+                        # Use dictionary comprehension for batch creation (more efficient than explicit loop)
+                        batch_data = [
+                            {
+                                "measurement": "satellite_data",
+                                "tags": {"mode": int(data_arrays['modes'][i]), "visible": int(data_arrays['is_visible'][i])},
+                                "fields": {
+                                    "visibility": float(data_arrays['vis_sums'][i]),
+                                    "data": float(data_arrays['storage'][i]),
+                                    "data_payload": float(data_arrays['storage_payload'][i]),
+                                    "data_HK": float(data_arrays['storage_hk'][i]),
+                                    "battery": float(data_arrays['battery'][i]),
+                                    "consumption": float(data_arrays['consumption'][i]),
+                                    "generation": float(data_arrays['generation'][i]),
+                                    "eclipse": float(data_arrays['eclipse'][i]),
+                                    "modes": float(data_arrays['modes'][i]),
+                                    "altitude": float(data_arrays['altitudes'][i]),
+                                    "RAAN": float(data_arrays['RAANs'][i]),
+                                    "AOP": float(data_arrays['AOPs'][i]),
+                                    "ECC": float(data_arrays['ECCs'][i]),
+                                    "INC": float(data_arrays['INCs'][i]),
+                                    "density": float(data_arrays['density'][i]),
+                                    "Lat": float(data_arrays['latitude'][i]),
+                                    "Lng": float(data_arrays['longitude'][i]),
+                                    "solar_cells_efficiency": float(data_arrays['solar_eff'][i])
+                                },
+                                "time": timestamps[i]
+                            }
+                            for i in range(n_new_points)
+                        ]
+                        
+                        # Send batch data - InfluxDB client optimizes this internally
+                        self.write_api.write(bucket=self.influxdbbucket, org=self.influxdborg, record=batch_data)
+                        self.influxdb_last_upload_t = t
+
         end_for_loop = time.time()
         duration = end_for_loop - start_for_loop
         print("Simulation ended!") if self.verbose else None
@@ -334,7 +456,7 @@ class Simulation:
         }
 
         # Produce report
-        produce_report(data_results, self.report_params, results_folder, env_file, self.verbose)
+        produce_report(data_results, self.report_params, results_folder, self.verbose)
         print("Results saved!") if self.verbose else None
 
     def print_parameters(self) -> None:

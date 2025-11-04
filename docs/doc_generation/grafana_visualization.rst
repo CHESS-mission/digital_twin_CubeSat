@@ -67,6 +67,7 @@ You can save it in a ``.env`` file you create in the root directory of the proje
    INFLUXDB_TOKEN=<your_token_here>
    INFLUXDB_ORG=EST
    INFLUXDB_URL=http://localhost:8086
+   INFLUXDB_BUCKET=NICE
 
 This way it can automatically be loaded when running the python script.
 
@@ -141,11 +142,6 @@ You can then edit the query either by clicking on the different measurements and
    
    Editing a panel with query configuration and visualization options
 
-Python Integration
-------------------
-
-The simulation outputs csv files that store all the data of interest. We need to read these files, connect to the database and send the data. Everything is explained in the file ``INFLUX_DB_LOCAL.ipynb``.
-
 Installation & Setup
 --------------------
 
@@ -198,9 +194,12 @@ You can import the dashboard ``digital_twin_dashboard_grafana.json`` directly in
 Data Upload Process
 ~~~~~~~~~~~~~~~~~~~
 
-The data should be uploaded automatically when running the simulation via the function ``upload_to_influxdb`` in ``report.py``.
+The data can be uploaded live during the simulation by settig the parameters ``influxdb_delta_t`` and ``influxdb_delta_t_unit`` in the simulation configuration json file. 
+The data will then be sent to InfluxDB every specified simulated time interval and at the end of the simulation.
+The upload can be deactivated by not setting ``influxdb_delta_t`` or settig it to -1. 
+If the timeinterval is greater than the simulation time, the data will only be sent at the end of the simulation.
 
-For Debugging or manual upload, you can also use the ``INFLUX_DB_LOCAL.ipynb`` notebook after running the simulation.
+For Debugging or manual upload, you can also use the ``INFLUX_DB_LOCAL.ipynb`` notebook after running the simulation to upload the data saved to the csv file.
 
 References
 ----------

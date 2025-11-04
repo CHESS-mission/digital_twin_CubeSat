@@ -81,13 +81,6 @@
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">os</span>
 
-<span class="kn">from</span> <span class="nn">astropy.coordinates</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">GCRS</span><span class="p">,</span>
-    <span class="n">ITRS</span><span class="p">,</span>
-    <span class="n">CartesianRepresentation</span><span class="p">,</span>
-    <span class="n">SphericalRepresentation</span><span class="p">,</span>
-<span class="p">)</span>
-
 <span class="kn">from</span> <span class="nn">digital_twin.orbit_propagator.constants</span> <span class="kn">import</span> <span class="n">attractor_string</span>
 <span class="kn">from</span> <span class="nn">digital_twin.plotting</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">plot_1d</span><span class="p">,</span>
@@ -101,7 +94,7 @@
     <span class="n">plot_orbital_elem_evolution</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">digital_twin.utils</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">check_and_empty_folder</span><span class="p">,</span>
+    <span class="n">check_and_empty_folder</span><span class="p">,</span> <span class="n">convert_cartesian_to_spherical</span>
 <span class="p">)</span>
 <span class="kn">import</span> <span class="nn">influxdb_client</span><span class="o">,</span> <span class="nn">os</span>
 <span class="kn">from</span> <span class="nn">influxdb_client</span> <span class="kn">import</span> <span class="n">InfluxDBClient</span><span class="p">,</span> <span class="n">Point</span><span class="p">,</span> <span class="n">WritePrecision</span>
@@ -113,7 +106,7 @@
 <div class="viewcode-block" id="produce_report">
 <a class="viewcode-back" href="../../digital_twin.html#digital_twin.report.produce_report">[docs]</a>
 <span class="k">def</span> <span class="nf">produce_report</span><span class="p">(</span>
-    <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">report_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">results_folder</span><span class="p">,</span> <span class="n">env_file</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span>
+    <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">report_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">results_folder</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generates various plots based on the provided parameters and saves the report data in the specified folders.</span>
 
@@ -132,8 +125,7 @@
     <span class="n">check_and_empty_folder</span><span class="p">(</span><span class="n">data_folder_csv</span><span class="p">)</span>
     <span class="n">generate_figures</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">report_params</span><span class="p">[</span><span class="s2">&quot;figures&quot;</span><span class="p">],</span> <span class="n">figures_folder</span><span class="p">,</span> <span class="n">data_folder_csv</span><span class="p">)</span>
     <span class="n">save_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">report_params</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">data_folder</span><span class="p">)</span>
-    <span class="n">save_csv</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">report_params</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">data_folder_csv</span><span class="p">)</span>
-    <span class="n">upload_to_influxdb</span><span class="p">(</span><span class="n">env_file</span><span class="p">,</span> <span class="n">data_folder_csv</span><span class="p">)</span></div>
+    <span class="n">save_to_csv</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_folder_csv</span><span class="p">)</span></div>
 
 
 
@@ -465,156 +457,33 @@
 
 
 
-
-<div class="viewcode-block" id="save_csv">
-<a class="viewcode-back" href="../../digital_twin.html#digital_twin.report.save_csv">[docs]</a>
-<span class="k">def</span> <span class="nf">save_csv</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">data_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="save_to_csv">
+<a class="viewcode-back" href="../../digital_twin.html#digital_twin.report.save_to_csv">[docs]</a>
+<span class="k">def</span> <span class="nf">save_to_csv</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">csv_folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Save all simulation data into a single CSV file with labeled columns.&quot;&quot;&quot;</span>
-    
     <span class="n">df_data</span> <span class="o">=</span> <span class="p">{}</span>
 
-    <span class="k">def</span> <span class="nf">to_1d</span><span class="p">(</span><span class="n">array</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert to NumPy array and ensure it&#39;s 1D.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">array</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;tofs&quot;</span><span class="p">]:</span>
+            <span class="n">df_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="s2">&quot;second&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;vis&quot;</span><span class="p">,</span> <span class="s2">&quot;storage&quot;</span><span class="p">,</span> <span class="s2">&quot;storage_payload&quot;</span><span class="p">,</span> <span class="s2">&quot;storage_HK&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;battery&quot;</span><span class="p">,</span> <span class="s2">&quot;consumption&quot;</span><span class="p">,</span> <span class="s2">&quot;generation&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;eclipse&quot;</span><span class="p">,</span> <span class="s2">&quot;modes&quot;</span><span class="p">,</span> <span class="s2">&quot;altitudes&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;RAANs&quot;</span><span class="p">,</span> <span class="s2">&quot;AOPs&quot;</span><span class="p">,</span> <span class="s2">&quot;ECCs&quot;</span><span class="p">,</span> <span class="s2">&quot;INCs&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;density_array&quot;</span><span class="p">,</span> <span class="s2">&quot;solar_cells_efficiency&quot;</span><span class="p">]:</span>
+            <span class="n">df_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
 
-    <span class="c1"># telecom data</span>
-    <span class="n">df_data</span><span class="p">[</span><span class="s2">&quot;times_telecom&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_1d</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;tofs&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="s2">&quot;second&quot;</span><span class="p">))</span>
-    <span class="n">df_data</span><span class="p">[</span><span class="s2">&quot;visibility&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_1d</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;vis&quot;</span><span class="p">])</span>
-    <span class="n">df_data</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_1d</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;storage&quot;</span><span class="p">])</span>
-    <span class="n">df_data</span><span class="p">[</span><span class="s2">&quot;data_payload&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_1d</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;storage_payload&quot;</span><span class="p">])</span>
-    <span class="n">df_data</span><span class="p">[</span><span class="s2">&quot;data_HK&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_1d</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;storage_HK&quot;</span><span class="p">])</span>
-
-    <span class="c1"># eps data</span>
-    <span class="c1"># df_data[&quot;times_eps&quot;] = to_1d(data[&quot;tofs&quot;].to_value(&quot;second&quot;))</span>
-    <span class="n">df_data</span><span class="p">[</span><span class="s2">&quot;battery&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_1d</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;battery&quot;</span><span class="p">])</span>
-    <span class="n">df_data</span><span class="p">[</span><span class="s2">&quot;consumption&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_1d</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;consumption&quot;</span><span class="p">])</span>
-    <span class="n">df_data</span><span class="p">[</span><span class="s2">&quot;generation&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_1d</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;generation&quot;</span><span class="p">])</span>
-    <span class="n">df_data</span><span class="p">[</span><span class="s2">&quot;eclipse&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_1d</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;eclipse&quot;</span><span class="p">])</span>
-    <span class="n">df_data</span><span class="p">[</span><span class="s2">&quot;solar_cells_efficiency&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_1d</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;solar_cells_efficiency&quot;</span><span class="p">])</span>
-
-    <span class="c1"># modes data</span>
-    <span class="c1"># df_data[&quot;times_modes&quot;] = to_1d(data[&quot;tofs&quot;].to_value(&quot;second&quot;))</span>
-    <span class="n">df_data</span><span class="p">[</span><span class="s2">&quot;modes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_1d</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;modes&quot;</span><span class="p">])</span>
-
-    <span class="c1"># orbital element data</span>
-    <span class="c1"># df_data[&quot;times_orbital&quot;] = to_1d(data[&quot;tofs&quot;].to_value(&quot;second&quot;))</span>
-    <span class="n">df_data</span><span class="p">[</span><span class="s2">&quot;altitude&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_1d</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;altitudes&quot;</span><span class="p">])</span>
-    <span class="n">df_data</span><span class="p">[</span><span class="s2">&quot;RAAN&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_1d</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;RAANs&quot;</span><span class="p">])</span>
-    <span class="n">df_data</span><span class="p">[</span><span class="s2">&quot;AOP&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_1d</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;AOPs&quot;</span><span class="p">])</span>
-    <span class="n">df_data</span><span class="p">[</span><span class="s2">&quot;ECC&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_1d</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;ECCs&quot;</span><span class="p">])</span>
-    <span class="n">df_data</span><span class="p">[</span><span class="s2">&quot;INC&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_1d</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;INCs&quot;</span><span class="p">])</span>
-
-    <span class="c1"># spacecraft state data </span>
-    <span class="n">df_data</span><span class="p">[</span><span class="s2">&quot;times_density&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_1d</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;tofs&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="s2">&quot;second&quot;</span><span class="p">))</span>
-    <span class="n">df_data</span><span class="p">[</span><span class="s2">&quot;density&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">to_1d</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;density_array&quot;</span><span class="p">])</span>
-
-
-    <span class="c1"># add nan padding to ensure all columns have the same length</span>
-    <span class="n">max_length</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">df_data</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
-    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">df_data</span><span class="p">:</span>
-        <span class="n">current_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">df_data</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
-        <span class="k">if</span> <span class="n">current_length</span> <span class="o">&lt;</span> <span class="n">max_length</span><span class="p">:</span>
-            <span class="n">df_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">df_data</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_length</span> <span class="o">-</span> <span class="n">current_length</span><span class="p">),</span> <span class="n">constant_values</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="n">latitude_deg</span><span class="p">,</span> <span class="n">longitude_deg</span> <span class="o">=</span> <span class="n">convert_cartesian_to_spherical</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;rr&quot;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;epochs_array&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">df_data</span><span class="p">[</span><span class="s2">&quot;latitude_deg&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">latitude_deg</span>
+    <span class="n">df_data</span><span class="p">[</span><span class="s2">&quot;longitude_deg&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">longitude_deg</span>
 
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df_data</span><span class="p">)</span>
-    <span class="n">csv_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="s2">&quot;simulation_data.csv&quot;</span><span class="p">)</span>
-    <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">csv_filename</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-
-    <span class="c1"># trajectory coordinates</span>
-    <span class="n">raw_xyz</span> <span class="o">=</span> <span class="n">CartesianRepresentation</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;rr&quot;</span><span class="p">],</span> <span class="n">xyz_axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">raw_obstime</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;epochs_array&quot;</span><span class="p">]</span>
-    <span class="n">gcrs_xyz</span> <span class="o">=</span> <span class="n">GCRS</span><span class="p">(</span>
-        <span class="n">raw_xyz</span><span class="p">,</span> <span class="n">obstime</span><span class="o">=</span><span class="n">raw_obstime</span><span class="p">,</span> <span class="n">representation_type</span><span class="o">=</span><span class="n">CartesianRepresentation</span>
-    <span class="p">)</span>
-    <span class="n">itrs_xyz</span> <span class="o">=</span> <span class="n">gcrs_xyz</span><span class="o">.</span><span class="n">transform_to</span><span class="p">(</span><span class="n">ITRS</span><span class="p">(</span><span class="n">obstime</span><span class="o">=</span><span class="n">raw_obstime</span><span class="p">))</span>  <span class="c1"># Converts raw coordinates to ITRS ones.</span>
-    <span class="n">itrs_latlon</span> <span class="o">=</span> <span class="n">itrs_xyz</span><span class="o">.</span><span class="n">represent_as</span><span class="p">(</span><span class="n">SphericalRepresentation</span><span class="p">)</span>
-    
-    <span class="c1"># Convert to degrees</span>
-    <span class="n">latitudes</span> <span class="o">=</span> <span class="n">itrs_latlon</span><span class="o">.</span><span class="n">lat</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
-    <span class="n">longitudes</span> <span class="o">=</span> <span class="n">itrs_latlon</span><span class="o">.</span><span class="n">lon</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
-
-    <span class="c1"># Create a DataFrame</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-        <span class="s2">&quot;latitude_deg&quot;</span><span class="p">:</span> <span class="n">latitudes</span><span class="p">,</span>
-        <span class="s2">&quot;longitude_deg&quot;</span><span class="p">:</span> <span class="n">longitudes</span>
-    <span class="p">})</span>
 
     <span class="c1"># Save to CSV</span>
-    <span class="n">csv_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="s2">&quot;trajectory_coords.csv&quot;</span><span class="p">)</span>
-    <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">csv_filename</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  
-    <span class="k">return</span></div>
-
-
-
-<div class="viewcode-block" id="upload_to_influxdb">
-<a class="viewcode-back" href="../../digital_twin.html#digital_twin.report.upload_to_influxdb">[docs]</a>
-<span class="k">def</span> <span class="nf">upload_to_influxdb</span><span class="p">(</span><span class="n">env_file</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">csv_folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Upload simulation data to InfluxDB from CSV files.&quot;&quot;&quot;</span>
-
-    <span class="c1"># Securely retrieve credentials from environment variables</span>
-    <span class="n">load_dotenv</span><span class="p">(</span><span class="n">env_file</span><span class="p">)</span>
-    <span class="n">token</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;INFLUXDB_TOKEN&quot;</span><span class="p">)</span>
-    <span class="n">org</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;INFLUXDB_ORG&quot;</span><span class="p">,</span> <span class="s2">&quot;EST&quot;</span><span class="p">)</span>  <span class="c1"># Default to &quot;EST&quot; if not set</span>
-    <span class="n">url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;INFLUXDB_URL&quot;</span><span class="p">,</span> <span class="s2">&quot;http://localhost:8086&quot;</span><span class="p">)</span>  <span class="c1"># Default URL</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">token</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error: INFLUXDB_TOKEN not found in environment variables. Upload aborted.&quot;</span><span class="p">)</span>
-        <span class="k">return</span>
-
-    <span class="n">client</span> <span class="o">=</span> <span class="n">influxdb_client</span><span class="o">.</span><span class="n">InfluxDBClient</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="n">token</span><span class="p">,</span> <span class="n">org</span><span class="o">=</span><span class="n">org</span><span class="p">)</span>
-
-    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">csv_folder</span><span class="p">,</span> <span class="s2">&quot;simulation_data.csv&quot;</span><span class="p">),</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="c1"># all the data</span>
-    <span class="n">traj_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">csv_folder</span><span class="p">,</span> <span class="s2">&quot;trajectory_coords.csv&quot;</span><span class="p">),</span> <span class="n">delimiter</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span> <span class="c1"># the trajectory data</span>
-
-    <span class="c1"># we artificially add a timestamp to the data to convert to datetime</span>
-    <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;times_telecom&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;times_telecom&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">now</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">x</span><span class="p">))</span>
-
-    <span class="c1"># the full df</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">traj_df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-
-    <span class="c1"># Write data to InfluxDB</span>
-    <span class="n">bucket</span><span class="o">=</span><span class="s2">&quot;NICE&quot;</span>
-    <span class="n">write_api</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">write_api</span><span class="p">(</span><span class="n">write_options</span><span class="o">=</span><span class="n">SYNCHRONOUS</span><span class="p">)</span>
-    <span class="n">delete_api</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">delete_api</span><span class="p">()</span>
-
-    <span class="c1"># Delete all previous data from bucket</span>
-    <span class="n">start</span> <span class="o">=</span> <span class="s2">&quot;1970-01-01T00:00:00Z&quot;</span>
-    <span class="n">stop</span> <span class="o">=</span>  <span class="n">datetime</span><span class="p">(</span><span class="mi">2070</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="n">delete_api</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">bucket</span><span class="o">=</span><span class="n">bucket</span><span class="p">,</span> <span class="n">org</span><span class="o">=</span><span class="n">org</span><span class="p">)</span>
-
-    <span class="c1"># the subsystems&#39; times are not included because for now they are the same for all</span>
-    <span class="c1"># the .tag are used to index the data, and can be used for filtering</span>
-    <span class="c1"># Pre-build list of points</span>
-    <span class="n">points</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">Point</span><span class="p">(</span><span class="s2">&quot;satellite_data&quot;</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="s2">&quot;mode&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;modes&quot;</span><span class="p">]))</span>
-            <span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="s2">&quot;visible&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;visibility&quot;</span><span class="p">]))</span>
-            <span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;visibility&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;visibility&quot;</span><span class="p">]))</span>
-            <span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]))</span>
-            <span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;data_payload&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;data_payload&quot;</span><span class="p">]))</span>
-            <span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;data_HK&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;data_HK&quot;</span><span class="p">]))</span>
-            <span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;battery&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;battery&quot;</span><span class="p">]))</span>
-            <span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;consumption&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;consumption&quot;</span><span class="p">]))</span>
-            <span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;generation&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;generation&quot;</span><span class="p">]))</span>
-            <span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;eclipse&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;eclipse&quot;</span><span class="p">]))</span>
-            <span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;modes&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;modes&quot;</span><span class="p">]))</span>
-            <span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;altitude&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;altitude&quot;</span><span class="p">]))</span>
-            <span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;RAAN&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;RAAN&quot;</span><span class="p">]))</span>
-            <span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;AOP&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;AOP&quot;</span><span class="p">]))</span>
-            <span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;ECC&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;ECC&quot;</span><span class="p">]))</span>
-            <span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;INC&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;INC&quot;</span><span class="p">]))</span>
-            <span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;density&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;density&quot;</span><span class="p">]))</span>
-            <span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Lat&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;latitude_deg&quot;</span><span class="p">]))</span>
-            <span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;Lng&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;longitude_deg&quot;</span><span class="p">]))</span>
-            <span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;solar_cells_efficiency&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;solar_cells_efficiency&quot;</span><span class="p">]))</span>
-            <span class="o">.</span><span class="n">time</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;times_telecom&quot;</span><span class="p">],</span> <span class="n">write_precision</span><span class="o">=</span><span class="n">WritePrecision</span><span class="o">.</span><span class="n">NS</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">iterrows</span><span class="p">()</span>
-    <span class="p">]</span>
-
-    <span class="c1"># Send all points at once</span>
-    <span class="n">write_api</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">bucket</span><span class="o">=</span><span class="n">bucket</span><span class="p">,</span> <span class="n">org</span><span class="o">=</span><span class="n">org</span><span class="p">,</span> <span class="n">record</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Upload complete.&quot;</span><span class="p">)</span>
+    <span class="n">csv_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">csv_folder</span><span class="p">,</span> <span class="s2">&quot;simulation_data.csv&quot;</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">csv_filename</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">return</span></div>
 
 </pre></div>

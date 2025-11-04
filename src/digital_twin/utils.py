@@ -10,6 +10,14 @@ from astropy.units import Unit
 from poliastro.core.elements import rv2coe
 import numpy as np
 
+from astropy.coordinates import (
+    GCRS,
+    ITRS,
+    CartesianRepresentation,
+    SphericalRepresentation,
+)
+from astropy.time import Time
+
 from digital_twin.constants import earth_R, earth_k
 
 
@@ -62,7 +70,17 @@ def extract_propagation_data_from_ephemeris(eph: np.ndarray) -> tuple[np.ndarray
     """
     rr = eph[:, :3]
     vv = eph[:, 3:]
-    orbital_params = np.array([rv2coe(earth_k, r, v) for r, v in zip(rr, vv)])
+    
+    # Create vectorized version of rv2coe
+    def rv2coe_wrapper(r, v):
+        return np.array(rv2coe(earth_k, r, v))
+    
+    vectorized_rv2coe = np.vectorize(
+        rv2coe_wrapper, 
+        signature='(3),(3)->(6)'
+    )
+    orbital_params = vectorized_rv2coe(rr, vv)
+    
     ps = orbital_params[:, 0]
     ECCs = orbital_params[:, 1]
     INCs = orbital_params[:, 2]
@@ -122,3 +140,29 @@ def parse_data_file(file_path: str) -> dict:
     data = json.load(f)
     f.close()
     return data
+def convert_cartesian_to_spherical(rr: np.ndarray, epochs: np.ndarray, target_seconds:np.ndarray = None) -> tuple[np.ndarray]:
+    """Convert Cartesian coordinates to latitude and longitude in degrees and optionally interpolate to target times."""
+
+    # Convert trajectory to ITRS at original times, then interpolate lat/lon directly
+    raw_xyz = CartesianRepresentation(rr, xyz_axis=-1)
+    raw_obstime = Time(epochs)
+
+    # transform once to ITRS and get spherical representation (lat/lon) at raw times
+    gcrs_xyz = GCRS(raw_xyz, obstime=raw_obstime, representation_type=CartesianRepresentation)
+    itrs_xyz = gcrs_xyz.transform_to(ITRS(obstime=raw_obstime))
+    itrs_sph = itrs_xyz.represent_as(SphericalRepresentation)
+
+    lat = itrs_sph.lat.to(u.deg).value
+    lon = itrs_sph.lon.to(u.deg).value
+
+    # interpolate to target times if provided
+    if target_seconds is not None:
+        raw_seconds = (raw_obstime - raw_obstime[0]).sec
+        # interpolate latitude directly
+        lat = np.interp(target_seconds, raw_seconds, lat)
+
+        # handle longitude wrap-around by unwrapping in radians, interpolating, then re-wrapping
+        lon = np.rad2deg(np.interp(target_seconds, raw_seconds, np.unwrap(np.deg2rad(lon))))
+        lon = ((lon + 180.0) % 360.0) - 180.0  # normalize to [-180, 180)
+
+    return lat, lon
