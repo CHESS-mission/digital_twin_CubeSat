@@ -65,6 +65,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#starting-the-services">Starting the Services</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#dashboard-import-export">Dashboard Import/Export</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#data-upload-process">Data Upload Process</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#note">Note</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
@@ -269,7 +270,13 @@ INFLUXDB_BUCKET=NICE
 The data will then be sent to InfluxDB every specified simulated time interval and at the end of the simulation.
 The upload can be deactivated by not setting <code class="docutils literal notranslate"><span class="pre">influxdb_delta_t</span></code> or settig it to -1.
 If the timeinterval is greater than the simulation time, the data will only be sent at the end of the simulation.</p>
+<p>Additionally, if you only want to upload data when the satellite is visible from the ground station and at the very end, you can set the parameter <code class="docutils literal notranslate"><span class="pre">influxdb_only_visible</span></code> to true.</p>
 <p>For Debugging or manual upload, you can also use the <code class="docutils literal notranslate"><span class="pre">INFLUX_DB_LOCAL.ipynb</span></code> notebook after running the simulation to upload the data saved to the csv file.</p>
+</section>
+<section id="note">
+<h3>Note<a class="headerlink" href="#note" title="Link to this heading"></a></h3>
+<p>The simulation data is timestamped when uploaded to InfluxDB. It is set to the epoch defined in the orbit_template.json (default: 2028-05-01 09:00:00).
+So make sure to set the timerange on Influx or Grafana correctly, if you can not see any data.</p>
 </section>
 </section>
 <section id="references">

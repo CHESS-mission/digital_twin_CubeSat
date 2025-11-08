@@ -69,6 +69,9 @@ class Simulation:
         )  # Gives the results in days
         self.epochs_array = epoch + self.tofs
 
+        self.run_real_time = simulation_params.get("run_real_time", False)
+        print(f"ATTENTION: Running simulation in real-time mode (this is very inefficient!)") if self.run_real_time and self.verbose else None
+
         # MODE SWITCH ALGORITHM INITIALIZATION
         self.switch_algo = ModeSwitch(
             init_mode=int(spacecraft_params["general"]["init_operating_mode"]),
@@ -114,11 +117,14 @@ class Simulation:
         # InfluxDB initialization
         if simulation_params.get("influxdb_delta_t", -1) > 0:
             self.influxdb_delta_t = (simulation_params["influxdb_delta_t"] * get_astropy_unit_time(simulation_params.get("influxdb_delta_t_unit", simulation_params["delta_t_unit"]))).to(self.sim_unit) 
+            self.influxdb_only_visible = simulation_params.get("influxdb_only_visible", False)
+
+            #Loading InfluxDB credentials from .env file
             load_dotenv(env_file)
             token = os.environ.get("INFLUXDB_TOKEN")
             url = os.environ.get("INFLUXDB_URL", "http://localhost:8086")  # Default URL
             self.influxdborg = os.environ.get("INFLUXDB_ORG", "EST")  # Default to "EST" if not set
-            self.influxdbbucket = os.environ.get("INFLUXDB_BUCKET", "NICE")
+            self.influxdbbucket = os.environ.get("INFLUXDB_BUCKET", "NICE")         
             if not token:
                 raise ValueError("InfluxDB token not found in environment variables.")
 
@@ -181,6 +187,16 @@ class Simulation:
         # MAIN SIMULATION LOOP
         start_for_loop = time.time()
         for t in range(0, self.n_timesteps):
+
+            if self.run_real_time:
+                # Calculate the target time for the current timestep
+                target_time = start_for_loop + (t + 1) * self.delta_t.to_value(u.second)
+                # Calculate the time to wait until the target time
+                now = time.time()
+                time_to_wait = (target_time - now)
+                if time_to_wait > 0:
+                    time.sleep(time_to_wait)
+
 
             # 1. propagate to next position and store the results
             try:
@@ -287,7 +303,9 @@ class Simulation:
                     elapsed_since_last = (self.tofs[t] - last_tof).to(self.sim_unit)
                     enough_time_elapsed = elapsed_since_last >= self.influxdb_delta_t
                     is_final_timestep = (t == self.n_timesteps - 1)
-                    if enough_time_elapsed or is_final_timestep:
+
+                    is_visible_check = np.any(vis_windows[t + 1]) if self.influxdb_only_visible else True
+                    if (enough_time_elapsed and is_visible_check) or is_final_timestep:
 
                         print("Uploading data to InfluxDB...") if self.verbose else None
 

@@ -199,7 +199,14 @@ The data will then be sent to InfluxDB every specified simulated time interval a
 The upload can be deactivated by not setting ``influxdb_delta_t`` or settig it to -1. 
 If the timeinterval is greater than the simulation time, the data will only be sent at the end of the simulation.
 
+Additionally, if you only want to upload data when the satellite is visible from the ground station and at the very end, you can set the parameter ``influxdb_only_visible`` to true.
+
 For Debugging or manual upload, you can also use the ``INFLUX_DB_LOCAL.ipynb`` notebook after running the simulation to upload the data saved to the csv file.
+
+Note
+~~~~
+The simulation data is timestamped when uploaded to InfluxDB. It is set to the epoch defined in the orbit_template.json (default: 2028-05-01 09:00:00).
+So make sure to set the timerange on Influx or Grafana correctly, if you can not see any data.
 
 References
 ----------
