@@ -44,7 +44,7 @@ class ModeSwitch:
             safe_flag (bool): Indicates whether a safe flag has been raised.
         """
         if safe_flag:
-            self.operating_mode = 1
+            self.operating_mode = 2
         else:
             match self.operating_mode:
                 case 0:
