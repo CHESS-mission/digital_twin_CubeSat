@@ -151,4 +151,7 @@ class ModeSwitch:
                 self.operating_mode = 0
             else:
                 self.operating_mode = 4  # Stay in x-band
+    def set_mode(self, mode: int) -> None:
+        """Directly set the operating mode (used for commands)."""
+        self.operating_mode = mode
 

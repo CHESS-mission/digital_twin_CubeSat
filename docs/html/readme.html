@@ -63,7 +63,10 @@
 <li class="toctree-l3"><a class="reference internal" href="#type-hints">Type hints</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#new-updates-spring-2025">New updates (spring 2025)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#new-updates">New updates</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#real-time-command-system">Real-time Command System*</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#id5">TODOs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#id6">Authors</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#initial-development-fall-2024">Initial development (fall 2024)</a></li>
@@ -380,14 +383,18 @@
 <p>For more details about type annotations with units, see the <a class="reference external" href="https://docs.astropy.org/en/stable/units/type_hints.html#">Astropy documentation</a>.</p>
 </section>
 </section>
-<section id="new-updates-spring-2025">
-<h2>New updates (spring 2025)<a class="headerlink" href="#new-updates-spring-2025" title="Link to this heading"></a></h2>
+<section id="new-updates">
+<h2>New updates<a class="headerlink" href="#new-updates" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>Solar cells efficiency: to simulate linearly decreasing performances in the solar cells efficiency</p></li>
 <li><p>Grafana interface: The simulation’s results can be directly uploaded to an InfluxDB database for visualization with a Grafana-based interface.
 Everything runs locally for now, you then need to install the local versions of InfluxDB (<a class="reference external" href="https://docs.influxdata.com/influxdb3/core/install/">https://docs.influxdata.com/influxdb3/core/install/</a>) and Grafana (<a class="reference external" href="https://grafana.com/docs/grafana/latest/setup-grafana/installation/">https://grafana.com/docs/grafana/latest/setup-grafana/installation/</a>).
 Once this is done, you will have to launch two terminals to activate the processes : one for InfluxDB and the other for Grafana. These terminals need to run for the whole visualization time. To upload the data into InfluxDB, take a look at the notebook INFLUX_DB_LOCAL.ipynb and the documentation relative to the Grafana interface.</p></li>
 </ul>
+<section id="real-time-command-system">
+<h3>Real-time Command System*<a class="headerlink" href="#real-time-command-system" title="Link to this heading"></a></h3>
+<p>A new command system allows sending commands to the simulation during runtime. Commands can be sent via <code class="docutils literal notranslate"><span class="pre">sim.send_command(command:</span> <span class="pre">str,</span> <span class="pre">params:</span> <span class="pre">dict)</span></code>. They are put in a Queue and executed at the beginning of the next iteration. Different Commands have to be defined in <code class="docutils literal notranslate"><span class="pre">execute_commands()</span></code> in <code class="docutils literal notranslate"><span class="pre">commands.py</span></code>. For testing a simple GUI exists, that can be started in a secondary thread by setting <code class="docutils literal notranslate"><span class="pre">&quot;use_gui&quot;:</span> <span class="pre">true</span></code> in <code class="docutils literal notranslate"><span class="pre">simulation_template.json</span></code>. Currently only mode switching is implemented. It can be helpful to set <code class="docutils literal notranslate"><span class="pre">&quot;run_real_time&quot;:</span> <span class="pre">true</span></code>, which makes the simualtion wait after each iterations, such that it runs in real time. Eventualy the digital twin will be integrated with NEST by FlightSoftware, and hopefully the command infrastructure can be used for this with small changes.</p>
+</section>
 </section>
 <section id="id5">
 <h2>TODOs<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>

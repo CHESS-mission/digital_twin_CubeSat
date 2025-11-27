@@ -273,13 +273,15 @@ For a comprehensive list of physical types available in Astropy, refer to this [
 
 For more details about type annotations with units, see the [Astropy documentation](https://docs.astropy.org/en/stable/units/type_hints.html#).
 
-## New updates (spring 2025)
+## New updates
 - Solar cells efficiency: to simulate linearly decreasing performances in the solar cells efficiency
 
 - Grafana interface: The simulation's results can be directly uploaded to an InfluxDB database for visualization with a Grafana-based interface.
 Everything runs locally for now, you then need to install the local versions of InfluxDB (https://docs.influxdata.com/influxdb3/core/install/) and Grafana (https://grafana.com/docs/grafana/latest/setup-grafana/installation/).
 Once this is done, you will have to launch two terminals to activate the processes : one for InfluxDB and the other for Grafana. These terminals need to run for the whole visualization time. To upload the data into InfluxDB, take a look at the notebook INFLUX_DB_LOCAL.ipynb and the documentation relative to the Grafana interface.
 
+### Real-time Command System*
+A new command system allows sending commands to the simulation during runtime. Commands can be sent via `sim.send_command(command: str, params: dict)`. They are put in a Queue and executed at the beginning of the next iteration. Different Commands have to be defined in `execute_commands()` in `commands.py`. For testing a simple GUI exists, that can be started in a secondary thread by setting `"use_gui": true` in `simulation_template.json`. Currently only mode switching is implemented. It can be helpful to set `"run_real_time": true`, which makes the simualtion wait after each iterations, such that it runs in real time. Eventualy the digital twin will be integrated with NEST by FlightSoftware, and hopefully the command infrastructure can be used for this with small changes.
 
 ## TODOs
 

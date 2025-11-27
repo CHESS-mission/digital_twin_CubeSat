@@ -74,9 +74,11 @@
 <span></span><span class="sd">&quot;&quot;&quot;Main file to run.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">time</span>
 
 <span class="kn">from</span> <span class="nn">digital_twin</span> <span class="kn">import</span> <span class="n">Simulation</span>
 <span class="kn">from</span> <span class="nn">digital_twin.utils</span> <span class="kn">import</span> <span class="n">parse_data_file</span>
+<span class="kn">from</span> <span class="nn">digital_twin.gui</span> <span class="kn">import</span> <span class="n">SimulationGUI</span>
 
 <span class="c1"># Defining data paths</span>
 <span class="n">SIMULATION_FOLDER</span> <span class="o">=</span> <span class="s2">&quot;data/simulation/&quot;</span>
@@ -116,6 +118,12 @@
         <span class="n">mission_design_params</span><span class="p">,</span>
         <span class="n">ENV_FILE</span><span class="p">,</span>
     <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">simulation_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;use_gui&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="c1"># Create and start the GUI in a separate thread</span>
+        <span class="n">gui</span> <span class="o">=</span> <span class="n">SimulationGUI</span><span class="p">(</span><span class="n">simulation</span><span class="p">)</span>
+        <span class="n">gui</span><span class="o">.</span><span class="n">start_non_blocking</span><span class="p">()</span>
+    
     <span class="n">simulation</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">results_folder</span><span class="o">=</span><span class="n">RESULTS_FOLDER</span><span class="p">)</span></div>
 
 

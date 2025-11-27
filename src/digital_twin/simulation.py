@@ -5,6 +5,7 @@ subsystems to run a cohesive simulation based on user-defined parameters.
 
 import time
 from typing import Any
+from queue import Queue
 
 from astropy import units as u
 from astropy.time import Time, TimeDelta
@@ -13,6 +14,7 @@ import numpy as np
 from digital_twin.constants import earth_R, simulation_unit, simulation_unit_string
 from digital_twin.ground_station import GroundStation
 from digital_twin.mode_switch import ModeSwitch
+from digital_twin.commands import CommandProcessor
 
 from digital_twin.orbit_propagator import OrbitPropagator
 from digital_twin.report import produce_report
@@ -72,6 +74,9 @@ class Simulation:
         self.run_real_time = simulation_params.get("run_real_time", False)
         print(f"ATTENTION: Running simulation in real-time mode (this is very inefficient!)") if self.run_real_time and self.verbose else None
 
+        self.command_queue = Queue()
+        self.command_processor = CommandProcessor(simulation=self)
+
         # MODE SWITCH ALGORITHM INITIALIZATION
         self.switch_algo = ModeSwitch(
             init_mode=int(spacecraft_params["general"]["init_operating_mode"]),
@@ -107,7 +112,8 @@ class Simulation:
 
         # Additional user input
         user_input = mission_design_params["user_input"]
-        self.handle_user_input(user_input)
+        if user_input.get("uplink_safe_mode"):
+            self.send_command("uplink_safe_mode", user_input["uplink_safe_mode"])
 
         # Report and printing
         self.report_params = mission_design_params["report"]
@@ -187,6 +193,9 @@ class Simulation:
         # MAIN SIMULATION LOOP
         start_for_loop = time.time()
         for t in range(0, self.n_timesteps):
+
+            # Process commands            
+            self._process_commands()
 
             if self.run_real_time:
                 # Calculate the target time for the current timestep
@@ -496,13 +505,24 @@ class Simulation:
         print("*******************")
         print("")
 
-    def handle_user_input(self, user_input: dict) -> None:
-        """Handle additional user input. Currently only implemented for uplink safe mode trigger.
+    def _process_commands(self) -> None:
+        """Process all pending commands in the queue."""
+        
+        while not self.command_queue.empty():
+            try:
+                command = self.command_queue.get_nowait()
+                success, message = self.command_processor.execute_command(command)
+                if self.verbose:
+                    print(f"Command {command['command']}: {'✓' if success else '✗'} {message}")
+            except Exception as e:
+                print(f"Error processing command: {e}")
 
+    def send_command(self, command: str, params: dict = {}) -> None:
+        """Send a command to the simulation.
+        
         Args:
-            user_input (dict): Dictionary containing the user input to consider.
+            command: Command name (e.g., 'set_mode', 'uplink_safe_mode')
+            params: Command parameters
         """
-        if user_input["uplink_safe_mode"]:  # If dic is not empty
-            self.spacecraft.get_telecom().add_uplink_safe_mode(
-                user_input["uplink_safe_mode"]
-            )
+        command_dict = {"command": command, "params": params}
+        self.command_queue.put(command_dict)

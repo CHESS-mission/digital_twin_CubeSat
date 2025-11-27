@@ -1,9 +1,11 @@
 """Main file to run."""
 
 import sys
+import time
 
 from digital_twin import Simulation
 from digital_twin.utils import parse_data_file
+from digital_twin.gui import SimulationGUI
 
 # Defining data paths
 SIMULATION_FOLDER = "data/simulation/"
@@ -41,6 +43,12 @@ def run(args: list[str]) -> None:
         mission_design_params,
         ENV_FILE,
     )
+
+    if simulation_params.get("use_gui", False):
+        # Create and start the GUI in a separate thread
+        gui = SimulationGUI(simulation)
+        gui.start_non_blocking()
+    
     simulation.run(results_folder=RESULTS_FOLDER)
 
 

@@ -12,5 +12,6 @@
     "influxdb_delta_t": 1,
     "influxdb_delta_t_unit": "hour",
     "influxdb_only_visible": false,
-    "run_real_time": false
+    "run_real_time": false,
+    "use_gui": false
 }

@@ -53,7 +53,23 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-digital_twin.commands">digital_twin.commands module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#digital_twin.commands.CommandProcessor"><code class="docutils literal notranslate"><span class="pre">CommandProcessor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#digital_twin.commands.CommandProcessor.execute_command"><code class="docutils literal notranslate"><span class="pre">CommandProcessor.execute_command()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#module-digital_twin.constants">digital_twin.constants module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-digital_twin.gui">digital_twin.gui module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#digital_twin.gui.SimulationGUI"><code class="docutils literal notranslate"><span class="pre">SimulationGUI</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#digital_twin.gui.SimulationGUI.run"><code class="docutils literal notranslate"><span class="pre">SimulationGUI.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#digital_twin.gui.SimulationGUI.send_mode_command"><code class="docutils literal notranslate"><span class="pre">SimulationGUI.send_mode_command()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#digital_twin.gui.SimulationGUI.start_non_blocking"><code class="docutils literal notranslate"><span class="pre">SimulationGUI.start_non_blocking()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#module-digital_twin.mode_switch">digital_twin.mode_switch module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#digital_twin.mode_switch.ModeSwitch"><code class="docutils literal notranslate"><span class="pre">ModeSwitch</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#digital_twin.mode_switch.ModeSwitch.mode_switch_from_IDLE_CHARGING"><code class="docutils literal notranslate"><span class="pre">ModeSwitch.mode_switch_from_IDLE_CHARGING()</span></code></a></li>
@@ -63,6 +79,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#digital_twin.mode_switch.ModeSwitch.mode_switch_from_X_BAND_COM"><code class="docutils literal notranslate"><span class="pre">ModeSwitch.mode_switch_from_X_BAND_COM()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#digital_twin.mode_switch.ModeSwitch.operating_mode"><code class="docutils literal notranslate"><span class="pre">ModeSwitch.operating_mode</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#digital_twin.mode_switch.ModeSwitch.print_operating_mode"><code class="docutils literal notranslate"><span class="pre">ModeSwitch.print_operating_mode()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#digital_twin.mode_switch.ModeSwitch.set_mode"><code class="docutils literal notranslate"><span class="pre">ModeSwitch.set_mode()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#digital_twin.mode_switch.ModeSwitch.switch_mode"><code class="docutils literal notranslate"><span class="pre">ModeSwitch.switch_mode()</span></code></a></li>
 </ul>
 </li>
@@ -93,9 +110,9 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#module-digital_twin.simulation">digital_twin.simulation module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#digital_twin.simulation.Simulation"><code class="docutils literal notranslate"><span class="pre">Simulation</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#digital_twin.simulation.Simulation.handle_user_input"><code class="docutils literal notranslate"><span class="pre">Simulation.handle_user_input()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#digital_twin.simulation.Simulation.print_parameters"><code class="docutils literal notranslate"><span class="pre">Simulation.print_parameters()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#digital_twin.simulation.Simulation.run"><code class="docutils literal notranslate"><span class="pre">Simulation.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#digital_twin.simulation.Simulation.send_command"><code class="docutils literal notranslate"><span class="pre">Simulation.send_command()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -162,7 +179,7 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="digital_twin.ground_station.html#module-digital_twin.ground_station">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="digital_twin.ground_station.html#module-contents">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="digital_twin.orbit_propagator.html">digital_twin.orbit_propagator package</a><ul>
@@ -295,7 +312,7 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="digital_twin.spacecraft.html#module-digital_twin.spacecraft">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="digital_twin.spacecraft.html#module-contents">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -304,9 +321,71 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
 </section>
+<section id="module-digital_twin.commands">
+<span id="digital-twin-commands-module"></span><h2>digital_twin.commands module<a class="headerlink" href="#module-digital_twin.commands" title="Link to this heading"></a></h2>
+<p>Simple command system for real-time simulation control.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="digital_twin.commands.CommandProcessor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">digital_twin.commands.</span></span><span class="sig-name descname"><span class="pre">CommandProcessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simulation</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/digital_twin/commands.html#CommandProcessor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.commands.CommandProcessor" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Processes commands and applies them to the simulation.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="digital_twin.commands.CommandProcessor.execute_command">
+<span class="sig-name descname"><span class="pre">execute_command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/digital_twin/commands.html#CommandProcessor.execute_command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.commands.CommandProcessor.execute_command" title="Link to this definition"></a></dt>
+<dd><p>Execute a command by calling the appropriate simulation method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>command</strong> – Dictionary with ‘command’ (str) and ‘params’ (dict) keys</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool, message: str)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple of (success</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
 <section id="module-digital_twin.constants">
 <span id="digital-twin-constants-module"></span><h2>digital_twin.constants module<a class="headerlink" href="#module-digital_twin.constants" title="Link to this heading"></a></h2>
 <p>Constants for the simulation.</p>
+</section>
+<section id="module-digital_twin.gui">
+<span id="digital-twin-gui-module"></span><h2>digital_twin.gui module<a class="headerlink" href="#module-digital_twin.gui" title="Link to this heading"></a></h2>
+<p>Simple GUI for controlling the simulation in real-time.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="digital_twin.gui.SimulationGUI">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">digital_twin.gui.</span></span><span class="sig-name descname"><span class="pre">SimulationGUI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simulation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/digital_twin/gui.html#SimulationGUI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.gui.SimulationGUI" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Basic GUI to send commands to the running simulation.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="digital_twin.gui.SimulationGUI.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/digital_twin/gui.html#SimulationGUI.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.gui.SimulationGUI.run" title="Link to this definition"></a></dt>
+<dd><p>Internal method to create and run the GUI (called in the thread).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="digital_twin.gui.SimulationGUI.send_mode_command">
+<span class="sig-name descname"><span class="pre">send_mode_command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/digital_twin/gui.html#SimulationGUI.send_mode_command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.gui.SimulationGUI.send_mode_command" title="Link to this definition"></a></dt>
+<dd><p>Send a set_mode command to the simulation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mode</strong> – The mode number to set</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="digital_twin.gui.SimulationGUI.start_non_blocking">
+<span class="sig-name descname"><span class="pre">start_non_blocking</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/digital_twin/gui.html#SimulationGUI.start_non_blocking"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.gui.SimulationGUI.start_non_blocking" title="Link to this definition"></a></dt>
+<dd><p>Start the GUI in a separate thread (non-blocking).</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="module-digital_twin.mode_switch">
 <span id="digital-twin-mode-switch-module"></span><h2>digital_twin.mode_switch module<a class="headerlink" href="#module-digital_twin.mode_switch" title="Link to this heading"></a></h2>
@@ -355,6 +434,12 @@
 <dt class="sig sig-object py" id="digital_twin.mode_switch.ModeSwitch.print_operating_mode">
 <span class="sig-name descname"><span class="pre">print_operating_mode</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/digital_twin/mode_switch.html#ModeSwitch.print_operating_mode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.mode_switch.ModeSwitch.print_operating_mode" title="Link to this definition"></a></dt>
 <dd><p>Return the human-readable description of the current operating mode.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="digital_twin.mode_switch.ModeSwitch.set_mode">
+<span class="sig-name descname"><span class="pre">set_mode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/digital_twin/mode_switch.html#ModeSwitch.set_mode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.mode_switch.ModeSwitch.set_mode" title="Link to this definition"></a></dt>
+<dd><p>Directly set the operating mode (used for commands).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -528,17 +613,6 @@ subsystems to run a cohesive simulation based on user-defined parameters.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Manager class which gathers simulation objects and runs the main simulation loop.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="digital_twin.simulation.Simulation.handle_user_input">
-<span class="sig-name descname"><span class="pre">handle_user_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/digital_twin/simulation.html#Simulation.handle_user_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.simulation.Simulation.handle_user_input" title="Link to this definition"></a></dt>
-<dd><p>Handle additional user input. Currently only implemented for uplink safe mode trigger.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>user_input</strong> (<em>dict</em>) – Dictionary containing the user input to consider.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="digital_twin.simulation.Simulation.print_parameters">
 <span class="sig-name descname"><span class="pre">print_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/digital_twin/simulation.html#Simulation.print_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.simulation.Simulation.print_parameters" title="Link to this definition"></a></dt>
 <dd><p>Print a summary of the the simulation objects.</p>
@@ -548,6 +622,20 @@ subsystems to run a cohesive simulation based on user-defined parameters.</p>
 <dt class="sig sig-object py" id="digital_twin.simulation.Simulation.run">
 <span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'results/'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/digital_twin/simulation.html#Simulation.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.simulation.Simulation.run" title="Link to this definition"></a></dt>
 <dd><p>Function to run the simulation, which contains the main simulation loop.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="digital_twin.simulation.Simulation.send_command">
+<span class="sig-name descname"><span class="pre">send_command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/digital_twin/simulation.html#Simulation.send_command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.simulation.Simulation.send_command" title="Link to this definition"></a></dt>
+<dd><p>Send a command to the simulation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>command</strong> – Command name (e.g., ‘set_mode’, ‘uplink_safe_mode’)</p></li>
+<li><p><strong>params</strong> – Command parameters</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
