@@ -48,9 +48,9 @@ def produce_report(
     data_folder_csv = folder + "csv/"
     check_and_empty_folder(data_folder)
     check_and_empty_folder(data_folder_csv)
-    generate_figures(data, report_params["figures"], figures_folder, data_folder_csv)
-    save_data(data, report_params["data"], data_folder)
     save_to_csv(data, data_folder_csv)
+    save_data(data, report_params["data"], data_folder)
+    generate_figures(data, report_params["figures"], figures_folder, data_folder_csv)
 
 
 
