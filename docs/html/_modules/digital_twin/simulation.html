@@ -98,10 +98,8 @@
     <span class="n">convert_cartesian_to_spherical</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">import</span> <span class="nn">influxdb_client</span><span class="o">,</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">influxdb_client</span> <span class="kn">import</span> <span class="n">InfluxDBClient</span><span class="p">,</span> <span class="n">Point</span><span class="p">,</span> <span class="n">WritePrecision</span>
 <span class="kn">from</span> <span class="nn">influxdb_client.client.write_api</span> <span class="kn">import</span> <span class="n">SYNCHRONOUS</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span> <span class="nn">dotenv</span> <span class="kn">import</span> <span class="n">load_dotenv</span>
 
 <div class="viewcode-block" id="Simulation">
@@ -269,6 +267,7 @@
 
         <span class="c1"># MAIN SIMULATION LOOP</span>
         <span class="n">start_for_loop</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">step_10_percent</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">//</span> <span class="mi">10</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span><span class="p">):</span>
 
             <span class="c1"># Process commands            </span>
@@ -300,7 +299,6 @@
             <span class="n">eph</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">rv</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
             <span class="n">eph</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">:]</span> <span class="o">=</span> <span class="n">rv</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span>
 
-            <span class="n">step_10_percent</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">//</span> <span class="mi">10</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">t</span> <span class="o">%</span> <span class="n">step_10_percent</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
                 <span class="n">percent</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">t</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
                 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&gt; iter </span><span class="si">{</span><span class="n">t</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">percent</span><span class="si">}</span><span class="s2">%)&quot;</span><span class="p">)</span>
@@ -313,7 +311,6 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">ground_stations</span>
                 <span class="p">)</span>
                 <span class="n">eclipse_status</span><span class="p">,</span> <span class="n">r_earth_sun</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">propagator</span><span class="o">.</span><span class="n">calculate_eclipse_status</span><span class="p">()</span>
-                <span class="n">r_earth_sun</span> <span class="o">=</span> <span class="n">r_earth_sun</span>
 
                 <span class="c1"># 3. Calculate user-scheduled params</span>
                 <span class="n">measurement_session</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_payload</span><span class="p">()</span><span class="o">.</span><span class="n">can_start_measuring</span><span class="p">(</span>
@@ -359,7 +356,7 @@
                 <span class="p">)</span>
 
                 <span class="c1"># 7. Save data at current timestep</span>
-                <span class="n">vis_windows</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">vis</span><span class="p">)</span> <span class="k">for</span> <span class="n">vis</span> <span class="ow">in</span> <span class="n">visibility</span><span class="p">])</span>
+                <span class="n">vis_windows</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">visibility</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
                 <span class="n">eclipse_windows</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">eclipse_status</span><span class="p">)</span>
                 <span class="n">battery_energies</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_eps</span><span class="p">()</span><span class="o">.</span><span class="n">get_battery_energy</span><span class="p">()</span><span class="o">.</span><span class="n">value</span>

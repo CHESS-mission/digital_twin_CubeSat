@@ -30,14 +30,6 @@ digital\_twin.constants module
    :undoc-members:
    :show-inheritance:
 
-digital\_twin.gui module
-------------------------
-
-.. automodule:: digital_twin.gui
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 digital\_twin.mode\_switch module
 ---------------------------------
 

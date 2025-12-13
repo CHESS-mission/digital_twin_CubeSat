@@ -5,7 +5,7 @@ import time
 
 from digital_twin import Simulation
 from digital_twin.utils import parse_data_file
-from digital_twin.gui import SimulationGUI
+from digital_twin.commands import SimulationGUI
 
 # Defining data paths
 SIMULATION_FOLDER = "data/simulation/"

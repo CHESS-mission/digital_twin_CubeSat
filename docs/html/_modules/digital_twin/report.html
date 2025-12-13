@@ -96,12 +96,8 @@
 <span class="kn">from</span> <span class="nn">digital_twin.utils</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">check_and_empty_folder</span><span class="p">,</span> <span class="n">convert_cartesian_to_spherical</span>
 <span class="p">)</span>
-<span class="kn">import</span> <span class="nn">influxdb_client</span><span class="o">,</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">influxdb_client</span> <span class="kn">import</span> <span class="n">InfluxDBClient</span><span class="p">,</span> <span class="n">Point</span><span class="p">,</span> <span class="n">WritePrecision</span>
-<span class="kn">from</span> <span class="nn">influxdb_client.client.write_api</span> <span class="kn">import</span> <span class="n">SYNCHRONOUS</span>
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
-<span class="kn">from</span> <span class="nn">dotenv</span> <span class="kn">import</span> <span class="n">load_dotenv</span>
 
 <div class="viewcode-block" id="produce_report">
 <a class="viewcode-back" href="../../digital_twin.html#digital_twin.report.produce_report">[docs]</a>
@@ -123,9 +119,9 @@
     <span class="n">data_folder_csv</span> <span class="o">=</span> <span class="n">folder</span> <span class="o">+</span> <span class="s2">&quot;csv/&quot;</span>
     <span class="n">check_and_empty_folder</span><span class="p">(</span><span class="n">data_folder</span><span class="p">)</span>
     <span class="n">check_and_empty_folder</span><span class="p">(</span><span class="n">data_folder_csv</span><span class="p">)</span>
-    <span class="n">generate_figures</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">report_params</span><span class="p">[</span><span class="s2">&quot;figures&quot;</span><span class="p">],</span> <span class="n">figures_folder</span><span class="p">,</span> <span class="n">data_folder_csv</span><span class="p">)</span>
+    <span class="n">save_to_csv</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_folder_csv</span><span class="p">)</span>
     <span class="n">save_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">report_params</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">data_folder</span><span class="p">)</span>
-    <span class="n">save_to_csv</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_folder_csv</span><span class="p">)</span></div>
+    <span class="n">generate_figures</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">report_params</span><span class="p">[</span><span class="s2">&quot;figures&quot;</span><span class="p">],</span> <span class="n">figures_folder</span><span class="p">,</span> <span class="n">data_folder_csv</span><span class="p">)</span></div>
 
 
 
@@ -465,8 +461,8 @@
 
     <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
         <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;tofs&quot;</span><span class="p">]:</span>
-            <span class="n">df_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="s2">&quot;second&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;vis&quot;</span><span class="p">,</span> <span class="s2">&quot;storage&quot;</span><span class="p">,</span> <span class="s2">&quot;storage_payload&quot;</span><span class="p">,</span> <span class="s2">&quot;storage_HK&quot;</span><span class="p">,</span>
+            <span class="n">df_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="s2">&quot;second&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;vis&quot;</span><span class="p">,</span> <span class="s2">&quot;storage&quot;</span><span class="p">,</span> <span class="s2">&quot;storage_payload&quot;</span><span class="p">,</span> <span class="s2">&quot;storage_HK&quot;</span><span class="p">,</span>
                    <span class="s2">&quot;battery&quot;</span><span class="p">,</span> <span class="s2">&quot;consumption&quot;</span><span class="p">,</span> <span class="s2">&quot;generation&quot;</span><span class="p">,</span>
                    <span class="s2">&quot;eclipse&quot;</span><span class="p">,</span> <span class="s2">&quot;modes&quot;</span><span class="p">,</span> <span class="s2">&quot;altitudes&quot;</span><span class="p">,</span>
                    <span class="s2">&quot;RAANs&quot;</span><span class="p">,</span> <span class="s2">&quot;AOPs&quot;</span><span class="p">,</span> <span class="s2">&quot;ECCs&quot;</span><span class="p">,</span> <span class="s2">&quot;INCs&quot;</span><span class="p">,</span>

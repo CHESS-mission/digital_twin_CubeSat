@@ -8,6 +8,8 @@ This repository hosts a Python-based simulation framework developed to support t
 
 2. *Foundation for a digital twin*: Serves as the groundwork for a digital twin capable of simulating real-time satellite operations, including anomaly detection.
 
+3. Eventual integration into the end-to-end simulation with NEST by Flightsoftware
+
 This framework was initially developed as part of a semester project with the EPFL Spacecraft Team in collaboration with the EPFL Space Center. The semester project report under the *docs/* folder is a valuable ressource in addition to this README file.
 
 ## Table of Contents
@@ -63,6 +65,7 @@ The repository is organized as follows:
 │   └── figures						# Generated figures
 └── src							# Source code
     ├── digital_twin
+    │   ├── commands.py					# Functions to send commands + GUI
     │   ├── constants.py				# General constants for the simulation
     │   ├── ground_station				# Ground station module
     │   │   └── ground_station.py
@@ -222,8 +225,7 @@ All data arrays are saved with an accompanying `"times.npy"` array for use in pl
 	- `"solar cells efficiency"`: Evolution of the solar cells efficiency over time
 
 - **csv**:
-	- `"simulation_data.csv"`: All the previous fields, in a CSV format
-	- `"trajectory_coords.csv"`: The groundracks in a CSV format
+	- `"simulation_data.csv"`: All the previous fields and groundtrack, in a CSV format
 
 
 
@@ -249,7 +251,7 @@ The documentation is created using [*Sphinx*](https://www.sphinx-doc.org/en/mast
 
 The updated documentation will be located in the *docs/html/* folder.
 
-**Important Note**: The `grafana_visualization.rst` file contains manually created documentation for the Grafana interface and should NOT be deleted when rebuilding documentation.
+**Important Note**: The `"index.rst"`, `"readme.rst"` and `"grafana_visualization.rst"` files contains manually created documentation and should NOT be deleted when rebuilding documentation.
 
 If only code changes are made (such as modifying functions or classes), and no new files are added or removed, simply run `make html` in the *docs/doc_generation/* directory to re-generate the documentation.
 
@@ -280,12 +282,11 @@ For more details about type annotations with units, see the [Astropy documentati
 Everything runs locally for now, you then need to install the local versions of InfluxDB (https://docs.influxdata.com/influxdb3/core/install/) and Grafana (https://grafana.com/docs/grafana/latest/setup-grafana/installation/).
 Once this is done, you will have to launch two terminals to activate the processes : one for InfluxDB and the other for Grafana. These terminals need to run for the whole visualization time. To upload the data into InfluxDB, take a look at the notebook INFLUX_DB_LOCAL.ipynb and the documentation relative to the Grafana interface.
 
-### Real-time Command System*
-A new command system allows sending commands to the simulation during runtime. Commands can be sent via `sim.send_command(command: str, params: dict)`. They are put in a Queue and executed at the beginning of the next iteration. Different Commands have to be defined in `execute_commands()` in `commands.py`. For testing a simple GUI exists, that can be started in a secondary thread by setting `"use_gui": true` in `simulation_template.json`. Currently only mode switching is implemented. It can be helpful to set `"run_real_time": true`, which makes the simualtion wait after each iterations, such that it runs in real time. Eventualy the digital twin will be integrated with NEST by FlightSoftware, and hopefully the command infrastructure can be used for this with small changes.
+- Real-time Command System: A new command system allows sending commands to the simulation during runtime. Commands can be sent via `sim.send_command(command: str, params: dict)`. They are put in a Queue and executed at the beginning of the next iteration. Different Commands have to be defined in `execute_commands()` in `commands.py`. For testing a simple GUI exists, that can be started in a secondary thread by setting `"use_gui": true` in `simulation_template.json`. Currently only mode switching is implemented. It can be helpful to set `"run_real_time": true`, which makes the simualtion wait after each iterations, such that it runs in real time. Eventualy the digital twin will be integrated with NEST by FlightSoftware, and hopefully the command infrastructure can be used for this with small changes.
 
 ## TODOs
 
-The next potential steps for this project are outlined in **Section 6** of the project report. You can find the report in the *docs/* folder.
+Some next potential steps for this project are outlined in **Section 6** of the project report. You can find the report in the *docs/* folder.
 
 ## Authors
 
@@ -302,5 +303,9 @@ The next potential steps for this project are outlined in **Section 6** of the p
 ### Grafana visualization + small improvements (spring 2025)
 
 - **Author**: Kilian Pouderoux (kilian.pouderoux@epfl.ch)
+
+### Small improvements + beginning of preparation for NEST integration
+
+- **Author**: Fabian Riemer (thorben.riemer@epfl.ch/fabianriemer03@gmail.com)
 
 Future authors are encouraged to add their names and details as they contribute to this  project.

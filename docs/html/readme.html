@@ -63,14 +63,12 @@
 <li class="toctree-l3"><a class="reference internal" href="#type-hints">Type hints</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#new-updates">New updates</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#real-time-command-system">Real-time Command System*</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="#new-updates">New updates</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#id5">TODOs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#id6">Authors</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#initial-development-fall-2024">Initial development (fall 2024)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#grafana-visualization-small-improvements-spring-2025">Grafana visualization + small improvements (spring 2025)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#small-improvements-beginning-of-preparation-for-nest-integration">Small improvements + beginning of preparation for NEST integration</a></li>
 </ul>
 </li>
 </ul>
@@ -111,6 +109,7 @@
 <ol class="arabic simple">
 <li><p><em>Simulation tool for mission design</em>: Provides tools for modeling and simulating different subsystems of the CHESS CubeSat to inform decisions and help in the development, testing, and validation tasks.</p></li>
 <li><p><em>Foundation for a digital twin</em>: Serves as the groundwork for a digital twin capable of simulating real-time satellite operations, including anomaly detection.</p></li>
+<li><p>Eventual integration into the end-to-end simulation with NEST by Flightsoftware</p></li>
 </ol>
 <p>This framework was initially developed as part of a semester project with the EPFL Spacecraft Team in collaboration with the EPFL Space Center. The semester project report under the <em>docs/</em> folder is a valuable ressource in addition to this README file.</p>
 </section>
@@ -166,6 +165,7 @@
 │<span class="w">   </span>└──<span class="w"> </span>figures<span class="w">                     </span><span class="c1"># Generated figures</span>
 └──<span class="w"> </span>src<span class="w">                         </span><span class="c1"># Source code</span>
 <span class="w">    </span>├──<span class="w"> </span>digital_twin
+<span class="w">    </span>│<span class="w">   </span>├──<span class="w"> </span>commands.py<span class="w">                 </span><span class="c1"># Functions to send commands + GUI</span>
 <span class="w">    </span>│<span class="w">   </span>├──<span class="w"> </span>constants.py<span class="w">                </span><span class="c1"># General constants for the simulation</span>
 <span class="w">    </span>│<span class="w">   </span>├──<span class="w"> </span>ground_station<span class="w">              </span><span class="c1"># Ground station module</span>
 <span class="w">    </span>│<span class="w">   </span>│<span class="w">   </span>└──<span class="w"> </span>ground_station.py
@@ -328,8 +328,7 @@
 </li>
 <li><p><strong>csv</strong>:</p>
 <ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">&quot;simulation_data.csv&quot;</span></code>: All the previous fields, in a CSV format</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">&quot;trajectory_coords.csv&quot;</span></code>: The groundracks in a CSV format</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;simulation_data.csv&quot;</span></code>: All the previous fields and groundtrack, in a CSV format</p></li>
 </ul>
 </li>
 </ul>
@@ -359,7 +358,7 @@
 </li>
 </ol>
 <p>The updated documentation will be located in the <em>docs/html/</em> folder.</p>
-<p><strong>Important Note</strong>: The <code class="docutils literal notranslate"><span class="pre">grafana_visualization.rst</span></code> file contains manually created documentation for the Grafana interface and should NOT be deleted when rebuilding documentation.</p>
+<p><strong>Important Note</strong>: The <code class="docutils literal notranslate"><span class="pre">&quot;index.rst&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;readme.rst&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;grafana_visualization.rst&quot;</span></code> files contains manually created documentation and should NOT be deleted when rebuilding documentation.</p>
 <p>If only code changes are made (such as modifying functions or classes), and no new files are added or removed, simply run <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">html</span></code> in the <em>docs/doc_generation/</em> directory to re-generate the documentation.</p>
 <section id="type-hints">
 <h3>Type hints<a class="headerlink" href="#type-hints" title="Link to this heading"></a></h3>
@@ -390,15 +389,12 @@
 <li><p>Grafana interface: The simulation’s results can be directly uploaded to an InfluxDB database for visualization with a Grafana-based interface.
 Everything runs locally for now, you then need to install the local versions of InfluxDB (<a class="reference external" href="https://docs.influxdata.com/influxdb3/core/install/">https://docs.influxdata.com/influxdb3/core/install/</a>) and Grafana (<a class="reference external" href="https://grafana.com/docs/grafana/latest/setup-grafana/installation/">https://grafana.com/docs/grafana/latest/setup-grafana/installation/</a>).
 Once this is done, you will have to launch two terminals to activate the processes : one for InfluxDB and the other for Grafana. These terminals need to run for the whole visualization time. To upload the data into InfluxDB, take a look at the notebook INFLUX_DB_LOCAL.ipynb and the documentation relative to the Grafana interface.</p></li>
+<li><p>Real-time Command System: A new command system allows sending commands to the simulation during runtime. Commands can be sent via <code class="docutils literal notranslate"><span class="pre">sim.send_command(command:</span> <span class="pre">str,</span> <span class="pre">params:</span> <span class="pre">dict)</span></code>. They are put in a Queue and executed at the beginning of the next iteration. Different Commands have to be defined in <code class="docutils literal notranslate"><span class="pre">execute_commands()</span></code> in <code class="docutils literal notranslate"><span class="pre">commands.py</span></code>. For testing a simple GUI exists, that can be started in a secondary thread by setting <code class="docutils literal notranslate"><span class="pre">&quot;use_gui&quot;:</span> <span class="pre">true</span></code> in <code class="docutils literal notranslate"><span class="pre">simulation_template.json</span></code>. Currently only mode switching is implemented. It can be helpful to set <code class="docutils literal notranslate"><span class="pre">&quot;run_real_time&quot;:</span> <span class="pre">true</span></code>, which makes the simualtion wait after each iterations, such that it runs in real time. Eventualy the digital twin will be integrated with NEST by FlightSoftware, and hopefully the command infrastructure can be used for this with small changes.</p></li>
 </ul>
-<section id="real-time-command-system">
-<h3>Real-time Command System*<a class="headerlink" href="#real-time-command-system" title="Link to this heading"></a></h3>
-<p>A new command system allows sending commands to the simulation during runtime. Commands can be sent via <code class="docutils literal notranslate"><span class="pre">sim.send_command(command:</span> <span class="pre">str,</span> <span class="pre">params:</span> <span class="pre">dict)</span></code>. They are put in a Queue and executed at the beginning of the next iteration. Different Commands have to be defined in <code class="docutils literal notranslate"><span class="pre">execute_commands()</span></code> in <code class="docutils literal notranslate"><span class="pre">commands.py</span></code>. For testing a simple GUI exists, that can be started in a secondary thread by setting <code class="docutils literal notranslate"><span class="pre">&quot;use_gui&quot;:</span> <span class="pre">true</span></code> in <code class="docutils literal notranslate"><span class="pre">simulation_template.json</span></code>. Currently only mode switching is implemented. It can be helpful to set <code class="docutils literal notranslate"><span class="pre">&quot;run_real_time&quot;:</span> <span class="pre">true</span></code>, which makes the simualtion wait after each iterations, such that it runs in real time. Eventualy the digital twin will be integrated with NEST by FlightSoftware, and hopefully the command infrastructure can be used for this with small changes.</p>
-</section>
 </section>
 <section id="id5">
 <h2>TODOs<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
-<p>The next potential steps for this project are outlined in <strong>Section 6</strong> of the project report. You can find the report in the <em>docs/</em> folder.</p>
+<p>Some next potential steps for this project are outlined in <strong>Section 6</strong> of the project report. You can find the report in the <em>docs/</em> folder.</p>
 </section>
 <section id="id6">
 <h2>Authors<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
@@ -423,6 +419,12 @@ Once this is done, you will have to launch two terminals to activate the process
 <h3>Grafana visualization + small improvements (spring 2025)<a class="headerlink" href="#grafana-visualization-small-improvements-spring-2025" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p><strong>Author</strong>: Kilian Pouderoux (<a class="reference external" href="mailto:kilian&#46;pouderoux&#37;&#52;&#48;epfl&#46;ch">kilian<span>&#46;</span>pouderoux<span>&#64;</span>epfl<span>&#46;</span>ch</a>)</p></li>
+</ul>
+</section>
+<section id="small-improvements-beginning-of-preparation-for-nest-integration">
+<h3>Small improvements + beginning of preparation for NEST integration<a class="headerlink" href="#small-improvements-beginning-of-preparation-for-nest-integration" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Author</strong>: Fabian Riemer (<a class="reference external" href="mailto:thorben&#46;riemer&#37;&#52;&#48;epfl&#46;ch">thorben<span>&#46;</span>riemer<span>&#64;</span>epfl<span>&#46;</span>ch</a><a class="reference external" href="mailto:/fabianriemer03&#37;&#52;&#48;gmail&#46;com">/fabianriemer03<span>&#64;</span>gmail<span>&#46;</span>com</a>)</p></li>
 </ul>
 <p>Future authors are encouraged to add their names and details as they contribute to this  project.</p>
 </section>

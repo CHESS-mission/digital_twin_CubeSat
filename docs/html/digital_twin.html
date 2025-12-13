@@ -58,18 +58,15 @@
 <li class="toctree-l4"><a class="reference internal" href="#digital_twin.commands.CommandProcessor.execute_command"><code class="docutils literal notranslate"><span class="pre">CommandProcessor.execute_command()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#digital_twin.commands.SimulationGUI"><code class="docutils literal notranslate"><span class="pre">SimulationGUI</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#digital_twin.commands.SimulationGUI.run"><code class="docutils literal notranslate"><span class="pre">SimulationGUI.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#digital_twin.commands.SimulationGUI.send_mode_command"><code class="docutils literal notranslate"><span class="pre">SimulationGUI.send_mode_command()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#digital_twin.commands.SimulationGUI.start_non_blocking"><code class="docutils literal notranslate"><span class="pre">SimulationGUI.start_non_blocking()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#module-digital_twin.constants">digital_twin.constants module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-digital_twin.gui">digital_twin.gui module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#digital_twin.gui.SimulationGUI"><code class="docutils literal notranslate"><span class="pre">SimulationGUI</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#digital_twin.gui.SimulationGUI.run"><code class="docutils literal notranslate"><span class="pre">SimulationGUI.run()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#digital_twin.gui.SimulationGUI.send_mode_command"><code class="docutils literal notranslate"><span class="pre">SimulationGUI.send_mode_command()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#digital_twin.gui.SimulationGUI.start_non_blocking"><code class="docutils literal notranslate"><span class="pre">SimulationGUI.start_non_blocking()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
 <li class="toctree-l2"><a class="reference internal" href="#module-digital_twin.mode_switch">digital_twin.mode_switch module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#digital_twin.mode_switch.ModeSwitch"><code class="docutils literal notranslate"><span class="pre">ModeSwitch</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#digital_twin.mode_switch.ModeSwitch.mode_switch_from_IDLE_CHARGING"><code class="docutils literal notranslate"><span class="pre">ModeSwitch.mode_switch_from_IDLE_CHARGING()</span></code></a></li>
@@ -179,7 +176,7 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="digital_twin.ground_station.html#module-contents">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="digital_twin.ground_station.html#module-digital_twin.ground_station">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="digital_twin.orbit_propagator.html">digital_twin.orbit_propagator package</a><ul>
@@ -312,7 +309,7 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="digital_twin.spacecraft.html#module-contents">Module contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="digital_twin.spacecraft.html#module-digital_twin.spacecraft">Module contents</a></li>
 </ul>
 </li>
 </ul>
@@ -323,7 +320,7 @@
 </section>
 <section id="module-digital_twin.commands">
 <span id="digital-twin-commands-module"></span><h2>digital_twin.commands module<a class="headerlink" href="#module-digital_twin.commands" title="Link to this heading"></a></h2>
-<p>Simple command system for real-time simulation control.</p>
+<p>Simple command system for real-time simulation control and a basic GUI for testing.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="digital_twin.commands.CommandProcessor">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">digital_twin.commands.</span></span><span class="sig-name descname"><span class="pre">CommandProcessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simulation</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/digital_twin/commands.html#CommandProcessor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.commands.CommandProcessor" title="Link to this definition"></a></dt>
@@ -348,28 +345,20 @@
 
 </dd></dl>
 
-</section>
-<section id="module-digital_twin.constants">
-<span id="digital-twin-constants-module"></span><h2>digital_twin.constants module<a class="headerlink" href="#module-digital_twin.constants" title="Link to this heading"></a></h2>
-<p>Constants for the simulation.</p>
-</section>
-<section id="module-digital_twin.gui">
-<span id="digital-twin-gui-module"></span><h2>digital_twin.gui module<a class="headerlink" href="#module-digital_twin.gui" title="Link to this heading"></a></h2>
-<p>Simple GUI for controlling the simulation in real-time.</p>
 <dl class="py class">
-<dt class="sig sig-object py" id="digital_twin.gui.SimulationGUI">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">digital_twin.gui.</span></span><span class="sig-name descname"><span class="pre">SimulationGUI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simulation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/digital_twin/gui.html#SimulationGUI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.gui.SimulationGUI" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="digital_twin.commands.SimulationGUI">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">digital_twin.commands.</span></span><span class="sig-name descname"><span class="pre">SimulationGUI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simulation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/digital_twin/commands.html#SimulationGUI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.commands.SimulationGUI" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Basic GUI to send commands to the running simulation.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="digital_twin.gui.SimulationGUI.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/digital_twin/gui.html#SimulationGUI.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.gui.SimulationGUI.run" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="digital_twin.commands.SimulationGUI.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/digital_twin/commands.html#SimulationGUI.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.commands.SimulationGUI.run" title="Link to this definition"></a></dt>
 <dd><p>Internal method to create and run the GUI (called in the thread).</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="digital_twin.gui.SimulationGUI.send_mode_command">
-<span class="sig-name descname"><span class="pre">send_mode_command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/digital_twin/gui.html#SimulationGUI.send_mode_command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.gui.SimulationGUI.send_mode_command" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="digital_twin.commands.SimulationGUI.send_mode_command">
+<span class="sig-name descname"><span class="pre">send_mode_command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/digital_twin/commands.html#SimulationGUI.send_mode_command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.commands.SimulationGUI.send_mode_command" title="Link to this definition"></a></dt>
 <dd><p>Send a set_mode command to the simulation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -379,13 +368,17 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="digital_twin.gui.SimulationGUI.start_non_blocking">
-<span class="sig-name descname"><span class="pre">start_non_blocking</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/digital_twin/gui.html#SimulationGUI.start_non_blocking"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.gui.SimulationGUI.start_non_blocking" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="digital_twin.commands.SimulationGUI.start_non_blocking">
+<span class="sig-name descname"><span class="pre">start_non_blocking</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/digital_twin/commands.html#SimulationGUI.start_non_blocking"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.commands.SimulationGUI.start_non_blocking" title="Link to this definition"></a></dt>
 <dd><p>Start the GUI in a separate thread (non-blocking).</p>
 </dd></dl>
 
 </dd></dl>
 
+</section>
+<section id="module-digital_twin.constants">
+<span id="digital-twin-constants-module"></span><h2>digital_twin.constants module<a class="headerlink" href="#module-digital_twin.constants" title="Link to this heading"></a></h2>
+<p>Constants for the simulation.</p>
 </section>
 <section id="module-digital_twin.mode_switch">
 <span id="digital-twin-mode-switch-module"></span><h2>digital_twin.mode_switch module<a class="headerlink" href="#module-digital_twin.mode_switch" title="Link to this heading"></a></h2>

@@ -25,10 +25,8 @@ from digital_twin.utils import (
     convert_cartesian_to_spherical,
 )
 import influxdb_client, os
-from influxdb_client import InfluxDBClient, Point, WritePrecision
 from influxdb_client.client.write_api import SYNCHRONOUS
-import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime
 from dotenv import load_dotenv
 
 class Simulation:
@@ -192,6 +190,7 @@ class Simulation:
 
         # MAIN SIMULATION LOOP
         start_for_loop = time.time()
+        step_10_percent = max(1, self.n_timesteps // 10)
         for t in range(0, self.n_timesteps):
 
             # Process commands            
@@ -223,7 +222,6 @@ class Simulation:
             eph[t + 1, :3] = rv[:3]
             eph[t + 1, 3:] = rv[3:]
 
-            step_10_percent = max(1, self.n_timesteps // 10)
             if t % step_10_percent == 0 and self.verbose:
                 percent = int((t / self.n_timesteps) * 100)
                 print(f"> iter {t} ({percent}%)")
@@ -236,7 +234,6 @@ class Simulation:
                     self.ground_stations
                 )
                 eclipse_status, r_earth_sun = self.propagator.calculate_eclipse_status()
-                r_earth_sun = r_earth_sun
 
                 # 3. Calculate user-scheduled params
                 measurement_session = self.spacecraft.get_payload().can_start_measuring(
@@ -282,7 +279,7 @@ class Simulation:
                 )
 
                 # 7. Save data at current timestep
-                vis_windows[t + 1] = np.array([int(vis) for vis in visibility])
+                vis_windows[t + 1] = visibility.astype(int)
                 eclipse_windows[t + 1] = int(eclipse_status)
                 battery_energies[t + 1] = (
                     self.spacecraft.get_eps().get_battery_energy().value

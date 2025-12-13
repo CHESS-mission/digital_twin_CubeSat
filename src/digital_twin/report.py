@@ -23,12 +23,8 @@ from digital_twin.plotting import (
 from digital_twin.utils import (
     check_and_empty_folder, convert_cartesian_to_spherical
 )
-import influxdb_client, os
-from influxdb_client import InfluxDBClient, Point, WritePrecision
-from influxdb_client.client.write_api import SYNCHRONOUS
+import os
 import pandas as pd
-from datetime import datetime, timedelta
-from dotenv import load_dotenv
 
 def produce_report(
     data: dict, report_params: dict, results_folder, verbose=False
@@ -381,8 +377,8 @@ def save_to_csv(data: dict, csv_folder: str) -> None:
 
     for key in data.keys():
         if key in ["tofs"]:
-            df_data[key] =np.array(data[key].to_value("second")).flatten()
-        if key in ["vis", "storage", "storage_payload", "storage_HK",
+            df_data[key] = np.array(data[key].to_value("second")).flatten()
+        elif key in ["vis", "storage", "storage_payload", "storage_HK",
                    "battery", "consumption", "generation",
                    "eclipse", "modes", "altitudes",
                    "RAANs", "AOPs", "ECCs", "INCs",
