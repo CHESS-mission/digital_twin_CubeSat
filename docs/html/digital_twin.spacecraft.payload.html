@@ -44,6 +44,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme.html">README for the Digital Twin of the CHESS CubeSat</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="digital_twin.html">digital_twin package</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="digital_twin.html#subpackages">Subpackages</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="digital_twin.ground_station.html">digital_twin.ground_station package</a></li>
@@ -59,6 +60,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="digital_twin.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="digital_twin.html#module-digital_twin.commands">digital_twin.commands module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="digital_twin.html#module-digital_twin.constants">digital_twin.constants module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="digital_twin.html#module-digital_twin.mode_switch">digital_twin.mode_switch module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="digital_twin.html#module-digital_twin.plotting">digital_twin.plotting module</a></li>
@@ -68,6 +70,7 @@
 <li class="toctree-l2"><a class="reference internal" href="digital_twin.html#module-digital_twin">Module contents</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="grafana_visualization.html">Grafana Visualization Documentation</a></li>
 </ul>
 
         </div>
@@ -103,18 +106,18 @@
 </section>
 <section id="module-digital_twin.spacecraft.payload.payload">
 <span id="digital-twin-spacecraft-payload-payload-module"></span><h2>digital_twin.spacecraft.payload.payload module<a class="headerlink" href="#module-digital_twin.spacecraft.payload.payload" title="Link to this heading"></a></h2>
-<p>File for the Payload subsystem, which handles GNSS and TOF operations.</p>
+<p>File for the Payload subsystem, which handles GNSS and TOF/Camera operations.</p>
 <p>This module defines the Payload class responsible for managing the spacecraft’s
-payload operations, including GNSS and TOF measurements.</p>
+payload operations, including GNSS and TOF/Camera measurements.</p>
 <dl class="simple">
-<dt>Classes:</dt><dd><p>Payload: Represents the Payload subsystem managing GNSS and TOF systems.</p>
+<dt>Classes:</dt><dd><p>Payload: Represents the Payload subsystem managing GNSS and TOF/Camera systems.</p>
 </dd>
 </dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="digital_twin.spacecraft.payload.payload.Payload">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">digital_twin.spacecraft.payload.payload.</span></span><span class="sig-name descname"><span class="pre">Payload</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_operating_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/digital_twin/spacecraft/payload/payload.html#Payload"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.spacecraft.payload.payload.Payload" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="digital_twin.spacecraft.html#digital_twin.spacecraft.subsystem.SubSystem" title="digital_twin.spacecraft.subsystem.SubSystem"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubSystem</span></code></a></p>
-<p>Represent the Payload subsystem, which includes the GNSS and TOF systems for the spacecraft.</p>
+<p>Represent the Payload subsystem, which includes the GNSS and TOF/Camera systems for the spacecraft.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="digital_twin.spacecraft.payload.payload.Payload.name">
 <span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#digital_twin.spacecraft.payload.payload.Payload.name" title="Link to this definition"></a></dt>
@@ -138,9 +141,9 @@ payload operations, including GNSS and TOF measurements.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="digital_twin.spacecraft.payload.payload.Payload.consumption_mean_tof">
-<span class="sig-name descname"><span class="pre">consumption_mean_tof</span></span><a class="headerlink" href="#digital_twin.spacecraft.payload.payload.Payload.consumption_mean_tof" title="Link to this definition"></a></dt>
-<dd><p>Mean power consumption for the TOF system at different operating modes.</p>
+<dt class="sig sig-object py" id="digital_twin.spacecraft.payload.payload.Payload.consumption_mean_measurement">
+<span class="sig-name descname"><span class="pre">consumption_mean_measurement</span></span><a class="headerlink" href="#digital_twin.spacecraft.payload.payload.Payload.consumption_mean_measurement" title="Link to this definition"></a></dt>
+<dd><p>Mean power consumption for the TOF/Camera system at different operating modes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dict[int, Quantity[“power”]]</p>
@@ -149,9 +152,9 @@ payload operations, including GNSS and TOF measurements.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="digital_twin.spacecraft.payload.payload.Payload.measurement_TOF_rate">
-<span class="sig-name descname"><span class="pre">measurement_TOF_rate</span></span><a class="headerlink" href="#digital_twin.spacecraft.payload.payload.Payload.measurement_TOF_rate" title="Link to this definition"></a></dt>
-<dd><p>Rate at which TOF data is generated.</p>
+<dt class="sig sig-object py" id="digital_twin.spacecraft.payload.payload.Payload.data_rate_measurment">
+<span class="sig-name descname"><span class="pre">data_rate_measurment</span></span><a class="headerlink" href="#digital_twin.spacecraft.payload.payload.Payload.data_rate_measurment" title="Link to this definition"></a></dt>
+<dd><p>Rate at which TOF/Camera data is generated.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Quantity[“bandwidth”]</p>
@@ -160,8 +163,8 @@ payload operations, including GNSS and TOF measurements.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="digital_twin.spacecraft.payload.payload.Payload.measurement_GNSS_rate">
-<span class="sig-name descname"><span class="pre">measurement_GNSS_rate</span></span><a class="headerlink" href="#digital_twin.spacecraft.payload.payload.Payload.measurement_GNSS_rate" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="digital_twin.spacecraft.payload.payload.Payload.data_rate_GNSS">
+<span class="sig-name descname"><span class="pre">data_rate_GNSS</span></span><a class="headerlink" href="#digital_twin.spacecraft.payload.payload.Payload.data_rate_GNSS" title="Link to this definition"></a></dt>
 <dd><p>Rate at which GNSS data is generated.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>

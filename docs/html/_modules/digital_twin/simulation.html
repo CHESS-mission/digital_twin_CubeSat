@@ -41,7 +41,9 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">README for the Digital Twin of the CHESS CubeSat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../digital_twin.html">digital_twin package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../grafana_visualization.html">Grafana Visualization Documentation</a></li>
 </ul>
 
         </div>
@@ -76,6 +78,7 @@
 
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
+<span class="kn">from</span> <span class="nn">queue</span> <span class="kn">import</span> <span class="n">Queue</span>
 
 <span class="kn">from</span> <span class="nn">astropy</span> <span class="kn">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
 <span class="kn">from</span> <span class="nn">astropy.time</span> <span class="kn">import</span> <span class="n">Time</span><span class="p">,</span> <span class="n">TimeDelta</span>
@@ -84,6 +87,7 @@
 <span class="kn">from</span> <span class="nn">digital_twin.constants</span> <span class="kn">import</span> <span class="n">earth_R</span><span class="p">,</span> <span class="n">simulation_unit</span><span class="p">,</span> <span class="n">simulation_unit_string</span>
 <span class="kn">from</span> <span class="nn">digital_twin.ground_station</span> <span class="kn">import</span> <span class="n">GroundStation</span>
 <span class="kn">from</span> <span class="nn">digital_twin.mode_switch</span> <span class="kn">import</span> <span class="n">ModeSwitch</span>
+<span class="kn">from</span> <span class="nn">digital_twin.commands</span> <span class="kn">import</span> <span class="n">CommandProcessor</span>
 
 <span class="kn">from</span> <span class="nn">digital_twin.orbit_propagator</span> <span class="kn">import</span> <span class="n">OrbitPropagator</span>
 <span class="kn">from</span> <span class="nn">digital_twin.report</span> <span class="kn">import</span> <span class="n">produce_report</span>
@@ -91,8 +95,12 @@
 <span class="kn">from</span> <span class="nn">digital_twin.utils</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">get_astropy_unit_time</span><span class="p">,</span>
     <span class="n">extract_propagation_data_from_ephemeris</span><span class="p">,</span>
+    <span class="n">convert_cartesian_to_spherical</span><span class="p">,</span>
 <span class="p">)</span>
-
+<span class="kn">import</span> <span class="nn">influxdb_client</span><span class="o">,</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">influxdb_client.client.write_api</span> <span class="kn">import</span> <span class="n">SYNCHRONOUS</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">dotenv</span> <span class="kn">import</span> <span class="n">load_dotenv</span>
 
 <div class="viewcode-block" id="Simulation">
 <a class="viewcode-back" href="../../digital_twin.html#digital_twin.simulation.Simulation">[docs]</a>
@@ -106,6 +114,7 @@
         <span class="n">spacecraft_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
         <span class="n">station_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
         <span class="n">mission_design_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+        <span class="n">env_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">simulation_params</span><span class="p">[</span><span class="s2">&quot;verbose&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;yes&quot;</span> <span class="k">else</span> <span class="kc">False</span>
 
@@ -114,12 +123,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">sim_unit</span> <span class="o">=</span> <span class="n">simulation_unit</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">delta_t</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">simulation_params</span><span class="p">[</span><span class="s2">&quot;delta_t&quot;</span><span class="p">]</span>
-            <span class="o">*</span> <span class="n">get_astropy_unit_time</span><span class="p">(</span><span class="n">simulation_params</span><span class="p">[</span><span class="s2">&quot;units_delta_t&quot;</span><span class="p">])</span>
+            <span class="o">*</span> <span class="n">get_astropy_unit_time</span><span class="p">(</span><span class="n">simulation_params</span><span class="p">[</span><span class="s2">&quot;delta_t_unit&quot;</span><span class="p">])</span>
         <span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sim_unit</span><span class="p">)</span>
         <span class="n">init_time_local</span> <span class="o">=</span> <span class="mi">0</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_unit</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">duration_sim</span> <span class="o">=</span> <span class="n">simulation_params</span><span class="p">[</span><span class="s2">&quot;duration_sim&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">get_astropy_unit_time</span><span class="p">(</span>
-            <span class="n">simulation_params</span><span class="p">[</span><span class="s2">&quot;units_duration_sim&quot;</span><span class="p">]</span>
+            <span class="n">simulation_params</span><span class="p">[</span><span class="s2">&quot;duration_sim_unit&quot;</span><span class="p">]</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">duration_sim</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sim_unit</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_t</span><span class="o">.</span><span class="n">value</span>
@@ -133,7 +142,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">tofs</span> <span class="o">=</span> <span class="n">TimeDelta</span><span class="p">(</span>
             <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">init_time_local</span><span class="p">,</span> <span class="n">end_time_local</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="p">)</span>  <span class="c1"># Gives the results in days</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">epochs_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">epoch</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tofs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epochs_array</span> <span class="o">=</span> <span class="n">epoch</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tofs</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">run_real_time</span> <span class="o">=</span> <span class="n">simulation_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;run_real_time&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ATTENTION: Running simulation in real-time mode (this is very inefficient!)&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_real_time</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">command_queue</span> <span class="o">=</span> <span class="n">Queue</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">command_processor</span> <span class="o">=</span> <span class="n">CommandProcessor</span><span class="p">(</span><span class="n">simulation</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
 
         <span class="c1"># MODE SWITCH ALGORITHM INITIALIZATION</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">switch_algo</span> <span class="o">=</span> <span class="n">ModeSwitch</span><span class="p">(</span>
@@ -170,12 +185,39 @@
 
         <span class="c1"># Additional user input</span>
         <span class="n">user_input</span> <span class="o">=</span> <span class="n">mission_design_params</span><span class="p">[</span><span class="s2">&quot;user_input&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">handle_user_input</span><span class="p">(</span><span class="n">user_input</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">user_input</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;uplink_safe_mode&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">send_command</span><span class="p">(</span><span class="s2">&quot;uplink_safe_mode&quot;</span><span class="p">,</span> <span class="n">user_input</span><span class="p">[</span><span class="s2">&quot;uplink_safe_mode&quot;</span><span class="p">])</span>
 
         <span class="c1"># Report and printing</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">report_params</span> <span class="o">=</span> <span class="n">mission_design_params</span><span class="p">[</span><span class="s2">&quot;report&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">simulation_params</span><span class="p">[</span><span class="s2">&quot;print_initial_parameters&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;yes&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">print_parameters</span><span class="p">()</span>  <span class="c1"># Print user parameters</span>
+
+        <span class="c1"># InfluxDB initialization</span>
+        <span class="k">if</span> <span class="n">simulation_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;influxdb_delta_t&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">influxdb_delta_t</span> <span class="o">=</span> <span class="p">(</span><span class="n">simulation_params</span><span class="p">[</span><span class="s2">&quot;influxdb_delta_t&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">get_astropy_unit_time</span><span class="p">(</span><span class="n">simulation_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;influxdb_delta_t_unit&quot;</span><span class="p">,</span> <span class="n">simulation_params</span><span class="p">[</span><span class="s2">&quot;delta_t_unit&quot;</span><span class="p">])))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sim_unit</span><span class="p">)</span> 
+            <span class="bp">self</span><span class="o">.</span><span class="n">influxdb_only_visible</span> <span class="o">=</span> <span class="n">simulation_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;influxdb_only_visible&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+            <span class="c1">#Loading InfluxDB credentials from .env file</span>
+            <span class="n">load_dotenv</span><span class="p">(</span><span class="n">env_file</span><span class="p">)</span>
+            <span class="n">token</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;INFLUXDB_TOKEN&quot;</span><span class="p">)</span>
+            <span class="n">url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;INFLUXDB_URL&quot;</span><span class="p">,</span> <span class="s2">&quot;http://localhost:8086&quot;</span><span class="p">)</span>  <span class="c1"># Default URL</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">influxdborg</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;INFLUXDB_ORG&quot;</span><span class="p">,</span> <span class="s2">&quot;EST&quot;</span><span class="p">)</span>  <span class="c1"># Default to &quot;EST&quot; if not set</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">influxdbbucket</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;INFLUXDB_BUCKET&quot;</span><span class="p">,</span> <span class="s2">&quot;NICE&quot;</span><span class="p">)</span>         
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">token</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;InfluxDB token not found in environment variables.&quot;</span><span class="p">)</span>
+
+            <span class="n">client</span> <span class="o">=</span> <span class="n">influxdb_client</span><span class="o">.</span><span class="n">InfluxDBClient</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="n">token</span><span class="p">,</span> <span class="n">org</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">influxdborg</span><span class="p">)</span>
+
+            <span class="c1"># Delete all previous data from bucket</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="s2">&quot;1970-01-01T00:00:00Z&quot;</span>
+            <span class="n">stop</span> <span class="o">=</span>  <span class="n">datetime</span><span class="p">(</span><span class="mi">2070</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">client</span><span class="o">.</span><span class="n">delete_api</span><span class="p">()</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">bucket</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">influxdbbucket</span><span class="p">,</span> <span class="n">org</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">influxdborg</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_api</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">write_api</span><span class="p">(</span><span class="n">write_options</span><span class="o">=</span><span class="n">SYNCHRONOUS</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">influxdb_last_upload_t</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">influxdb_delta_t</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_unit</span>
 
 <div class="viewcode-block" id="Simulation.run">
 <a class="viewcode-back" href="../../digital_twin.html#digital_twin.simulation.Simulation.run">[docs]</a>
@@ -197,13 +239,15 @@
         <span class="n">power_consumption</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_eps</span><span class="p">()</span><span class="o">.</span><span class="n">get_power_consumption</span><span class="p">()</span><span class="o">.</span><span class="n">value</span>
         <span class="n">power_generation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">power_generation</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_eps</span><span class="p">()</span><span class="o">.</span><span class="n">get_power_generation</span><span class="p">()</span><span class="o">.</span><span class="n">value</span>
-
+        <span class="n">solar_cells_efficiency</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">solar_cells_efficiency</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_eps</span><span class="p">()</span><span class="o">.</span><span class="n">get_solar_cells_efficiency</span><span class="p">()</span><span class="o">.</span><span class="n">value</span>
+        
         <span class="n">data_storage</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="n">data_storage_GNSS_TOF</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">data_storage_payload</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">data_storage_HK</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="nb">all</span><span class="p">,</span> <span class="n">GNSS_TOF</span><span class="p">,</span> <span class="n">HK</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_obc</span><span class="p">()</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+        <span class="nb">all</span><span class="p">,</span> <span class="n">payload</span><span class="p">,</span> <span class="n">HK</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_obc</span><span class="p">()</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
         <span class="n">data_storage</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">all</span><span class="o">.</span><span class="n">value</span>
-        <span class="n">data_storage_GNSS_TOF</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">GNSS_TOF</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">data_storage_payload</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">value</span>
         <span class="n">data_storage_HK</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">HK</span><span class="o">.</span><span class="n">value</span>
 
         <span class="n">vis_windows</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
@@ -223,7 +267,21 @@
 
         <span class="c1"># MAIN SIMULATION LOOP</span>
         <span class="n">start_for_loop</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">step_10_percent</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">//</span> <span class="mi">10</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span><span class="p">):</span>
+
+            <span class="c1"># Process commands            </span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_process_commands</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_real_time</span><span class="p">:</span>
+                <span class="c1"># Calculate the target time for the current timestep</span>
+                <span class="n">target_time</span> <span class="o">=</span> <span class="n">start_for_loop</span> <span class="o">+</span> <span class="p">(</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_t</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">second</span><span class="p">)</span>
+                <span class="c1"># Calculate the time to wait until the target time</span>
+                <span class="n">now</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+                <span class="n">time_to_wait</span> <span class="o">=</span> <span class="p">(</span><span class="n">target_time</span> <span class="o">-</span> <span class="n">now</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">time_to_wait</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">time_to_wait</span><span class="p">)</span>
+
 
             <span class="c1"># 1. propagate to next position and store the results</span>
             <span class="k">try</span><span class="p">:</span>
@@ -241,8 +299,9 @@
             <span class="n">eph</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">rv</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
             <span class="n">eph</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">:]</span> <span class="o">=</span> <span class="n">rv</span><span class="p">[</span><span class="mi">3</span><span class="p">:]</span>
 
-            <span class="k">if</span> <span class="n">t</span> <span class="o">%</span> <span class="mi">1000</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># For debugging</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&gt; iter &quot;</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">t</span> <span class="o">%</span> <span class="n">step_10_percent</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+                <span class="n">percent</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">t</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&gt; iter </span><span class="si">{</span><span class="n">t</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">percent</span><span class="si">}</span><span class="s2">%)&quot;</span><span class="p">)</span>
 
             <span class="c1"># For simulations where only propagation matters, skip the next steps</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">propagation_only</span><span class="p">:</span>
@@ -252,7 +311,6 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">ground_stations</span>
                 <span class="p">)</span>
                 <span class="n">eclipse_status</span><span class="p">,</span> <span class="n">r_earth_sun</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">propagator</span><span class="o">.</span><span class="n">calculate_eclipse_status</span><span class="p">()</span>
-                <span class="n">r_earth_sun</span> <span class="o">=</span> <span class="n">r_earth_sun</span>
 
                 <span class="c1"># 3. Calculate user-scheduled params</span>
                 <span class="n">measurement_session</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_payload</span><span class="p">()</span><span class="o">.</span><span class="n">can_start_measuring</span><span class="p">(</span>
@@ -294,10 +352,11 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">delta_t</span><span class="p">,</span>
                     <span class="n">r_earth_sun</span><span class="p">,</span>
                     <span class="n">gs_coords</span><span class="p">,</span>
+                    <span class="n">t</span>
                 <span class="p">)</span>
 
                 <span class="c1"># 7. Save data at current timestep</span>
-                <span class="n">vis_windows</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">vis</span><span class="p">)</span> <span class="k">for</span> <span class="n">vis</span> <span class="ow">in</span> <span class="n">visibility</span><span class="p">])</span>
+                <span class="n">vis_windows</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">visibility</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
                 <span class="n">eclipse_windows</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">eclipse_status</span><span class="p">)</span>
                 <span class="n">battery_energies</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_eps</span><span class="p">()</span><span class="o">.</span><span class="n">get_battery_energy</span><span class="p">()</span><span class="o">.</span><span class="n">value</span>
@@ -308,12 +367,110 @@
                 <span class="n">power_generation</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_eps</span><span class="p">()</span><span class="o">.</span><span class="n">get_power_generation</span><span class="p">()</span><span class="o">.</span><span class="n">value</span>
                 <span class="p">)</span>
-                <span class="nb">all</span><span class="p">,</span> <span class="n">GNSS_TOF</span><span class="p">,</span> <span class="n">HK</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_obc</span><span class="p">()</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+                <span class="n">solar_cells_efficiency</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_eps</span><span class="p">()</span><span class="o">.</span><span class="n">get_solar_cells_efficiency</span><span class="p">()</span><span class="o">.</span><span class="n">value</span>
+                <span class="p">)</span>
+                
+                <span class="nb">all</span><span class="p">,</span> <span class="n">payload</span><span class="p">,</span> <span class="n">HK</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_obc</span><span class="p">()</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
                 <span class="n">data_storage</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">all</span><span class="o">.</span><span class="n">value</span>
-                <span class="n">data_storage_GNSS_TOF</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">GNSS_TOF</span><span class="o">.</span><span class="n">value</span>
+                <span class="n">data_storage_payload</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">value</span>
                 <span class="n">data_storage_HK</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">HK</span><span class="o">.</span><span class="n">value</span>
 
                 <span class="n">density_array</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">propagator</span><span class="o">.</span><span class="n">get_density</span><span class="p">()</span><span class="o">.</span><span class="n">value</span>
+
+
+                <span class="c1"># 8. If live InfluxDB upload is activated, send data to database</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">influxdb_delta_t</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="c1"># Check if enough simulation time has passed since the last upload or we&#39;re at the final timestep</span>
+                    <span class="n">last_tof</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tofs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">influxdb_last_upload_t</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">influxdb_last_upload_t</span> <span class="o">&gt;=</span><span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+                    <span class="n">elapsed_since_last</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tofs</span><span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="o">-</span> <span class="n">last_tof</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sim_unit</span><span class="p">)</span>
+                    <span class="n">enough_time_elapsed</span> <span class="o">=</span> <span class="n">elapsed_since_last</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">influxdb_delta_t</span>
+                    <span class="n">is_final_timestep</span> <span class="o">=</span> <span class="p">(</span><span class="n">t</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_timesteps</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+                    <span class="n">is_visible_check</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">vis_windows</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">influxdb_only_visible</span> <span class="k">else</span> <span class="kc">True</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">enough_time_elapsed</span> <span class="ow">and</span> <span class="n">is_visible_check</span><span class="p">)</span> <span class="ow">or</span> <span class="n">is_final_timestep</span><span class="p">:</span>
+
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Uploading data to InfluxDB...&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="k">else</span> <span class="kc">None</span>
+
+                        <span class="c1"># Only compute data for the new points since last upload</span>
+                        <span class="n">start_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">influxdb_last_upload_t</span> <span class="o">+</span> <span class="mi">1</span>
+                        <span class="n">end_idx</span> <span class="o">=</span> <span class="n">t</span> <span class="o">+</span> <span class="mi">1</span>
+                        <span class="n">n_new_points</span> <span class="o">=</span> <span class="n">end_idx</span> <span class="o">-</span> <span class="n">start_idx</span>
+
+                        <span class="c1"># Extract orbital elements</span>
+                        <span class="n">rr_new</span><span class="p">,</span> <span class="n">vv_new</span><span class="p">,</span> <span class="n">SMAs_new</span><span class="p">,</span> <span class="n">ECCs_new</span><span class="p">,</span> <span class="n">INCs_new</span><span class="p">,</span> <span class="n">RAANs_new</span><span class="p">,</span> <span class="n">AOPs_new</span><span class="p">,</span> <span class="n">TAs_new</span><span class="p">,</span> <span class="n">altitudes_new</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="n">extract_propagation_data_from_ephemeris</span><span class="p">(</span><span class="n">eph</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="p">])</span>
+                        <span class="p">)</span>
+                        
+                        <span class="c1"># Convert coordinates</span>
+                        <span class="n">latitude_deg_new</span><span class="p">,</span> <span class="n">longitude_deg_new</span> <span class="o">=</span> <span class="n">convert_cartesian_to_spherical</span><span class="p">(</span><span class="n">rr_new</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">epochs_array</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="p">])</span>
+                        
+                        <span class="c1"># Handle visibility data</span>
+                        <span class="n">vis_slice</span> <span class="o">=</span> <span class="n">vis_windows</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="n">vis_slice</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># Multiple ground stations</span>
+                            <span class="n">vis_sums</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">vis_slice</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                            <span class="n">is_visible</span> <span class="o">=</span> <span class="p">(</span><span class="n">vis_sums</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>  <span class="c1"># Single ground station or already summed</span>
+                            <span class="n">vis_sums</span> <span class="o">=</span> <span class="n">vis_slice</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+                            <span class="n">is_visible</span> <span class="o">=</span> <span class="n">vis_sums</span>
+
+                        <span class="n">timestamps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">epochs_array</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="p">]</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">()</span>
+
+                        <span class="c1"># Extract all data slices as numpy arrays</span>
+                        <span class="n">data_arrays</span> <span class="o">=</span> <span class="p">{</span>
+                            <span class="s1">&#39;modes&#39;</span><span class="p">:</span> <span class="n">modes</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                            <span class="s1">&#39;storage&#39;</span><span class="p">:</span> <span class="n">data_storage</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="p">],</span>
+                            <span class="s1">&#39;storage_payload&#39;</span><span class="p">:</span> <span class="n">data_storage_payload</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="p">],</span>
+                            <span class="s1">&#39;storage_hk&#39;</span><span class="p">:</span> <span class="n">data_storage_HK</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="p">],</span>
+                            <span class="s1">&#39;battery&#39;</span><span class="p">:</span> <span class="n">battery_energies</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="p">],</span>
+                            <span class="s1">&#39;consumption&#39;</span><span class="p">:</span> <span class="n">power_consumption</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="p">],</span>
+                            <span class="s1">&#39;generation&#39;</span><span class="p">:</span> <span class="n">power_generation</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="p">],</span>
+                            <span class="s1">&#39;eclipse&#39;</span><span class="p">:</span> <span class="n">eclipse_windows</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                            <span class="s1">&#39;density&#39;</span><span class="p">:</span> <span class="n">density_array</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="p">],</span>
+                            <span class="s1">&#39;solar_eff&#39;</span><span class="p">:</span> <span class="n">solar_cells_efficiency</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="p">],</span>
+                            <span class="s1">&#39;altitudes&#39;</span><span class="p">:</span> <span class="n">altitudes_new</span><span class="p">,</span>
+                            <span class="s1">&#39;RAANs&#39;</span><span class="p">:</span> <span class="n">RAANs_new</span><span class="p">,</span>
+                            <span class="s1">&#39;AOPs&#39;</span><span class="p">:</span> <span class="n">AOPs_new</span><span class="p">,</span>
+                            <span class="s1">&#39;ECCs&#39;</span><span class="p">:</span> <span class="n">ECCs_new</span><span class="p">,</span>
+                            <span class="s1">&#39;INCs&#39;</span><span class="p">:</span> <span class="n">INCs_new</span><span class="p">,</span>
+                            <span class="s1">&#39;latitude&#39;</span><span class="p">:</span> <span class="n">latitude_deg_new</span><span class="p">,</span>
+                            <span class="s1">&#39;longitude&#39;</span><span class="p">:</span> <span class="n">longitude_deg_new</span><span class="p">,</span>
+                            <span class="s1">&#39;vis_sums&#39;</span><span class="p">:</span> <span class="n">vis_sums</span><span class="p">,</span>
+                            <span class="s1">&#39;is_visible&#39;</span><span class="p">:</span> <span class="n">is_visible</span>
+                        <span class="p">}</span>
+                        <span class="c1"># Use dictionary comprehension for batch creation (more efficient than explicit loop)</span>
+                        <span class="n">batch_data</span> <span class="o">=</span> <span class="p">[</span>
+                            <span class="p">{</span>
+                                <span class="s2">&quot;measurement&quot;</span><span class="p">:</span> <span class="s2">&quot;satellite_data&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;tags&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">data_arrays</span><span class="p">[</span><span class="s1">&#39;modes&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]),</span> <span class="s2">&quot;visible&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">data_arrays</span><span class="p">[</span><span class="s1">&#39;is_visible&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">])},</span>
+                                <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">{</span>
+                                    <span class="s2">&quot;visibility&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">data_arrays</span><span class="p">[</span><span class="s1">&#39;vis_sums&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]),</span>
+                                    <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">data_arrays</span><span class="p">[</span><span class="s1">&#39;storage&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]),</span>
+                                    <span class="s2">&quot;data_payload&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">data_arrays</span><span class="p">[</span><span class="s1">&#39;storage_payload&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]),</span>
+                                    <span class="s2">&quot;data_HK&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">data_arrays</span><span class="p">[</span><span class="s1">&#39;storage_hk&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]),</span>
+                                    <span class="s2">&quot;battery&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">data_arrays</span><span class="p">[</span><span class="s1">&#39;battery&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]),</span>
+                                    <span class="s2">&quot;consumption&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">data_arrays</span><span class="p">[</span><span class="s1">&#39;consumption&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]),</span>
+                                    <span class="s2">&quot;generation&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">data_arrays</span><span class="p">[</span><span class="s1">&#39;generation&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]),</span>
+                                    <span class="s2">&quot;eclipse&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">data_arrays</span><span class="p">[</span><span class="s1">&#39;eclipse&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]),</span>
+                                    <span class="s2">&quot;modes&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">data_arrays</span><span class="p">[</span><span class="s1">&#39;modes&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]),</span>
+                                    <span class="s2">&quot;altitude&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">data_arrays</span><span class="p">[</span><span class="s1">&#39;altitudes&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]),</span>
+                                    <span class="s2">&quot;RAAN&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">data_arrays</span><span class="p">[</span><span class="s1">&#39;RAANs&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]),</span>
+                                    <span class="s2">&quot;AOP&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">data_arrays</span><span class="p">[</span><span class="s1">&#39;AOPs&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]),</span>
+                                    <span class="s2">&quot;ECC&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">data_arrays</span><span class="p">[</span><span class="s1">&#39;ECCs&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]),</span>
+                                    <span class="s2">&quot;INC&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">data_arrays</span><span class="p">[</span><span class="s1">&#39;INCs&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]),</span>
+                                    <span class="s2">&quot;density&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">data_arrays</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]),</span>
+                                    <span class="s2">&quot;Lat&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">data_arrays</span><span class="p">[</span><span class="s1">&#39;latitude&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]),</span>
+                                    <span class="s2">&quot;Lng&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">data_arrays</span><span class="p">[</span><span class="s1">&#39;longitude&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]),</span>
+                                    <span class="s2">&quot;solar_cells_efficiency&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">data_arrays</span><span class="p">[</span><span class="s1">&#39;solar_eff&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">])</span>
+                                <span class="p">},</span>
+                                <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">timestamps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                            <span class="p">}</span>
+                            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_new_points</span><span class="p">)</span>
+                        <span class="p">]</span>
+                        
+                        <span class="c1"># Send batch data - InfluxDB client optimizes this internally</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">write_api</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">bucket</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">influxdbbucket</span><span class="p">,</span> <span class="n">org</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">influxdborg</span><span class="p">,</span> <span class="n">record</span><span class="o">=</span><span class="n">batch_data</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">influxdb_last_upload_t</span> <span class="o">=</span> <span class="n">t</span>
 
         <span class="n">end_for_loop</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="n">duration</span> <span class="o">=</span> <span class="n">end_for_loop</span> <span class="o">-</span> <span class="n">start_for_loop</span>
@@ -351,8 +508,9 @@
             <span class="n">battery_energies</span> <span class="o">=</span> <span class="n">battery_energies</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
             <span class="n">power_consumption</span> <span class="o">=</span> <span class="n">power_consumption</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
             <span class="n">power_generation</span> <span class="o">=</span> <span class="n">power_generation</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
+            <span class="n">solar_cells_efficiency</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
             <span class="n">data_storage</span> <span class="o">=</span> <span class="n">data_storage</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
-            <span class="n">data_storage_GNSS_TOF</span> <span class="o">=</span> <span class="n">data_storage_GNSS_TOF</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
+            <span class="n">data_storage_payload</span> <span class="o">=</span> <span class="n">data_storage_payload</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
             <span class="n">data_storage_HK</span> <span class="o">=</span> <span class="n">data_storage_HK</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
             <span class="n">eclipse_windows</span> <span class="o">=</span> <span class="n">eclipse_windows</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
             <span class="n">density_array</span> <span class="o">=</span> <span class="n">density_array</span><span class="p">[:</span><span class="n">last_ind</span><span class="p">]</span>
@@ -386,7 +544,7 @@
             <span class="s2">&quot;consumption&quot;</span><span class="p">:</span> <span class="n">power_consumption</span><span class="p">,</span>
             <span class="s2">&quot;generation&quot;</span><span class="p">:</span> <span class="n">power_generation</span><span class="p">,</span>
             <span class="s2">&quot;storage&quot;</span><span class="p">:</span> <span class="n">data_storage</span><span class="p">,</span>
-            <span class="s2">&quot;storage_GNSS_TOF&quot;</span><span class="p">:</span> <span class="n">data_storage_GNSS_TOF</span><span class="p">,</span>
+            <span class="s2">&quot;storage_payload&quot;</span><span class="p">:</span> <span class="n">data_storage_payload</span><span class="p">,</span>
             <span class="s2">&quot;storage_HK&quot;</span><span class="p">:</span> <span class="n">data_storage_HK</span><span class="p">,</span>
             <span class="s2">&quot;duration_sim&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">duration_sim</span><span class="p">,</span>
             <span class="s2">&quot;epochs_array&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">epochs_array</span><span class="p">,</span>
@@ -395,6 +553,7 @@
             <span class="s2">&quot;orbit_state&quot;</span><span class="p">:</span> <span class="n">orbit_state</span><span class="p">,</span>
             <span class="s2">&quot;spacecraft_state&quot;</span><span class="p">:</span> <span class="n">spacecraft_state</span><span class="p">,</span>
             <span class="s2">&quot;density_array&quot;</span><span class="p">:</span> <span class="n">density_array</span><span class="p">,</span>
+            <span class="s2">&quot;solar_cells_efficiency&quot;</span><span class="p">:</span> <span class="n">solar_cells_efficiency</span>
         <span class="p">}</span>
 
         <span class="c1"># Produce report</span>
@@ -424,18 +583,29 @@
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Simulation.handle_user_input">
-<a class="viewcode-back" href="../../digital_twin.html#digital_twin.simulation.Simulation.handle_user_input">[docs]</a>
-    <span class="k">def</span> <span class="nf">handle_user_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_input</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle additional user input. Currently only implemented for uplink safe mode trigger.</span>
+    <span class="k">def</span> <span class="nf">_process_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Process all pending commands in the queue.&quot;&quot;&quot;</span>
+        
+        <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">command_queue</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">command_queue</span><span class="o">.</span><span class="n">get_nowait</span><span class="p">()</span>
+                <span class="n">success</span><span class="p">,</span> <span class="n">message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">command_processor</span><span class="o">.</span><span class="n">execute_command</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Command </span><span class="si">{</span><span class="n">command</span><span class="p">[</span><span class="s1">&#39;command&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="s1">&#39;✓&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">success</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;✗&#39;</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error processing command: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
+<div class="viewcode-block" id="Simulation.send_command">
+<a class="viewcode-back" href="../../digital_twin.html#digital_twin.simulation.Simulation.send_command">[docs]</a>
+    <span class="k">def</span> <span class="nf">send_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{})</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Send a command to the simulation.</span>
+<span class="sd">        </span>
 <span class="sd">        Args:</span>
-<span class="sd">            user_input (dict): Dictionary containing the user input to consider.</span>
+<span class="sd">            command: Command name (e.g., &#39;set_mode&#39;, &#39;uplink_safe_mode&#39;)</span>
+<span class="sd">            params: Command parameters</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">user_input</span><span class="p">[</span><span class="s2">&quot;uplink_safe_mode&quot;</span><span class="p">]:</span>  <span class="c1"># If dic is not empty</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">spacecraft</span><span class="o">.</span><span class="n">get_telecom</span><span class="p">()</span><span class="o">.</span><span class="n">add_uplink_safe_mode</span><span class="p">(</span>
-                <span class="n">user_input</span><span class="p">[</span><span class="s2">&quot;uplink_safe_mode&quot;</span><span class="p">]</span>
-            <span class="p">)</span></div>
+        <span class="n">command_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;command&quot;</span><span class="p">:</span> <span class="n">command</span><span class="p">,</span> <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="n">params</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">command_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">command_dict</span><span class="p">)</span></div>
 </div>
 
 </pre></div>

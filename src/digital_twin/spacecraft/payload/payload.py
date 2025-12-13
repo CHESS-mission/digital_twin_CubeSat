@@ -1,11 +1,11 @@
 """
-File for the Payload subsystem, which handles GNSS and TOF operations.
+File for the Payload subsystem, which handles GNSS and TOF/Camera operations.
 
 This module defines the Payload class responsible for managing the spacecraft's 
-payload operations, including GNSS and TOF measurements.
+payload operations, including GNSS and TOF/Camera measurements.
 
 Classes:
-    Payload: Represents the Payload subsystem managing GNSS and TOF systems.
+    Payload: Represents the Payload subsystem managing GNSS and TOF/Camera systems.
 """
 
 import math
@@ -21,14 +21,14 @@ from digital_twin.utils import get_astropy_unit_time
 
 class Payload(SubSystem):
     """
-    Represent the Payload subsystem, which includes the GNSS and TOF systems for the spacecraft.
+    Represent the Payload subsystem, which includes the GNSS and TOF/Camera systems for the spacecraft.
 
     Attributes:
         name (str): The name of the subsystem.
         consumption_mean_gnss (dict[int, Quantity["power"]]): Mean power consumption for the GNSS system at different operating modes.
-        consumption_mean_tof (dict[int, Quantity["power"]]): Mean power consumption for the TOF system at different operating modes.
-        measurement_TOF_rate (Quantity["bandwidth"]): Rate at which TOF data is generated.
-        measurement_GNSS_rate (Quantity["bandwidth"]): Rate at which GNSS data is generated.
+        consumption_mean_measurement (dict[int, Quantity["power"]]): Mean power consumption for the TOF/Camera system at different operating modes.
+        data_rate_measurment (Quantity["bandwidth"]): Rate at which TOF/Camera data is generated.
+        data_rate_GNSS (Quantity["bandwidth"]): Rate at which GNSS data is generated.
         measurement_max_duration (Quantity["time"]): Maximum duration for a single measurement session.
         nb_measurement_per_day (int): Number of measurements allowed per day.
         start_measurement (Quantity["time"]): Duration of the pre-conditioning period before measurements can begin.
@@ -50,21 +50,21 @@ class Payload(SubSystem):
         self.consumption_mean_gnss = {
             int(k): v * u.W for k, v in params["consumption_gnss"].items()
         }
-        self.consumption_mean_tof = {
-            int(k): v * u.W for k, v in params["consumption_tof"].items()
+        self.consumption_mean_measurment = {
+            int(k): v * u.W for k, v in params["consumption_measurment"].items()
         }
 
-        self.measurement_TOF_rate = float(params["measurement_TOF_rate"]) * (
+        self.data_rate_measurment = float(params["data_rate_measurment"]) * (
             u.Mbit / u.s
         )
-        self.measurement_GNSS_rate = float(params["measurement_GNSS_rate"]) * (
+        self.data_rate_GNSS = float(params["data_rate_GNSS"]) * (
             u.Mbit / u.s
         )
         measure_unit = get_astropy_unit_time(params["max_duration_unit"])
         self.measurement_max_duration = (params["max_duration"] * measure_unit).to(u.s)
         self.nb_measurement_per_day = int(params["nb_measurements_per_day"])
 
-        # Duration of the pre conditioning before the TOF can actually generate data (at the beginning of the measurement session)
+        # Duration of the pre conditioning before the TOF/Camera can actually generate data (at the beginning of the measurement session)
         self.start_measurement = (
             float(params["measurement_pre_conditioning_time"]) * u.s
         )
@@ -133,7 +133,7 @@ class Payload(SubSystem):
             eclipse_status (bool): Indicate if the spacecraft is in eclipse.
             delta_t (TimeDelta): Timestep for the update.
         """
-        if new_mode == 5:  # MEASUREMENT
+        if new_mode == 1:  # MEASUREMENT
             if old_mode != new_mode:  # Just switched to measurement mode
                 self.measurement_duration = 0.0 * u.s
                 self.nb_measurement_windows += 1
@@ -146,7 +146,7 @@ class Payload(SubSystem):
 
         # SAFE FLAG HANDLING
         # Check safe flag triggers (cannot generate a safe flag if already in safe mode)
-        if new_mode != 1 and self.safe_flag == False:
+        if new_mode != 2 and self.safe_flag == False:
             pass  # Not implemented yet for this subsystem
         # Check safe flag resolution
         if self.safe_flag == True:
@@ -154,14 +154,14 @@ class Payload(SubSystem):
 
     def compute_power_consumed(self, mode: int) -> Quantity["power"]:
         """Compute the power consumed in the specified mode."""
-        return self.consumption_mean_gnss[mode] + self.consumption_mean_tof[mode]
+        return self.consumption_mean_gnss[mode] + self.consumption_mean_measurment[mode]
 
     def __str__(self) -> str:
         """Return a string representation of the Payload subsystem."""
         strings = "\n".join(
             [
-                f"- TOF data generation rate: {self.measurement_TOF_rate}",
-                f"- GNSS data generation rate: {self.measurement_GNSS_rate}",
+                f"- TOF/Camera data generation rate: {self.data_rate_measurment}",
+                f"- GNSS data generation rate: {self.data_rate_GNSS}",
                 f"- Measurement session max duration: {self.measurement_max_duration}",
                 f"- Measurement pre-conditioning time: {self.start_measurement}",
                 f"- Measurement post-conditioning time: {self.measurement_max_duration - self.stop_measurement}",
@@ -180,14 +180,14 @@ class Payload(SubSystem):
         """
         data = 0.0 * u.Mbit
         if (
-            new_mode == 5
+            new_mode == 1
             and self.measurement_duration >= self.start_measurement
             and self.measurement_duration < self.stop_measurement
         ):  # Only add data if in measurement mode and after/before pre/post conditioning (power budget)
-            data += self.measurement_TOF_rate * delta_t
+            data += self.data_rate_measurment * delta_t
 
-        if new_mode != 1:  # If not in safe mode, GNSS continuously add data
-            data += self.measurement_GNSS_rate * delta_t
+        if new_mode != 2:  # If not in safe mode, GNSS continuously add data
+            data += self.data_rate_GNSS * delta_t
 
         return (
             data,

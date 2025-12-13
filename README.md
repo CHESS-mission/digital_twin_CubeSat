@@ -1,12 +1,14 @@
-# A Digital Twin of the CHESS CubeSat
+# README for the Digital Twin of the CHESS CubeSat
 
 This repository hosts a Python-based simulation framework developed to support the mission design and operations of the CHESS CubeSat.
 
-### Purposes
+## Purposes
 
 1. *Simulation tool for mission design*: Provides tools for modeling and simulating different subsystems of the CHESS CubeSat to inform decisions and help in the development, testing, and validation tasks.
 
 2. *Foundation for a digital twin*: Serves as the groundwork for a digital twin capable of simulating real-time satellite operations, including anomaly detection.
+
+3. Eventual integration into the end-to-end simulation with NEST by Flightsoftware
 
 This framework was initially developed as part of a semester project with the EPFL Spacecraft Team in collaboration with the EPFL Space Center. The semester project report under the *docs/* folder is a valuable ressource in addition to this README file.
 
@@ -50,6 +52,7 @@ The repository is organized as follows:
 │   ├── orbit						# Config files for orbit parameters
 │   ├── simulation					# Config files for simulation parameters
 │   └── spacecraft					# Config files for spacecraft parameters
+├── digital_twin_dashboard_grafana.json # JSON-export of dashboard for import into grafana
 ├── digital_twin_env.yml 				# Environment configuration file for setting up dependencies
 ├── docs						# Documentation and diagrams
 │   ├── UML_diagram.png					# UML class diagram of the framework
@@ -57,10 +60,12 @@ The repository is organized as follows:
 │   ├── html						# HTML documentation
 │   └── parameters.xlsx					# Default parameters descriptions and sources
 ├── results						# Output directory for simulation results
+│   ├── csv						# CSV data to visualize with Grafana and InfluxDB
 │   ├── data						# Numpy and JSON output files 
 │   └── figures						# Generated figures
 └── src							# Source code
     ├── digital_twin
+    │   ├── commands.py					# Functions to send commands + GUI
     │   ├── constants.py				# General constants for the simulation
     │   ├── ground_station				# Ground station module
     │   │   └── ground_station.py
@@ -160,11 +165,9 @@ In order to run a simulation, follow these steps:
 1. Place the 5 configuration files in their respective folder
 2. Activate the conda environment
 3. Make sure you are connected to the internet (some files are automatically updated by libraries)
-3. At the root directory, run:
-
+4. At the root directory, run:
 	```bash
 	python3 -W"ignore" src/main.py simulation_template.json orbit_template.json spacecraft_template.json ground_station_template.json mission_design_template.json
-
 	```
 
 This example provided uses the files with default values. It is important to keep the file arguments in the specified order.
@@ -219,6 +222,12 @@ All data arrays are saved with an accompanying `"times.npy"` array for use in pl
 	- `"data_storage"`: Storage usage (total, scientific, and housekeeping data)
 	- `"visibility_windows"`: Boolean bar plot of visibility windows
 	- `"eclipse_windows"`: Boolean bar plot of eclipse status
+	- `"solar cells efficiency"`: Evolution of the solar cells efficiency over time
+
+- **csv**:
+	- `"simulation_data.csv"`: All the previous fields and groundtrack, in a CSV format
+
+
 
 ## Documentation
 
@@ -227,21 +236,22 @@ Comprehensive information on all functions, classes, and modules is available in
 The documentation is created using [*Sphinx*](https://www.sphinx-doc.org/en/master/) mainly following a [step-by-step tutorial](https://www.youtube.com/watch?v=BWIrhgCAae0).  If changes are made to the codebase structure (such as adding or removing modules or packages), the documentation tree must be updated. Follow these steps to regenerate it:
 
 1. Navigate to the *docs/doc_generation/* directory
-2. Remove all **.rst** files EXCEPT "index.rst" 
-3. Return to the projec's root repository
+2. Remove all auto-generated **.rst** files EXCEPT `"index.rst"`, `"readme.rst"` and `"grafana_visualization.rst"`
+3. Return to the project's root repository
 4. Activate the virtual environment (**digital_twin_env**)
 5. Run the following command to rebuild the documentation structure:
-
 	```bash
 	sphinx-apidoc -o docs/doc_generation src/ --force
 	```
-5. Go back to the *docs/doc_generation/* directory
-6. Generate the HMTL documentation
+6. Go back to the *docs/doc_generation/* directory
+7. Generate the HMTL documentation
 	```bash
 	make html
 	```
 
 The updated documentation will be located in the *docs/html/* folder.
+
+**Important Note**: The `"index.rst"`, `"readme.rst"` and `"grafana_visualization.rst"` files contains manually created documentation and should NOT be deleted when rebuilding documentation.
 
 If only code changes are made (such as modifying functions or classes), and no new files are added or removed, simply run `make html` in the *docs/doc_generation/* directory to re-generate the documentation.
 
@@ -265,9 +275,18 @@ For a comprehensive list of physical types available in Astropy, refer to this [
 
 For more details about type annotations with units, see the [Astropy documentation](https://docs.astropy.org/en/stable/units/type_hints.html#).
 
+## New updates
+- Solar cells efficiency: to simulate linearly decreasing performances in the solar cells efficiency
+
+- Grafana interface: The simulation's results can be directly uploaded to an InfluxDB database for visualization with a Grafana-based interface.
+Everything runs locally for now, you then need to install the local versions of InfluxDB (https://docs.influxdata.com/influxdb3/core/install/) and Grafana (https://grafana.com/docs/grafana/latest/setup-grafana/installation/).
+Once this is done, you will have to launch two terminals to activate the processes : one for InfluxDB and the other for Grafana. These terminals need to run for the whole visualization time. To upload the data into InfluxDB, take a look at the notebook INFLUX_DB_LOCAL.ipynb and the documentation relative to the Grafana interface.
+
+- Real-time Command System: A new command system allows sending commands to the simulation during runtime. Commands can be sent via `sim.send_command(command: str, params: dict)`. They are put in a Queue and executed at the beginning of the next iteration. Different Commands have to be defined in `execute_commands()` in `commands.py`. For testing a simple GUI exists, that can be started in a secondary thread by setting `"use_gui": true` in `simulation_template.json`. Currently only mode switching is implemented. It can be helpful to set `"run_real_time": true`, which makes the simualtion wait after each iterations, such that it runs in real time. Eventualy the digital twin will be integrated with NEST by FlightSoftware, and hopefully the command infrastructure can be used for this with small changes.
+
 ## TODOs
 
-The next potential steps for this project are outlined in **Section 6** of the project report. You can find the report in the *docs/* folder.
+Some next potential steps for this project are outlined in **Section 6** of the project report. You can find the report in the *docs/* folder.
 
 ## Authors
 
@@ -279,5 +298,14 @@ The next potential steps for this project are outlined in **Section 6** of the p
 	- Mathieu Udriot (mathieu.udriot@epfl.ch)
 - **Referent Professor**:
 	- Jean-Paul Kneib
+
+ 
+### Grafana visualization + small improvements (spring 2025)
+
+- **Author**: Kilian Pouderoux (kilian.pouderoux@epfl.ch)
+
+### Small improvements + beginning of preparation for NEST integration
+
+- **Author**: Fabian Riemer (thorben.riemer@epfl.ch/fabianriemer03@gmail.com)
 
 Future authors are encouraged to add their names and details as they contribute to this  project.

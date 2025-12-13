@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="digital_twin.ground_station package" href="digital_twin.ground_station.html" />
-    <link rel="prev" title="Welcome to Digital Twin of the CHESS CubeSat’s documentation!" href="index.html" /> 
+    <link rel="prev" title="README for the Digital Twin of the CHESS CubeSat" href="readme.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -44,6 +44,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme.html">README for the Digital Twin of the CHESS CubeSat</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">digital_twin package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="digital_twin.ground_station.html">digital_twin.ground_station package</a></li>
@@ -52,17 +53,30 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-digital_twin.commands">digital_twin.commands module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#digital_twin.commands.CommandProcessor"><code class="docutils literal notranslate"><span class="pre">CommandProcessor</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#digital_twin.commands.CommandProcessor.execute_command"><code class="docutils literal notranslate"><span class="pre">CommandProcessor.execute_command()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#digital_twin.commands.SimulationGUI"><code class="docutils literal notranslate"><span class="pre">SimulationGUI</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#digital_twin.commands.SimulationGUI.run"><code class="docutils literal notranslate"><span class="pre">SimulationGUI.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#digital_twin.commands.SimulationGUI.send_mode_command"><code class="docutils literal notranslate"><span class="pre">SimulationGUI.send_mode_command()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#digital_twin.commands.SimulationGUI.start_non_blocking"><code class="docutils literal notranslate"><span class="pre">SimulationGUI.start_non_blocking()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#module-digital_twin.constants">digital_twin.constants module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-digital_twin.mode_switch">digital_twin.mode_switch module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#digital_twin.mode_switch.ModeSwitch"><code class="docutils literal notranslate"><span class="pre">ModeSwitch</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#digital_twin.mode_switch.ModeSwitch.mode_switch_from_CHARGING"><code class="docutils literal notranslate"><span class="pre">ModeSwitch.mode_switch_from_CHARGING()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#digital_twin.mode_switch.ModeSwitch.mode_switch_from_IDLE"><code class="docutils literal notranslate"><span class="pre">ModeSwitch.mode_switch_from_IDLE()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#digital_twin.mode_switch.ModeSwitch.mode_switch_from_IDLE_CHARGING"><code class="docutils literal notranslate"><span class="pre">ModeSwitch.mode_switch_from_IDLE_CHARGING()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#digital_twin.mode_switch.ModeSwitch.mode_switch_from_MEASUREMENT"><code class="docutils literal notranslate"><span class="pre">ModeSwitch.mode_switch_from_MEASUREMENT()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#digital_twin.mode_switch.ModeSwitch.mode_switch_from_SAFE"><code class="docutils literal notranslate"><span class="pre">ModeSwitch.mode_switch_from_SAFE()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#digital_twin.mode_switch.ModeSwitch.mode_switch_from_UHF_COM"><code class="docutils literal notranslate"><span class="pre">ModeSwitch.mode_switch_from_UHF_COM()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#digital_twin.mode_switch.ModeSwitch.mode_switch_from_X_BAND_COM"><code class="docutils literal notranslate"><span class="pre">ModeSwitch.mode_switch_from_X_BAND_COM()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#digital_twin.mode_switch.ModeSwitch.operating_mode"><code class="docutils literal notranslate"><span class="pre">ModeSwitch.operating_mode</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#digital_twin.mode_switch.ModeSwitch.print_operating_mode"><code class="docutils literal notranslate"><span class="pre">ModeSwitch.print_operating_mode()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#digital_twin.mode_switch.ModeSwitch.set_mode"><code class="docutils literal notranslate"><span class="pre">ModeSwitch.set_mode()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#digital_twin.mode_switch.ModeSwitch.switch_mode"><code class="docutils literal notranslate"><span class="pre">ModeSwitch.switch_mode()</span></code></a></li>
 </ul>
 </li>
@@ -88,13 +102,14 @@
 <li class="toctree-l3"><a class="reference internal" href="#digital_twin.report.generate_figures"><code class="docutils literal notranslate"><span class="pre">generate_figures()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#digital_twin.report.produce_report"><code class="docutils literal notranslate"><span class="pre">produce_report()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#digital_twin.report.save_data"><code class="docutils literal notranslate"><span class="pre">save_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#digital_twin.report.save_to_csv"><code class="docutils literal notranslate"><span class="pre">save_to_csv()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#module-digital_twin.simulation">digital_twin.simulation module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#digital_twin.simulation.Simulation"><code class="docutils literal notranslate"><span class="pre">Simulation</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#digital_twin.simulation.Simulation.handle_user_input"><code class="docutils literal notranslate"><span class="pre">Simulation.handle_user_input()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#digital_twin.simulation.Simulation.print_parameters"><code class="docutils literal notranslate"><span class="pre">Simulation.print_parameters()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#digital_twin.simulation.Simulation.run"><code class="docutils literal notranslate"><span class="pre">Simulation.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#digital_twin.simulation.Simulation.send_command"><code class="docutils literal notranslate"><span class="pre">Simulation.send_command()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -102,6 +117,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#module-digital_twin.utils">digital_twin.utils module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#digital_twin.utils.angle_between_vectors"><code class="docutils literal notranslate"><span class="pre">angle_between_vectors()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#digital_twin.utils.check_and_empty_folder"><code class="docutils literal notranslate"><span class="pre">check_and_empty_folder()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#digital_twin.utils.convert_cartesian_to_spherical"><code class="docutils literal notranslate"><span class="pre">convert_cartesian_to_spherical()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#digital_twin.utils.extract_propagation_data_from_ephemeris"><code class="docutils literal notranslate"><span class="pre">extract_propagation_data_from_ephemeris()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#digital_twin.utils.get_astropy_unit_time"><code class="docutils literal notranslate"><span class="pre">get_astropy_unit_time()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#digital_twin.utils.get_astropy_units_angle"><code class="docutils literal notranslate"><span class="pre">get_astropy_units_angle()</span></code></a></li>
@@ -111,6 +127,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#module-digital_twin">Module contents</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="grafana_visualization.html">Grafana Visualization Documentation</a></li>
 </ul>
 
         </div>
@@ -301,6 +318,64 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
 </section>
+<section id="module-digital_twin.commands">
+<span id="digital-twin-commands-module"></span><h2>digital_twin.commands module<a class="headerlink" href="#module-digital_twin.commands" title="Link to this heading"></a></h2>
+<p>Simple command system for real-time simulation control and a basic GUI for testing.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="digital_twin.commands.CommandProcessor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">digital_twin.commands.</span></span><span class="sig-name descname"><span class="pre">CommandProcessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simulation</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/digital_twin/commands.html#CommandProcessor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.commands.CommandProcessor" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Processes commands and applies them to the simulation.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="digital_twin.commands.CommandProcessor.execute_command">
+<span class="sig-name descname"><span class="pre">execute_command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/digital_twin/commands.html#CommandProcessor.execute_command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.commands.CommandProcessor.execute_command" title="Link to this definition"></a></dt>
+<dd><p>Execute a command by calling the appropriate simulation method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>command</strong> – Dictionary with ‘command’ (str) and ‘params’ (dict) keys</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool, message: str)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple of (success</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="digital_twin.commands.SimulationGUI">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">digital_twin.commands.</span></span><span class="sig-name descname"><span class="pre">SimulationGUI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simulation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/digital_twin/commands.html#SimulationGUI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.commands.SimulationGUI" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Basic GUI to send commands to the running simulation.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="digital_twin.commands.SimulationGUI.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/digital_twin/commands.html#SimulationGUI.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.commands.SimulationGUI.run" title="Link to this definition"></a></dt>
+<dd><p>Internal method to create and run the GUI (called in the thread).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="digital_twin.commands.SimulationGUI.send_mode_command">
+<span class="sig-name descname"><span class="pre">send_mode_command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/digital_twin/commands.html#SimulationGUI.send_mode_command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.commands.SimulationGUI.send_mode_command" title="Link to this definition"></a></dt>
+<dd><p>Send a set_mode command to the simulation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mode</strong> – The mode number to set</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="digital_twin.commands.SimulationGUI.start_non_blocking">
+<span class="sig-name descname"><span class="pre">start_non_blocking</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/digital_twin/commands.html#SimulationGUI.start_non_blocking"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.commands.SimulationGUI.start_non_blocking" title="Link to this definition"></a></dt>
+<dd><p>Start the GUI in a separate thread (non-blocking).</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
 <section id="module-digital_twin.constants">
 <span id="digital-twin-constants-module"></span><h2>digital_twin.constants module<a class="headerlink" href="#module-digital_twin.constants" title="Link to this heading"></a></h2>
 <p>Constants for the simulation.</p>
@@ -314,15 +389,9 @@
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Implement the mode switch algorithm defined in the MOP for the CHESS mission.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="digital_twin.mode_switch.ModeSwitch.mode_switch_from_CHARGING">
-<span class="sig-name descname"><span class="pre">mode_switch_from_CHARGING</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="digital_twin.spacecraft.eps.html#digital_twin.spacecraft.eps.eps.Eps" title="digital_twin.spacecraft.eps.eps.Eps"><span class="pre">Eps</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_storage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="digital_twin.spacecraft.obc.html#digital_twin.spacecraft.obc.obc.DataStorage" title="digital_twin.spacecraft.obc.obc.DataStorage"><span class="pre">DataStorage</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">com_window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eclipse_status</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/digital_twin/mode_switch.html#ModeSwitch.mode_switch_from_CHARGING"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.mode_switch.ModeSwitch.mode_switch_from_CHARGING" title="Link to this definition"></a></dt>
-<dd><p>Handle transitions from CHARGING mode.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="digital_twin.mode_switch.ModeSwitch.mode_switch_from_IDLE">
-<span class="sig-name descname"><span class="pre">mode_switch_from_IDLE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="digital_twin.spacecraft.eps.html#digital_twin.spacecraft.eps.eps.Eps" title="digital_twin.spacecraft.eps.eps.Eps"><span class="pre">Eps</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_storage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="digital_twin.spacecraft.obc.html#digital_twin.spacecraft.obc.obc.DataStorage" title="digital_twin.spacecraft.obc.obc.DataStorage"><span class="pre">DataStorage</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">com_window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eclipse_status</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/digital_twin/mode_switch.html#ModeSwitch.mode_switch_from_IDLE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.mode_switch.ModeSwitch.mode_switch_from_IDLE" title="Link to this definition"></a></dt>
-<dd><p>Handle transitions from IDLE mode.</p>
+<dt class="sig sig-object py" id="digital_twin.mode_switch.ModeSwitch.mode_switch_from_IDLE_CHARGING">
+<span class="sig-name descname"><span class="pre">mode_switch_from_IDLE_CHARGING</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="digital_twin.spacecraft.eps.html#digital_twin.spacecraft.eps.eps.Eps" title="digital_twin.spacecraft.eps.eps.Eps"><span class="pre">Eps</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_storage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="digital_twin.spacecraft.obc.html#digital_twin.spacecraft.obc.obc.DataStorage" title="digital_twin.spacecraft.obc.obc.DataStorage"><span class="pre">DataStorage</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">com_window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eclipse_status</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/digital_twin/mode_switch.html#ModeSwitch.mode_switch_from_IDLE_CHARGING"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.mode_switch.ModeSwitch.mode_switch_from_IDLE_CHARGING" title="Link to this definition"></a></dt>
+<dd><p>Handle transitions from IDLE/CHARGING mode.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -358,6 +427,12 @@
 <dt class="sig sig-object py" id="digital_twin.mode_switch.ModeSwitch.print_operating_mode">
 <span class="sig-name descname"><span class="pre">print_operating_mode</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/digital_twin/mode_switch.html#ModeSwitch.print_operating_mode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.mode_switch.ModeSwitch.print_operating_mode" title="Link to this definition"></a></dt>
 <dd><p>Return the human-readable description of the current operating mode.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="digital_twin.mode_switch.ModeSwitch.set_mode">
+<span class="sig-name descname"><span class="pre">set_mode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/digital_twin/mode_switch.html#ModeSwitch.set_mode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.mode_switch.ModeSwitch.set_mode" title="Link to this definition"></a></dt>
+<dd><p>Directly set the operating mode (used for commands).</p>
 </dd></dl>
 
 <dl class="py method">
@@ -489,7 +564,7 @@ Option 2: with no grid not tick values.</p>
 <p>Definition of functions to produce the report after the simulation was run.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="digital_twin.report.generate_figures">
-<span class="sig-prename descclassname"><span class="pre">digital_twin.report.</span></span><span class="sig-name descname"><span class="pre">generate_figures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figure_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/digital_twin/report.html#generate_figures"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.report.generate_figures" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">digital_twin.report.</span></span><span class="sig-name descname"><span class="pre">generate_figures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figure_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">csv_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/digital_twin/report.html#generate_figures"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.report.generate_figures" title="Link to this definition"></a></dt>
 <dd><p>Generate and save figures based on the simulation results.</p>
 </dd></dl>
 
@@ -513,6 +588,12 @@ Option 2: with no grid not tick values.</p>
 <dd><p>Save the simulation data to specified files.</p>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="digital_twin.report.save_to_csv">
+<span class="sig-prename descclassname"><span class="pre">digital_twin.report.</span></span><span class="sig-name descname"><span class="pre">save_to_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">csv_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/digital_twin/report.html#save_to_csv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.report.save_to_csv" title="Link to this definition"></a></dt>
+<dd><p>Save all simulation data into a single CSV file with labeled columns.</p>
+</dd></dl>
+
 </section>
 <section id="module-digital_twin.simulation">
 <span id="digital-twin-simulation-module"></span><h2>digital_twin.simulation module<a class="headerlink" href="#module-digital_twin.simulation" title="Link to this heading"></a></h2>
@@ -521,20 +602,9 @@ of a satellite mission simulation. It brings together the orbit propagator, spac
 subsystems to run a cohesive simulation based on user-defined parameters.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="digital_twin.simulation.Simulation">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">digital_twin.simulation.</span></span><span class="sig-name descname"><span class="pre">Simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simulation_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbit_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spacecraft_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">station_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mission_design_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/digital_twin/simulation.html#Simulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.simulation.Simulation" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">digital_twin.simulation.</span></span><span class="sig-name descname"><span class="pre">Simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simulation_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbit_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spacecraft_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">station_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mission_design_params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/digital_twin/simulation.html#Simulation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.simulation.Simulation" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Manager class which gathers simulation objects and runs the main simulation loop.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="digital_twin.simulation.Simulation.handle_user_input">
-<span class="sig-name descname"><span class="pre">handle_user_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/digital_twin/simulation.html#Simulation.handle_user_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.simulation.Simulation.handle_user_input" title="Link to this definition"></a></dt>
-<dd><p>Handle additional user input. Currently only implemented for uplink safe mode trigger.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>user_input</strong> (<em>dict</em>) – Dictionary containing the user input to consider.</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="digital_twin.simulation.Simulation.print_parameters">
 <span class="sig-name descname"><span class="pre">print_parameters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/digital_twin/simulation.html#Simulation.print_parameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.simulation.Simulation.print_parameters" title="Link to this definition"></a></dt>
@@ -545,6 +615,20 @@ subsystems to run a cohesive simulation based on user-defined parameters.</p>
 <dt class="sig sig-object py" id="digital_twin.simulation.Simulation.run">
 <span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results_folder</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'results/'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/digital_twin/simulation.html#Simulation.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.simulation.Simulation.run" title="Link to this definition"></a></dt>
 <dd><p>Function to run the simulation, which contains the main simulation loop.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="digital_twin.simulation.Simulation.send_command">
+<span class="sig-name descname"><span class="pre">send_command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/digital_twin/simulation.html#Simulation.send_command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.simulation.Simulation.send_command" title="Link to this definition"></a></dt>
+<dd><p>Send a command to the simulation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>command</strong> – Command name (e.g., ‘set_mode’, ‘uplink_safe_mode’)</p></li>
+<li><p><strong>params</strong> – Command parameters</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -578,6 +662,12 @@ in matrices A and B. Each row represents a vector in 3D space.</p>
 <dt class="sig sig-object py" id="digital_twin.utils.check_and_empty_folder">
 <span class="sig-prename descclassname"><span class="pre">digital_twin.utils.</span></span><span class="sig-name descname"><span class="pre">check_and_empty_folder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/digital_twin/utils.html#check_and_empty_folder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.utils.check_and_empty_folder" title="Link to this definition"></a></dt>
 <dd><p>For a specific folder, check if it exists (if not, create it) and empty it.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="digital_twin.utils.convert_cartesian_to_spherical">
+<span class="sig-prename descclassname"><span class="pre">digital_twin.utils.</span></span><span class="sig-name descname"><span class="pre">convert_cartesian_to_spherical</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/digital_twin/utils.html#convert_cartesian_to_spherical"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#digital_twin.utils.convert_cartesian_to_spherical" title="Link to this definition"></a></dt>
+<dd><p>Convert Cartesian coordinates to latitude and longitude in degrees and optionally interpolate to target times.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -648,7 +738,7 @@ altitudes: altitude from attractor’s surface</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to Digital Twin of the CHESS CubeSat’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="readme.html" class="btn btn-neutral float-left" title="README for the Digital Twin of the CHESS CubeSat" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="digital_twin.ground_station.html" class="btn btn-neutral float-right" title="digital_twin.ground_station package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

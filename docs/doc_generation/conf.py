@@ -36,6 +36,7 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",  # import to not get the error "unexpected section title"
+    "m2r2",  # For mdinclude directive to dynamically include the README.md file
 ]
 
 

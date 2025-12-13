@@ -1,0 +1,465 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>README for the Digital Twin of the CHESS CubeSat &mdash; Digital Twin of the CHESS CubeSat 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="digital_twin package" href="digital_twin.html" />
+    <link rel="prev" title="Welcome to Digital Twin of the CHESS CubeSat’s documentation!" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Digital Twin of the CHESS CubeSat
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">README for the Digital Twin of the CHESS CubeSat</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#purposes">Purposes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#table-of-contents">Table of Contents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id1">Libraries and Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">Repository Structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#notes">Notes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#input">Input</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#starting-a-simulation">Starting a Simulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#verbose">Verbose</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#output">Output</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#type-hints">Type hints</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#new-updates">New updates</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">TODOs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">Authors</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#initial-development-fall-2024">Initial development (fall 2024)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#grafana-visualization-small-improvements-spring-2025">Grafana visualization + small improvements (spring 2025)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#small-improvements-beginning-of-preparation-for-nest-integration">Small improvements + beginning of preparation for NEST integration</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="digital_twin.html">digital_twin package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grafana_visualization.html">Grafana Visualization Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Digital Twin of the CHESS CubeSat</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">README for the Digital Twin of the CHESS CubeSat</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/readme.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="readme-for-the-digital-twin-of-the-chess-cubesat">
+<h1>README for the Digital Twin of the CHESS CubeSat<a class="headerlink" href="#readme-for-the-digital-twin-of-the-chess-cubesat" title="Link to this heading"></a></h1>
+<p>This repository hosts a Python-based simulation framework developed to support the mission design and operations of the CHESS CubeSat.</p>
+<section id="purposes">
+<h2>Purposes<a class="headerlink" href="#purposes" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><em>Simulation tool for mission design</em>: Provides tools for modeling and simulating different subsystems of the CHESS CubeSat to inform decisions and help in the development, testing, and validation tasks.</p></li>
+<li><p><em>Foundation for a digital twin</em>: Serves as the groundwork for a digital twin capable of simulating real-time satellite operations, including anomaly detection.</p></li>
+<li><p>Eventual integration into the end-to-end simulation with NEST by Flightsoftware</p></li>
+</ol>
+<p>This framework was initially developed as part of a semester project with the EPFL Spacecraft Team in collaboration with the EPFL Space Center. The semester project report under the <em>docs/</em> folder is a valuable ressource in addition to this README file.</p>
+</section>
+<section id="table-of-contents">
+<h2>Table of Contents<a class="headerlink" href="#table-of-contents" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="#libraries-and-requirements">Libraries and Requirements</a></p></li>
+<li><p><a class="reference external" href="#repository-structure">Repository Structure</a></p></li>
+<li><p><a class="reference external" href="#usage">Usage</a></p></li>
+<li><p><a class="reference external" href="#documentation">Documentation</a></p></li>
+<li><p><a class="reference external" href="#todos">TODOs</a></p></li>
+<li><p><a class="reference external" href="#authors">Authors</a></p></li>
+</ul>
+</section>
+<section id="id1">
+<h2>Libraries and Requirements<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p>This application requires <strong>Python 3.9</strong> or later. All necessary dependencies are specified in the <em>digital_twin_env.yaml</em> file. Follow these steps to create and activate the required <strong>Conda</strong> environment:</p>
+<ol class="arabic simple">
+<li><p>Create the environment by running the following command from the root of the repository:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>env<span class="w"> </span>create<span class="w"> </span>-f<span class="w"> </span>digital_twin_env.yml
+</pre></div>
+</div>
+<ol class="arabic simple">
+<li><p>Activate the newly created environment:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>activate<span class="w"> </span>digital_twin_env
+</pre></div>
+</div>
+<p>Once the environment is activated, you are ready to run simulations!</p>
+</section>
+<section id="id2">
+<h2>Repository Structure<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<p>The repository is organized as follows:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>├──<span class="w"> </span>README.md
+├──<span class="w"> </span>data
+│<span class="w">   </span>├──<span class="w"> </span>atmosphere_data<span class="w">                 </span><span class="c1"># Files for atmosphere models</span>
+│<span class="w">   </span>├──<span class="w"> </span>ground_station<span class="w">                  </span><span class="c1"># Config files for ground stations</span>
+│<span class="w">   </span>├──<span class="w"> </span>mission_design<span class="w">                  </span><span class="c1"># Config files for mission design parameters</span>
+│<span class="w">   </span>├──<span class="w"> </span>orbit<span class="w">                       </span><span class="c1"># Config files for orbit parameters</span>
+│<span class="w">   </span>├──<span class="w"> </span>simulation<span class="w">                  </span><span class="c1"># Config files for simulation parameters</span>
+│<span class="w">   </span>└──<span class="w"> </span>spacecraft<span class="w">                  </span><span class="c1"># Config files for spacecraft parameters</span>
+├──<span class="w"> </span>digital_twin_dashboard_grafana.json<span class="w"> </span><span class="c1"># JSON-export of dashboard for import into grafana</span>
+├──<span class="w"> </span>digital_twin_env.yml<span class="w">                </span><span class="c1"># Environment configuration file for setting up dependencies</span>
+├──<span class="w"> </span>docs<span class="w">                        </span><span class="c1"># Documentation and diagrams</span>
+│<span class="w">   </span>├──<span class="w"> </span>UML_diagram.png<span class="w">                 </span><span class="c1"># UML class diagram of the framework</span>
+│<span class="w">   </span>├──<span class="w"> </span>doc_generation<span class="w">                  </span><span class="c1"># Folder for generating HTML documentation</span>
+│<span class="w">   </span>├──<span class="w"> </span>html<span class="w">                        </span><span class="c1"># HTML documentation</span>
+│<span class="w">   </span>└──<span class="w"> </span>parameters.xlsx<span class="w">                 </span><span class="c1"># Default parameters descriptions and sources</span>
+├──<span class="w"> </span>results<span class="w">                     </span><span class="c1"># Output directory for simulation results</span>
+│<span class="w">   </span>├──<span class="w"> </span>csv<span class="w">                     </span><span class="c1"># CSV data to visualize with Grafana and InfluxDB</span>
+│<span class="w">   </span>├──<span class="w"> </span>data<span class="w">                        </span><span class="c1"># Numpy and JSON output files</span>
+│<span class="w">   </span>└──<span class="w"> </span>figures<span class="w">                     </span><span class="c1"># Generated figures</span>
+└──<span class="w"> </span>src<span class="w">                         </span><span class="c1"># Source code</span>
+<span class="w">    </span>├──<span class="w"> </span>digital_twin
+<span class="w">    </span>│<span class="w">   </span>├──<span class="w"> </span>commands.py<span class="w">                 </span><span class="c1"># Functions to send commands + GUI</span>
+<span class="w">    </span>│<span class="w">   </span>├──<span class="w"> </span>constants.py<span class="w">                </span><span class="c1"># General constants for the simulation</span>
+<span class="w">    </span>│<span class="w">   </span>├──<span class="w"> </span>ground_station<span class="w">              </span><span class="c1"># Ground station module</span>
+<span class="w">    </span>│<span class="w">   </span>│<span class="w">   </span>└──<span class="w"> </span>ground_station.py
+<span class="w">    </span>│<span class="w">   </span>├──<span class="w"> </span>mode_switch.py<span class="w">              </span><span class="c1"># Mode switch decision tree implementation</span>
+<span class="w">    </span>│<span class="w">   </span>├──<span class="w"> </span>orbit_propagator<span class="w">                </span><span class="c1"># Orbit propagator module</span>
+<span class="w">    </span>│<span class="w">   </span>│<span class="w">   </span>├──<span class="w"> </span>atmosphere_model.py<span class="w">         </span><span class="c1"># Atmosphere models implementation</span>
+<span class="w">    </span>│<span class="w">   </span>│<span class="w">   </span>├──<span class="w"> </span>constants.py<span class="w">                </span><span class="c1"># Constants for propagation</span>
+<span class="w">    </span>│<span class="w">   </span>│<span class="w">   </span>└──<span class="w"> </span>orbit_propagator.py<span class="w">         </span><span class="c1"># Orbit propagator implementation</span>
+<span class="w">    </span>│<span class="w">   </span>├──<span class="w"> </span>plotting.py<span class="w">                 </span><span class="c1"># Functions to plot results</span>
+<span class="w">    </span>│<span class="w">   </span>├──<span class="w"> </span>report.py<span class="w">                   </span><span class="c1"># Functions to generate outputs</span>
+<span class="w">    </span>│<span class="w">   </span>├──<span class="w"> </span>simulation.py<span class="w">               </span><span class="c1"># Implementation of the Simulation class</span>
+<span class="w">    </span>│<span class="w">   </span>├──<span class="w"> </span>spacecraft<span class="w">                  </span><span class="c1"># Spacecraft module</span>
+<span class="w">    </span>│<span class="w">   </span>│<span class="w">   </span>├──<span class="w"> </span>adcs<span class="w">                    </span><span class="c1"># ADCS module</span>
+<span class="w">    </span>│<span class="w">   </span>│<span class="w">   </span>│<span class="w">   </span>└──<span class="w"> </span>adcs.py
+<span class="w">    </span>│<span class="w">   </span>├──<span class="w"> </span>eps<span class="w">                     </span><span class="c1"># EPS module</span>
+<span class="w">    </span>│<span class="w">   </span>│<span class="w">   </span>│<span class="w">   </span>└──<span class="w"> </span>eps.py
+<span class="w">    </span>│<span class="w">   </span>├──<span class="w"> </span>obc<span class="w">                     </span><span class="c1"># OBC module</span>
+<span class="w">    </span>│<span class="w">   </span>│<span class="w">   </span>│<span class="w">   </span>└──<span class="w"> </span>obc.py
+<span class="w">    </span>│<span class="w">   </span>│<span class="w">   </span>├──<span class="w"> </span>payload<span class="w">                 </span><span class="c1"># Payload module</span>
+<span class="w">    </span>│<span class="w">   </span>│<span class="w">   </span>│<span class="w">   </span>└──<span class="w"> </span>payload.py
+<span class="w">    </span>│<span class="w">   </span>│<span class="w">   </span>├──<span class="w"> </span>spacecraft.py<span class="w">               </span><span class="c1"># Spacecraft class implementation</span>
+<span class="w">    </span>│<span class="w">   </span>│<span class="w">   </span>├──<span class="w"> </span>subsystem.py<span class="w">                </span><span class="c1"># Subsystem interface</span>
+<span class="w">    </span>│<span class="w">   </span>│<span class="w">   </span>└──<span class="w"> </span>telecom<span class="w">                 </span><span class="c1"># Telecom module</span>
+<span class="w">    </span>│<span class="w">   </span>│<span class="w">       </span>└──<span class="w"> </span>telecom.py
+<span class="w">    </span>│<span class="w">   </span>└──<span class="w"> </span>utils.py<span class="w">                    </span><span class="c1"># Utility functions</span>
+<span class="w">    </span>├──<span class="w"> </span>main.py<span class="w">                     </span><span class="c1"># Main entry point for running the simulation</span>
+<span class="w">    </span>└──<span class="w"> </span>notebooks<span class="w">                   </span><span class="c1"># Notebooks for visualizations, experiments, and analysis</span>
+</pre></div>
+</div>
+<section id="notes">
+<h3>Notes<a class="headerlink" href="#notes" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><em>Notebooks/</em>: Each notebook includes a description at the beginning. They are used for advanced plotting, specific analyses, experiments, and testing functions later integrated into the framework.</p></li>
+<li><p><em>data/atmosphere_data/</em>: Contains data for <strong>NRLMSISE00</strong>, <strong>JB2008</strong> and <strong>solar_activity</strong> atmosphere models. Data for the first two are updated automatically by the <em>ATMOS</em> library during simulations. Solar activity data ($F10.7$ index and $Ap$) for the third model are pre-extracted from DRAMA software and do not require updating.</p></li>
+<li><p>“__init__.py”: These files exist in all module directories but are omitted for clarity in the tree.</p></li>
+<li><p>“mode_switch.py”: the mode switch decision tree used for the <code class="docutils literal notranslate"><span class="pre">ModeSwitch</span></code> class implementation can be found in the Appendix of the report under the <em>docs/</em> folder.</p></li>
+<li><p>The full code organization and design decisions are explained in detail in the report available in <em>docs/</em>.</p></li>
+</ul>
+</section>
+</section>
+<section id="id3">
+<h2>Usage<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<section id="input">
+<h3>Input<a class="headerlink" href="#input" title="Link to this heading"></a></h3>
+<p>User parameters are divided into five categories, each with its own JSON configuration file:</p>
+<ul class="simple">
+<li><p><strong>Spacecraft</strong>: Defines general parameters like mass, cross-sectional area, initial operating mode, and subsystem-specific details.</p></li>
+<li><p><strong>Orbit</strong>: Specifies initial orbital elements, epoch, and orbit type (e.g., SSO).</p></li>
+<li><p><strong>Simulation</strong>: Includes general simulation settings, such as duration, timestep, and the atmospheric model to use.</p></li>
+<li><p><strong>Ground station</strong>: Lists ground stations with their respective locations and elevation angles.</p></li>
+<li><p><strong>Mission design</strong>: Gathers parameters to generate a report (e.g., data to save, figures to generate) and additional user input, such as commands to initiate SAFE mode at specific times.</p></li>
+</ul>
+<p>Default configuration templates for each category are located in the <em>data/</em> folder and its subdirectories (<em>spacecraft/</em>, <em>orbit/</em>, <em>simulation/</em>, <em>ground_station/</em>, and <em>mission_design/</em>).</p>
+<p>The <strong>Spacecraft</strong>, <strong>Orbit</strong>, and <strong>Ground station</strong> configuration files are intented to be used by the engineers of the CHESS CubeSat as the parameters are mission specific. The file “parameters.xlsx” under <em>docs/</em> lists default parameter descriptions and sources for the CHESS satellite.</p>
+<p>The two other files, <strong>mission design</strong> and <strong>simulation</strong> are intended to be used by developers and users.</p>
+<p><strong>Note</strong>: It is important to place the relevant configuration files in their corresponding subfolder before running a simulation.</p>
+<p><strong>Units</strong></p>
+<p>Unless otherwise specified, all values in the configuration files under <em>data/</em> follow these standard units:</p>
+<ul class="simple">
+<li><p>Mass: <strong>kilograms (kg)</strong></p></li>
+<li><p>Time: <strong>seconds (s)</strong></p></li>
+<li><p>Distance: <strong>kilometers (km)</strong></p></li>
+<li><p>Angles: <strong>degrees (deg)</strong></p></li>
+<li><p>Power: <strong>Watts (W)</strong></p></li>
+<li><p>Data size: <strong>Megabit (Mbit)</strong></p></li>
+</ul>
+<p>Exceptions:</p>
+<ol class="arabic">
+<li><p>Custom Units:</p>
+<blockquote>
+<div><p>Some parameters allow unit customization. In these cases, specify the unit explicitly within the configuration file.</p>
+</div></blockquote>
+<ul>
+<li><p>Time: Choose from <code class="docutils literal notranslate"><span class="pre">&quot;second&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;hour&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;day&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;year&quot;</span></code></p></li>
+<li><p>Angle: Choose from <code class="docutils literal notranslate"><span class="pre">&quot;degree&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;radian&quot;</span></code></p>
+<p>Example fields: <code class="docutils literal notranslate"><span class="pre">&quot;duration_sim_unit&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;delta_t_unit&quot;</span></code> in the <strong>simulation</strong> config file, or <code class="docutils literal notranslate"><span class="pre">&quot;elevation_angle_unit&quot;</span></code> in the <strong>ground station</strong> config file.</p>
+</li>
+</ul>
+</li>
+<li><p>Battery Energy:</p>
+<blockquote>
+<div><p>Expressed in Watt-Hours (Wh) rather than Watt-seconds, following the EPFL Spacecraft Team’s power budget conventions. This applies to initial battery energy, minimum and maximum thresholds, and energy-related parameters like UHF and X-band communication levels.</p>
+</div></blockquote>
+</li>
+<li><p>Solar Cell Area:</p>
+<blockquote>
+<div><p>Measured in square meters (m²) for practicality due to small values.</p>
+</div></blockquote>
+</li>
+</ol>
+</section>
+<section id="starting-a-simulation">
+<h3>Starting a Simulation<a class="headerlink" href="#starting-a-simulation" title="Link to this heading"></a></h3>
+<p>In order to run a simulation, follow these steps:</p>
+<ol class="arabic">
+<li><p>Place the 5 configuration files in their respective folder</p></li>
+<li><p>Activate the conda environment</p></li>
+<li><p>Make sure you are connected to the internet (some files are automatically updated by libraries)</p></li>
+<li><p>At the root directory, run:
+.. code-block:: bash</p>
+<blockquote>
+<div><p>python3 -W”ignore” src/main.py simulation_template.json orbit_template.json spacecraft_template.json ground_station_template.json mission_design_template.json</p>
+</div></blockquote>
+</li>
+</ol>
+<p>This example provided uses the files with default values. It is important to keep the file arguments in the specified order.</p>
+</section>
+<section id="verbose">
+<h3>Verbose<a class="headerlink" href="#verbose" title="Link to this heading"></a></h3>
+<p>During the simulation, relevant information and progress updates can be displayed in the terminal:</p>
+<ol class="arabic simple">
+<li><p><strong>Earth Orientation Data Update</strong>: If running the application for the first time or after a prolonged period, the necessary Earth orientation data tables required by the <code class="docutils literal notranslate"><span class="pre">astropy.utils.iers</span></code> module are automatically downloaded and a message is displayed. If the tables are already up-to-date, a message confirms their current status.</p></li>
+<li><p><strong>Simulation Logging (Optional)</strong>: If <code class="docutils literal notranslate"><span class="pre">&quot;verbose&quot;</span></code> is set to <code class="docutils literal notranslate"><span class="pre">&quot;yes&quot;</span></code> in the <strong>simulation</strong> configuration file, detailed logs are displayed, including class initializations and progress updates at every 1,000 timesteps, along with the final runtime.</p></li>
+<li><p><strong>Parameter Display (Optional)</strong>: If <code class="docutils literal notranslate"><span class="pre">&quot;print_parameters&quot;</span></code> is set to <code class="docutils literal notranslate"><span class="pre">&quot;yes&quot;</span></code> in the <strong>simulation</strong> configuration file, the initial simulation parameters are printed before entering the main simulation loop.</p></li>
+</ol>
+</section>
+<section id="output">
+<h3>Output<a class="headerlink" href="#output" title="Link to this heading"></a></h3>
+<p>Upon completing the simulation, all outputs are stored in the <em>results/</em> directory. The generated outputs depend on user choices specified in the <strong>mission design</strong> configuration file, where each field must be set to <code class="docutils literal notranslate"><span class="pre">&quot;yes&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;no&quot;</span></code> to enable or disable the respective output.</p>
+<p>The outputs are divided into two categories:</p>
+<ul class="simple">
+<li><p>Data: Stores simulation results as numpy arrays (for each timestep), which can be used for further analysis or visualizations (refer to the notebooks for examples). Additionally, two JSON files are created to save the final states of the orbit and spacecraft, allowing them to be reused as starting configurations for subsequent simulations. The other three configuration files (<strong>simulation</strong>, <strong>ground station</strong>, <strong>mission design</strong>) are not directly linked to simulation states and are therefore not automatically saved.</p></li>
+<li><p>Figures: Generates visual plots of various parameters.</p></li>
+</ul>
+<p><strong>Detailed Output Description</strong></p>
+<ul class="simple">
+<li><p><strong>data</strong>:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;telecom_data&quot;</span></code>: Visibility windows (1 = visible, 0 = not visible), data storage (total, housekeeping, scientific data)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;eps_data&quot;</span></code>: Eclipse status (1 = eclipse, 0 = not in eclipse), battery energy level, power consumption, and generation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;modes&quot;</span></code>: Operating modes (refer to “constants.py” for mode definitions)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;altitude_data&quot;</span></code>: Satellite altitude</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;orbital_element_data&quot;</span></code>: Orbital elements including altitude, RAAN, AOP, ECC, and INC</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;eclipse_data&quot;</span></code>: Eclipse status (1 = eclipse, 0 = not in eclipse)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;orbit_state&quot;</span></code>: Final orbit state as a JSON file</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;spacecraft_state&quot;</span></code>: Final spacecraft state as a JSON file</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;density&quot;</span></code>: Air density at the satellite’s position</p></li>
+</ul>
+</li>
+</ul>
+<p>All data arrays are saved with an accompanying <code class="docutils literal notranslate"><span class="pre">&quot;times.npy&quot;</span></code> array for use in plotting.</p>
+<ul class="simple">
+<li><p><strong>figures</strong>:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;orbital_elem_evolution&quot;</span></code>: Evolution of RAAN, AOP, ECC, INC, and altitude over time</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;trajectory_2d&quot;</span></code>: 2D plot of the initial orbit</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;trajectory_3d&quot;</span></code>: 3D plot showing the initial orbit and full trajectory</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;groundtrack&quot;</span></code>: Ground track of the satellite</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;modes&quot;</span></code>:  Horizontal bar plot of spacecraft operating modes during the simulation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;dashboard&quot;</span></code>:  Combined plot showing operating modes, visibility windows, and eclipse status</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;battery_energy&quot;</span></code>:  Battery energy level over time</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;power_consumption&quot;</span></code>: Power consumption over time</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;power_generation&quot;</span></code>:  Power generation over time</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;power_balance&quot;</span></code>:  Net power (generation minus consumption) over time</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;data_storage&quot;</span></code>: Storage usage (total, scientific, and housekeeping data)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;visibility_windows&quot;</span></code>: Boolean bar plot of visibility windows</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;eclipse_windows&quot;</span></code>: Boolean bar plot of eclipse status</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;solar</span> <span class="pre">cells</span> <span class="pre">efficiency&quot;</span></code>: Evolution of the solar cells efficiency over time</p></li>
+</ul>
+</li>
+<li><p><strong>csv</strong>:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;simulation_data.csv&quot;</span></code>: All the previous fields and groundtrack, in a CSV format</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<section id="id4">
+<h2>Documentation<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<p>Comprehensive information on all functions, classes, and modules is available in the generated documentation. To explore it, open the “index.html” file located in the <em>docs/html/</em> folder. This provides a user-friendly interface for navigating the code’s structure and available features.</p>
+<p>The documentation is created using <a class="reference external" href="https://www.sphinx-doc.org/en/master/">*Sphinx*</a> mainly following a <a class="reference external" href="https://www.youtube.com/watch?v=BWIrhgCAae0">step-by-step tutorial</a>.  If changes are made to the codebase structure (such as adding or removing modules or packages), the documentation tree must be updated. Follow these steps to regenerate it:</p>
+<ol class="arabic">
+<li><p>Navigate to the <em>docs/doc_generation/</em> directory</p></li>
+<li><p>Remove all auto-generated <strong>.rst</strong> files EXCEPT <code class="docutils literal notranslate"><span class="pre">&quot;index.rst&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;readme.rst&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;grafana_visualization.rst&quot;</span></code></p></li>
+<li><p>Return to the project’s root repository</p></li>
+<li><p>Activate the virtual environment (<strong>digital_twin_env</strong>)</p></li>
+<li><p>Run the following command to rebuild the documentation structure:
+.. code-block:: bash</p>
+<blockquote>
+<div><p>sphinx-apidoc -o docs/doc_generation src/ –force</p>
+</div></blockquote>
+</li>
+<li><p>Go back to the <em>docs/doc_generation/</em> directory</p></li>
+<li><p>Generate the HMTL documentation
+.. code-block:: bash</p>
+<blockquote>
+<div><p>make html</p>
+</div></blockquote>
+</li>
+</ol>
+<p>The updated documentation will be located in the <em>docs/html/</em> folder.</p>
+<p><strong>Important Note</strong>: The <code class="docutils literal notranslate"><span class="pre">&quot;index.rst&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;readme.rst&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;grafana_visualization.rst&quot;</span></code> files contains manually created documentation and should NOT be deleted when rebuilding documentation.</p>
+<p>If only code changes are made (such as modifying functions or classes), and no new files are added or removed, simply run <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">html</span></code> in the <em>docs/doc_generation/</em> directory to re-generate the documentation.</p>
+<section id="type-hints">
+<h3>Type hints<a class="headerlink" href="#type-hints" title="Link to this heading"></a></h3>
+<p>In this project, each function is defined with type hints to indicate the expected types of variables. While Python is not a statically typed language and does not enforce these types at runtime, type hints serve as helpful guidance for developers, providing insight into what type of data a function expects or returns. Additionally, tools like <strong>Mypy</strong> can be used for static type checking, allowing developers to detect type errors before runtime.</p>
+<p>Commonly used types include basic ones like <code class="docutils literal notranslate"><span class="pre">float</span></code>, <code class="docutils literal notranslate"><span class="pre">int</span></code>, <code class="docutils literal notranslate"><span class="pre">str</span></code>, and <code class="docutils literal notranslate"><span class="pre">bool</span></code>, as well as more complex types such as <code class="docutils literal notranslate"><span class="pre">list</span></code> (e.g., <code class="docutils literal notranslate"><span class="pre">list[int]</span></code>), <code class="docutils literal notranslate"><span class="pre">dict</span></code>, <code class="docutils literal notranslate"><span class="pre">set</span></code>, and <code class="docutils literal notranslate"><span class="pre">tuple</span></code>, or <em>Numpy</em> arrays (<code class="docutils literal notranslate"><span class="pre">np.ndarray</span></code>). When a variable can be either <code class="docutils literal notranslate"><span class="pre">None</span></code> or another type, its type hint is written as <code class="docutils literal notranslate"><span class="pre">Optional[other_type]</span></code>.</p>
+<p>In this application, variables are frequently passed as <code class="docutils literal notranslate"><span class="pre">Quantity</span></code>. These are special objects from the <strong>Astropy</strong> library that allows to associate a number with a physical unit from the <code class="docutils literal notranslate"><span class="pre">astropy.units</span></code> module.</p>
+<p>The type hints for Quantities can be specified in two ways:</p>
+<ul class="simple">
+<li><p>Specific Unit: When the unit is known, for example:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">Quantity[u.km]</span></code> for a distance in kilometers.</p></li>
+</ul>
+</li>
+<li><p>Physical Type: When only the physical type is known (e.g., “length”, “time”, “angle”, “bandwidth”), for example:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">Quantity[&quot;length&quot;]</span></code></p></li>
+</ul>
+</li>
+</ul>
+<p>For a comprehensive list of physical types available in Astropy, refer to this <a class="reference external" href="https://docs.astropy.org/en/stable/units/ref_api.html#module-astropy.units.physical">link</a>.</p>
+<p>For more details about type annotations with units, see the <a class="reference external" href="https://docs.astropy.org/en/stable/units/type_hints.html#">Astropy documentation</a>.</p>
+</section>
+</section>
+<section id="new-updates">
+<h2>New updates<a class="headerlink" href="#new-updates" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Solar cells efficiency: to simulate linearly decreasing performances in the solar cells efficiency</p></li>
+<li><p>Grafana interface: The simulation’s results can be directly uploaded to an InfluxDB database for visualization with a Grafana-based interface.
+Everything runs locally for now, you then need to install the local versions of InfluxDB (<a class="reference external" href="https://docs.influxdata.com/influxdb3/core/install/">https://docs.influxdata.com/influxdb3/core/install/</a>) and Grafana (<a class="reference external" href="https://grafana.com/docs/grafana/latest/setup-grafana/installation/">https://grafana.com/docs/grafana/latest/setup-grafana/installation/</a>).
+Once this is done, you will have to launch two terminals to activate the processes : one for InfluxDB and the other for Grafana. These terminals need to run for the whole visualization time. To upload the data into InfluxDB, take a look at the notebook INFLUX_DB_LOCAL.ipynb and the documentation relative to the Grafana interface.</p></li>
+<li><p>Real-time Command System: A new command system allows sending commands to the simulation during runtime. Commands can be sent via <code class="docutils literal notranslate"><span class="pre">sim.send_command(command:</span> <span class="pre">str,</span> <span class="pre">params:</span> <span class="pre">dict)</span></code>. They are put in a Queue and executed at the beginning of the next iteration. Different Commands have to be defined in <code class="docutils literal notranslate"><span class="pre">execute_commands()</span></code> in <code class="docutils literal notranslate"><span class="pre">commands.py</span></code>. For testing a simple GUI exists, that can be started in a secondary thread by setting <code class="docutils literal notranslate"><span class="pre">&quot;use_gui&quot;:</span> <span class="pre">true</span></code> in <code class="docutils literal notranslate"><span class="pre">simulation_template.json</span></code>. Currently only mode switching is implemented. It can be helpful to set <code class="docutils literal notranslate"><span class="pre">&quot;run_real_time&quot;:</span> <span class="pre">true</span></code>, which makes the simualtion wait after each iterations, such that it runs in real time. Eventualy the digital twin will be integrated with NEST by FlightSoftware, and hopefully the command infrastructure can be used for this with small changes.</p></li>
+</ul>
+</section>
+<section id="id5">
+<h2>TODOs<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
+<p>Some next potential steps for this project are outlined in <strong>Section 6</strong> of the project report. You can find the report in the <em>docs/</em> folder.</p>
+</section>
+<section id="id6">
+<h2>Authors<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
+<section id="initial-development-fall-2024">
+<h3>Initial development (fall 2024)<a class="headerlink" href="#initial-development-fall-2024" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Author</strong>: Mathilde Simoni (<a class="reference external" href="mailto:mathilde&#46;simoni&#37;&#52;&#48;epfl&#46;ch">mathilde<span>&#46;</span>simoni<span>&#64;</span>epfl<span>&#46;</span>ch</a>)</p></li>
+<li><p><strong>Supervisors</strong>:</p>
+<ul>
+<li><p>Andrew Price (<a class="reference external" href="mailto:andrew&#46;prince&#37;&#52;&#48;epfl&#46;ch">andrew<span>&#46;</span>prince<span>&#64;</span>epfl<span>&#46;</span>ch</a>)</p></li>
+<li><p>Mathieu Udriot (<a class="reference external" href="mailto:mathieu&#46;udriot&#37;&#52;&#48;epfl&#46;ch">mathieu<span>&#46;</span>udriot<span>&#64;</span>epfl<span>&#46;</span>ch</a>)</p></li>
+</ul>
+</li>
+<li><p><strong>Referent Professor</strong>:</p>
+<ul>
+<li><p>Jean-Paul Kneib</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="grafana-visualization-small-improvements-spring-2025">
+<h3>Grafana visualization + small improvements (spring 2025)<a class="headerlink" href="#grafana-visualization-small-improvements-spring-2025" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Author</strong>: Kilian Pouderoux (<a class="reference external" href="mailto:kilian&#46;pouderoux&#37;&#52;&#48;epfl&#46;ch">kilian<span>&#46;</span>pouderoux<span>&#64;</span>epfl<span>&#46;</span>ch</a>)</p></li>
+</ul>
+</section>
+<section id="small-improvements-beginning-of-preparation-for-nest-integration">
+<h3>Small improvements + beginning of preparation for NEST integration<a class="headerlink" href="#small-improvements-beginning-of-preparation-for-nest-integration" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Author</strong>: Fabian Riemer (<a class="reference external" href="mailto:thorben&#46;riemer&#37;&#52;&#48;epfl&#46;ch">thorben<span>&#46;</span>riemer<span>&#64;</span>epfl<span>&#46;</span>ch</a><a class="reference external" href="mailto:/fabianriemer03&#37;&#52;&#48;gmail&#46;com">/fabianriemer03<span>&#64;</span>gmail<span>&#46;</span>com</a>)</p></li>
+</ul>
+<p>Future authors are encouraged to add their names and details as they contribute to this  project.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to Digital Twin of the CHESS CubeSat’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="digital_twin.html" class="btn btn-neutral float-right" title="digital_twin package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Mathilde Simoni.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

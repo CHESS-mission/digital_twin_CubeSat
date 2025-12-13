@@ -20,12 +20,12 @@ from digital_twin.spacecraft import SubSystem
 
 class DataStorage:
     """
-    Represent the data storage system for Housekeeping and science (GNSS And TOF) data.
+    Represent the data storage system for Housekeeping and science (GNSS And TOF/Camera) data.
 
     Attributes:
         max_storage (Quantity["data quantity"]): Maximum storage capacity of the system.
         data_storage (Quantity["data quantity"]): Current total data stored.
-        data_TOF_GNSS (Quantity["data quantity"]): Current data from TOF and GNSS systems stored.
+        data_payload (Quantity["data quantity"]): Current data from TOF/Camera and GNSS systems stored.
         data_HK (Quantity["data quantity"]): Cuerrent Housekeeping data stored.
         data_to_downlink (Quantity["data quantity"]): Data queued for downlink during X-band communication.
     """
@@ -34,13 +34,13 @@ class DataStorage:
         print("Initializing the data storage... ") if verbose else None
         self.max_storage = float(params["max_storage"]) * u.Mbit
 
-        # Data_storage gathers all 3 types of data (TOF, GNSS, HK = Housekeeping)
+        # Data_storage gathers all 3 types of data (TOF/Camera, GNSS, HK = Housekeeping)
         self.data_storage = float(params["init_data"]) * u.Mbit
-        self.data_TOF_GNSS = float(params["init_data_TOF_GNSS"]) * u.Mbit
+        self.data_payload = float(params["init_data_payload"]) * u.Mbit
         self.data_HK = float(params["init_data_HK"]) * u.Mbit
 
-        # We need data_TOF_GNSS + data_HK = data_storage
-        if abs(self.data_TOF_GNSS + self.data_HK - self.data_storage).to_value() > 1e-6:
+        # We need data_payload + data_HK = data_storage
+        if abs(self.data_payload + self.data_HK - self.data_storage).to_value() > 1e-6:
             raise (RuntimeError)
 
         self.data_to_downlink = (
@@ -49,19 +49,19 @@ class DataStorage:
 
     def update_data_storage(
         self,
-        data_update_TOF_GNSS: Quantity["data quantity"],
+        data_update_payload: Quantity["data quantity"],
         data_update_HK: Quantity["data quantity"],
     ) -> None:
-        """Update the data storage with new TOF/GNSS and HK data."""
-        # TOF/GNSS data: cannot remove more than what it has
-        if (self.data_TOF_GNSS + data_update_TOF_GNSS) < 0:
-            self.data_storage -= self.data_TOF_GNSS
-            self.data_to_downlink -= self.data_TOF_GNSS
-            self.data_TOF_GNSS = 0.0 * u.Mbit
+        """Update the data storage with new Payload and HK data."""
+        # Payload data: cannot remove more than what it has
+        if (self.data_payload + data_update_payload) < 0:
+            self.data_storage -= self.data_payload
+            self.data_to_downlink -= self.data_payload
+            self.data_payload = 0.0 * u.Mbit
         else:
-            self.data_storage += data_update_TOF_GNSS
-            self.data_TOF_GNSS += data_update_TOF_GNSS
-            self.data_to_downlink += data_update_TOF_GNSS
+            self.data_storage += data_update_payload
+            self.data_payload += data_update_payload
+            self.data_to_downlink += data_update_payload
 
         # Housekeeping data
         if (self.data_HK + data_update_HK) < 0:
@@ -91,7 +91,7 @@ class DataStorage:
             else:
                 return False
         elif type == "x_band":
-            if self.data_TOF_GNSS <= 0:
+            if self.data_payload <= 0:
                 return True
             else:
                 False
@@ -123,12 +123,12 @@ class DataStorage:
             if new_mode != old_mode:  # Just switched to x_band_comm mode
                 # Update how much data needs to be downlinked
                 self.data_to_downlink = (
-                    self.data_TOF_GNSS.value * u.Mbit
+                    self.data_payload.value * u.Mbit
                 )  # Not a direct = or it does not do a deepcopy, which introduces a bug
 
     # Getters
     def get_data_storage(self) -> tuple[Quantity["data quantity"]]:
-        return self.data_storage, self.data_TOF_GNSS, self.data_HK
+        return self.data_storage, self.data_payload, self.data_HK
 
     def get_data_to_downlink(self) -> Quantity["data quantity"]:
         return self.data_to_downlink
@@ -207,7 +207,7 @@ class Obc(SubSystem):
 
         # SAFE FLAG HANDLING
         # Check safe flag triggers (cannot generate a safe flag if already in safe mode)
-        if new_mode != 1 and self.safe_flag == False:
+        if new_mode != 2 and self.safe_flag == False:
             pass  # Not implemented yet for this subsystem
         # Check safe flag resolution
         if self.safe_flag == True:
@@ -219,7 +219,7 @@ class Obc(SubSystem):
 
     def update_data_storage(
         self,
-        data_update_TOF_GNSS: Quantity["data quantity"],
+        data_update_payload: Quantity["data quantity"],
         data_update_HK: Quantity["data quantity"],
         delta_t: TimeDelta,
     ) -> None:
@@ -227,13 +227,13 @@ class Obc(SubSystem):
         Update the data storage with new data and housekeeping data.
 
         Parameters:
-            data_update_TOF_GNSS (Quantity["data quantity"]): Update for TOF/GNSS data.
+            data_update_paylpad (Quantity["data quantity"]): Update for payload data.
             data_update_HK (Quantity["data quantity"]): Update for housekeeping data.
             delta_t (TimeDelta): Timestep for the update.
         """
         # Housekeeping (HK) data also added (dooesn't depend on the operating mode, always generated)
         data_update_HK += self.HK_rate * delta_t
-        self.data_storage.update_data_storage(data_update_TOF_GNSS, data_update_HK)
+        self.data_storage.update_data_storage(data_update_payload, data_update_HK)
 
     def __str__(self) -> str:
         """Return a string representation of the OBC subsystem."""

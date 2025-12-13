@@ -10,7 +10,9 @@ Welcome to Digital Twin of the CHESS CubeSat's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   readme
    digital_twin
+   grafana_visualization
 
 
 

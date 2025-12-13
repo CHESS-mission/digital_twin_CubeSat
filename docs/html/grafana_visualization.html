@@ -1,0 +1,322 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Grafana Visualization Documentation &mdash; Digital Twin of the CHESS CubeSat 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="digital_twin.spacecraft.telecom package" href="digital_twin.spacecraft.telecom.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Digital Twin of the CHESS CubeSat
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme.html">README for the Digital Twin of the CHESS CubeSat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="digital_twin.html">digital_twin package</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Grafana Visualization Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#system-architecture">System Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#influxdb-setup">InfluxDB Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#database-configuration">Database Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#api-token-generation">API Token Generation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#grafana-setup">Grafana Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#interface-overview">Interface Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#data-source-configuration">Data Source Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dashboard-creation">Dashboard Creation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#installation-setup">Installation &amp; Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#default-credentials">Default Credentials</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#starting-the-services">Starting the Services</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#dashboard-import-export">Dashboard Import/Export</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#data-upload-process">Data Upload Process</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#note">Note</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Digital Twin of the CHESS CubeSat</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Grafana Visualization Documentation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/grafana_visualization.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="grafana-visualization-documentation">
+<h1>Grafana Visualization Documentation<a class="headerlink" href="#grafana-visualization-documentation" title="Link to this heading"></a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>Grafana is a software used for data visualization. It queries data from multiple databases and displays it a very versatile tool, many programming languages are allowed and we can create and personalize as many visualizations as we want. Thanks to its dynamic visualization, it allows to better visualize, zoom, and slide in the data, compared to fixed plots.</p>
+<p>For now, it’s used to visualize the data coming from the digital twin but its ultimate goal is to visualize in real time all the data coming from the satellite to assess and monitor its health and operations.</p>
+<figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="_images/FinalDashboard.png"><img alt="Final Grafana Dashboard" src="_images/FinalDashboard.png" style="width: 800px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Final Grafana dashboard showing various CubeSat metrics</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="system-architecture">
+<h2>System Architecture<a class="headerlink" href="#system-architecture" title="Link to this heading"></a></h2>
+<p>To have a functional interface we need 3 components:</p>
+<ul class="simple">
+<li><p>A satellite (or simulation) that sends the data</p></li>
+<li><p>A database to store and return the data</p></li>
+<li><p>A dashboard to write the queries and visualize the data</p></li>
+</ul>
+<p>As the satellite is supposed to join the satnogs network, we chose to use the same infrastructure, meaning using InfluxDB as the database.</p>
+<figure class="align-center" id="id2">
+<a class="reference internal image-reference" href="_images/Flowchart.png"><img alt="System Overview" src="_images/Flowchart.png" style="width: 600px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Overview of the Grafana visualization system architecture</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="influxdb-setup">
+<h2>InfluxDB Setup<a class="headerlink" href="#influxdb-setup" title="Link to this heading"></a></h2>
+<section id="database-configuration">
+<h3>Database Configuration<a class="headerlink" href="#database-configuration" title="Link to this heading"></a></h3>
+<p>To store the data sent by the simulation, we need a “bucket” that can be created here. When creating, we can select the time of retention.</p>
+<figure class="align-center" id="id3">
+<a class="reference internal image-reference" href="_images/InfluxdbselectBucket.png"><img alt="InfluxDB Bucket Selection" src="_images/InfluxdbselectBucket.png" style="width: 600px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">InfluxDB bucket selection interface</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="api-token-generation">
+<h3>API Token Generation<a class="headerlink" href="#api-token-generation" title="Link to this heading"></a></h3>
+<p>We also need a token for authentication and API access, both in the python and Grafana interfaces. It can be created in the menu “API TOKENS” and must be copied for next steps.</p>
+<figure class="align-center" id="id4">
+<a class="reference internal image-reference" href="_images/generateAPIToken.png"><img alt="Generate API Token" src="_images/generateAPIToken.png" style="width: 600px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Generating an API token in InfluxDB</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>You can save it in a <code class="docutils literal notranslate"><span class="pre">.env</span></code> file you create in the root directory of the project, that looks like this:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>INFLUXDB_TOKEN=&lt;your_token_here&gt;
+INFLUXDB_ORG=EST
+INFLUXDB_URL=http://localhost:8086
+INFLUXDB_BUCKET=NICE
+</pre></div>
+</div>
+<p>This way it can automatically be loaded when running the python script.</p>
+</section>
+</section>
+<section id="grafana-setup">
+<h2>Grafana Setup<a class="headerlink" href="#grafana-setup" title="Link to this heading"></a></h2>
+<section id="interface-overview">
+<h3>Interface Overview<a class="headerlink" href="#interface-overview" title="Link to this heading"></a></h3>
+<p>This is what the side menu looks like.</p>
+<figure class="align-center" id="id5">
+<a class="reference internal image-reference" href="_images/GrafanaSidebar.png"><img alt="Grafana Menu" src="_images/GrafanaSidebar.png" style="width: 400px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Grafana sidebar menu</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>The submenus that we use most are:</p>
+<ul class="simple">
+<li><p><strong>Dashboards</strong>: to see the dashboards that we build</p></li>
+<li><p><strong>Connections</strong>: to set up connections between Grafana and the different databases</p></li>
+</ul>
+</section>
+<section id="data-source-configuration">
+<h3>Data Source Configuration<a class="headerlink" href="#data-source-configuration" title="Link to this heading"></a></h3>
+<p>To set up a communication with the database, we need to add a source in “Add new connection”, then click on “Add new data source”</p>
+<figure class="align-center" id="id6">
+<a class="reference internal image-reference" href="_images/addDatasource.png"><img alt="Add Data Source" src="_images/addDatasource.png" style="width: 600px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Adding a new data source in Grafana</span><a class="headerlink" href="#id6" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>We then need to choose InfluxDB and configure the connection with the following panels:</p>
+<figure class="align-center" id="id7">
+<a class="reference internal image-reference" href="_images/ConfigureDatasource1.png"><img alt="Configure Data Source Part 1" src="_images/ConfigureDatasource1.png" style="width: 600px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">InfluxDB data source configuration - Part 1</span><a class="headerlink" href="#id7" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-center" id="id8">
+<a class="reference internal image-reference" href="_images/ConfigureDatasource2.png"><img alt="Configure Data Source Part 2" src="_images/ConfigureDatasource2.png" style="width: 600px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">InfluxDB data source configuration - Part 2</span><a class="headerlink" href="#id8" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>Once everything is set up, click on “Save &amp; test”, if it works it should display “datasource is working. 1 measurements found”</p>
+</section>
+<section id="dashboard-creation">
+<h3>Dashboard Creation<a class="headerlink" href="#dashboard-creation" title="Link to this heading"></a></h3>
+<p>Then you can go back on the dashboard and start editing it. To add a panel, click on “Add &gt; Visualization”, the rows are here to organize the global layout.</p>
+<figure class="align-center" id="id9">
+<a class="reference internal image-reference" href="_images/AddPanel.png"><img alt="Add Panel" src="_images/AddPanel.png" style="width: 600px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Adding a new panel to the dashboard</span><a class="headerlink" href="#id9" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>You can then edit the query either by clicking on the different measurements and fields or directly writing it in InfluxQL with the pen icon. You directly see the data chosen on the upper graph and you can customize its appearance in the right panel.</p>
+<figure class="align-center" id="id10">
+<a class="reference internal image-reference" href="_images/editPanel.png"><img alt="Edit Panel" src="_images/editPanel.png" style="width: 800px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Editing a panel with query configuration and visualization options</span><a class="headerlink" href="#id10" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+</section>
+<section id="installation-setup">
+<h2>Installation &amp; Setup<a class="headerlink" href="#installation-setup" title="Link to this heading"></a></h2>
+<section id="prerequisites">
+<h3>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h3>
+<p>Install the required software:</p>
+<ul class="simple">
+<li><p><strong>InfluxDB</strong>: <a class="reference external" href="https://docs.influxdata.com/influxdb/v2/install/">https://docs.influxdata.com/influxdb/v2/install/</a></p></li>
+<li><p><strong>Grafana</strong>: <a class="reference external" href="https://grafana.com/grafana/download">https://grafana.com/grafana/download</a></p></li>
+</ul>
+<p>There are two ways to use Grafana: online and local, same for InfluxDB. For now everything works locally.</p>
+</section>
+<section id="default-credentials">
+<h3>Default Credentials<a class="headerlink" href="#default-credentials" title="Link to this heading"></a></h3>
+<p>Credentials for Grafana and InfluxDB:</p>
+<ul class="simple">
+<li><p><strong>Username</strong>: admin</p></li>
+<li><p><strong>Password</strong>: maxiadri</p></li>
+</ul>
+</section>
+<section id="starting-the-services">
+<h3>Starting the Services<a class="headerlink" href="#starting-the-services" title="Link to this heading"></a></h3>
+<p><strong>Launch InfluxDB</strong></p>
+<p>Open a terminal and run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>influxd
+</pre></div>
+</div>
+<p>Access: <a class="reference external" href="http://localhost:8086/">http://localhost:8086/</a></p>
+<p><strong>Launch Grafana</strong></p>
+<p>Go to the installation folder, open a terminal and run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./bin/grafana<span class="w"> </span>server
+</pre></div>
+</div>
+<p>Access: <a class="reference external" href="http://localhost:3000/">http://localhost:3000/</a></p>
+</section>
+<section id="dashboard-import-export">
+<h3>Dashboard Import/Export<a class="headerlink" href="#dashboard-import-export" title="Link to this heading"></a></h3>
+<p>You can import the dashboard <code class="docutils literal notranslate"><span class="pre">digital_twin_dashboard_grafana.json</span></code> directly in the Dashboards menu in Grafana. You can then export the dashboard (save it as json) and update the version in the repository if you make any changes.</p>
+</section>
+<section id="data-upload-process">
+<h3>Data Upload Process<a class="headerlink" href="#data-upload-process" title="Link to this heading"></a></h3>
+<p>The data can be uploaded live during the simulation by settig the parameters <code class="docutils literal notranslate"><span class="pre">influxdb_delta_t</span></code> and <code class="docutils literal notranslate"><span class="pre">influxdb_delta_t_unit</span></code> in the simulation configuration json file.
+The data will then be sent to InfluxDB every specified simulated time interval and at the end of the simulation.
+The upload can be deactivated by not setting <code class="docutils literal notranslate"><span class="pre">influxdb_delta_t</span></code> or settig it to -1.
+If the timeinterval is greater than the simulation time, the data will only be sent at the end of the simulation.</p>
+<p>Additionally, if you only want to upload data when the satellite is visible from the ground station and at the very end, you can set the parameter <code class="docutils literal notranslate"><span class="pre">influxdb_only_visible</span></code> to true.</p>
+<p>For Debugging or manual upload, you can also use the <code class="docutils literal notranslate"><span class="pre">INFLUX_DB_LOCAL.ipynb</span></code> notebook after running the simulation to upload the data saved to the csv file.</p>
+</section>
+<section id="note">
+<h3>Note<a class="headerlink" href="#note" title="Link to this heading"></a></h3>
+<p>The simulation data is timestamped when uploaded to InfluxDB. It is set to the epoch defined in the orbit_template.json (default: 2028-05-01 09:00:00).
+So make sure to set the timerange on Influx or Grafana correctly, if you can not see any data.</p>
+</section>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>InfluxDB Python Client</strong>: <a class="reference external" href="https://docs.influxdata.com/influxdb/cloud/api-guide/client-libraries/python/">https://docs.influxdata.com/influxdb/cloud/api-guide/client-libraries/python/</a></p></li>
+<li><p><strong>SatNOGS Dashboard Example</strong>: <a class="reference external" href="https://dashboard.satnogs.org/d/1b1zIkuIz/catsat?orgId=1&amp;refresh=30s&amp;from=now-2d&amp;to=now&amp;timezone=utc&amp;var-filter=&amp;var-frame_type=$__all">https://dashboard.satnogs.org/d/1b1zIkuIz/catsat?orgId=1&amp;refresh=30s&amp;from=now-2d&amp;to=now&amp;timezone=utc&amp;var-filter=&amp;var-frame_type=$__all</a></p></li>
+<li><p><strong>Export &amp; Import Dashboards</strong>: <a class="reference external" href="https://doc.sitecore.com/xp/en/developers/101/managed-cloud/import-and-export-your-grafana-dashboards.html#export-your-grafana-dashboard">https://doc.sitecore.com/xp/en/developers/101/managed-cloud/import-and-export-your-grafana-dashboards.html#export-your-grafana-dashboard</a></p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="digital_twin.spacecraft.telecom.html" class="btn btn-neutral float-left" title="digital_twin.spacecraft.telecom package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Mathilde Simoni.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

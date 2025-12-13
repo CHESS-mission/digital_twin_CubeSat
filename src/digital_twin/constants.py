@@ -18,12 +18,11 @@ solar_flux = 1367 * (u.W / u.m**2)
 
 # SPACECRAFT MODES
 mode_dict = {
-    0: "IDLE",
-    1: "SAFE",
-    2: "CHARGING",
+    0: "IDLE/CHARGING",
+    1: "MEASUREMENT",
+    2: "SAFE",
     3: "UHF_COM",
     4: "X_BAND_COM",
-    5: "MEASUREMENT",
 }
 
 # SPACECRAFT ATTITUDES
@@ -36,10 +35,9 @@ attitude_dict = {
 }
 
 attitude_mode_dict = {
-    0: 0,
-    1: 1,
+    0: 1,
+    1: 4,
     2: 1,
     3: 2,
     4: 3,
-    5: 4,
 }  # key is mode, value is corresponding attitude

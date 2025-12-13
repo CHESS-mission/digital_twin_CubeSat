@@ -14,6 +14,14 @@ Subpackages
 Submodules
 ----------
 
+digital\_twin.commands module
+-----------------------------
+
+.. automodule:: digital_twin.commands
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 digital\_twin.constants module
 ------------------------------
 

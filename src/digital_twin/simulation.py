@@ -5,6 +5,7 @@ subsystems to run a cohesive simulation based on user-defined parameters.
 
 import time
 from typing import Any
+from queue import Queue
 
 from astropy import units as u
 from astropy.time import Time, TimeDelta
@@ -13,6 +14,7 @@ import numpy as np
 from digital_twin.constants import earth_R, simulation_unit, simulation_unit_string
 from digital_twin.ground_station import GroundStation
 from digital_twin.mode_switch import ModeSwitch
+from digital_twin.commands import CommandProcessor
 
 from digital_twin.orbit_propagator import OrbitPropagator
 from digital_twin.report import produce_report
@@ -20,8 +22,12 @@ from digital_twin.spacecraft import Spacecraft
 from digital_twin.utils import (
     get_astropy_unit_time,
     extract_propagation_data_from_ephemeris,
+    convert_cartesian_to_spherical,
 )
-
+import influxdb_client, os
+from influxdb_client.client.write_api import SYNCHRONOUS
+from datetime import datetime
+from dotenv import load_dotenv
 
 class Simulation:
     """Manager class which gathers simulation objects and runs the main simulation loop."""
@@ -33,6 +39,7 @@ class Simulation:
         spacecraft_params: dict,
         station_params: dict,
         mission_design_params: dict,
+        env_file: str,
     ) -> None:
         self.verbose = True if simulation_params["verbose"] == "yes" else False
 
@@ -60,7 +67,13 @@ class Simulation:
         self.tofs = TimeDelta(
             np.linspace(init_time_local, end_time_local, num=self.n_timesteps + 1)
         )  # Gives the results in days
-        self.epochs_array = np.array(epoch + self.tofs)
+        self.epochs_array = epoch + self.tofs
+
+        self.run_real_time = simulation_params.get("run_real_time", False)
+        print(f"ATTENTION: Running simulation in real-time mode (this is very inefficient!)") if self.run_real_time and self.verbose else None
+
+        self.command_queue = Queue()
+        self.command_processor = CommandProcessor(simulation=self)
 
         # MODE SWITCH ALGORITHM INITIALIZATION
         self.switch_algo = ModeSwitch(
@@ -97,12 +110,39 @@ class Simulation:
 
         # Additional user input
         user_input = mission_design_params["user_input"]
-        self.handle_user_input(user_input)
+        if user_input.get("uplink_safe_mode"):
+            self.send_command("uplink_safe_mode", user_input["uplink_safe_mode"])
 
         # Report and printing
         self.report_params = mission_design_params["report"]
         if simulation_params["print_initial_parameters"] == "yes":
             self.print_parameters()  # Print user parameters
+
+        # InfluxDB initialization
+        if simulation_params.get("influxdb_delta_t", -1) > 0:
+            self.influxdb_delta_t = (simulation_params["influxdb_delta_t"] * get_astropy_unit_time(simulation_params.get("influxdb_delta_t_unit", simulation_params["delta_t_unit"]))).to(self.sim_unit) 
+            self.influxdb_only_visible = simulation_params.get("influxdb_only_visible", False)
+
+            #Loading InfluxDB credentials from .env file
+            load_dotenv(env_file)
+            token = os.environ.get("INFLUXDB_TOKEN")
+            url = os.environ.get("INFLUXDB_URL", "http://localhost:8086")  # Default URL
+            self.influxdborg = os.environ.get("INFLUXDB_ORG", "EST")  # Default to "EST" if not set
+            self.influxdbbucket = os.environ.get("INFLUXDB_BUCKET", "NICE")         
+            if not token:
+                raise ValueError("InfluxDB token not found in environment variables.")
+
+            client = influxdb_client.InfluxDBClient(url=url, token=token, org=self.influxdborg)
+
+            # Delete all previous data from bucket
+            start = "1970-01-01T00:00:00Z"
+            stop =  datetime(2070, 1, 1, 0, 0, 0)
+            client.delete_api().delete(start, stop, '', bucket=self.influxdbbucket, org=self.influxdborg)
+
+            self.write_api = client.write_api(write_options=SYNCHRONOUS)
+            self.influxdb_last_upload_t = -1
+        else:
+            self.influxdb_delta_t = -1 * self.sim_unit
 
     def run(self, results_folder: str = "results/") -> None:
         """Function to run the simulation, which contains the main simulation loop."""
@@ -122,13 +162,15 @@ class Simulation:
         power_consumption[0] = self.spacecraft.get_eps().get_power_consumption().value
         power_generation = np.zeros(self.n_timesteps + 1)
         power_generation[0] = self.spacecraft.get_eps().get_power_generation().value
-
+        solar_cells_efficiency = np.zeros(self.n_timesteps + 1)
+        solar_cells_efficiency[0] = self.spacecraft.get_eps().get_solar_cells_efficiency().value
+        
         data_storage = np.zeros(self.n_timesteps + 1)
-        data_storage_GNSS_TOF = np.zeros(self.n_timesteps + 1)
+        data_storage_payload = np.zeros(self.n_timesteps + 1)
         data_storage_HK = np.zeros(self.n_timesteps + 1)
-        all, GNSS_TOF, HK = self.spacecraft.get_obc().get_data()
+        all, payload, HK = self.spacecraft.get_obc().get_data()
         data_storage[0] = all.value
-        data_storage_GNSS_TOF[0] = GNSS_TOF.value
+        data_storage_payload[0] = payload.value
         data_storage_HK[0] = HK.value
 
         vis_windows = np.zeros(
@@ -148,7 +190,21 @@ class Simulation:
 
         # MAIN SIMULATION LOOP
         start_for_loop = time.time()
+        step_10_percent = max(1, self.n_timesteps // 10)
         for t in range(0, self.n_timesteps):
+
+            # Process commands            
+            self._process_commands()
+
+            if self.run_real_time:
+                # Calculate the target time for the current timestep
+                target_time = start_for_loop + (t + 1) * self.delta_t.to_value(u.second)
+                # Calculate the time to wait until the target time
+                now = time.time()
+                time_to_wait = (target_time - now)
+                if time_to_wait > 0:
+                    time.sleep(time_to_wait)
+
 
             # 1. propagate to next position and store the results
             try:
@@ -166,8 +222,9 @@ class Simulation:
             eph[t + 1, :3] = rv[:3]
             eph[t + 1, 3:] = rv[3:]
 
-            if t % 1000 == 0:  # For debugging
-                print("> iter ", t) if self.verbose else None
+            if t % step_10_percent == 0 and self.verbose:
+                percent = int((t / self.n_timesteps) * 100)
+                print(f"> iter {t} ({percent}%)")
 
             # For simulations where only propagation matters, skip the next steps
             if not self.propagation_only:
@@ -177,7 +234,6 @@ class Simulation:
                     self.ground_stations
                 )
                 eclipse_status, r_earth_sun = self.propagator.calculate_eclipse_status()
-                r_earth_sun = r_earth_sun
 
                 # 3. Calculate user-scheduled params
                 measurement_session = self.spacecraft.get_payload().can_start_measuring(
@@ -219,10 +275,11 @@ class Simulation:
                     self.delta_t,
                     r_earth_sun,
                     gs_coords,
+                    t
                 )
 
                 # 7. Save data at current timestep
-                vis_windows[t + 1] = np.array([int(vis) for vis in visibility])
+                vis_windows[t + 1] = visibility.astype(int)
                 eclipse_windows[t + 1] = int(eclipse_status)
                 battery_energies[t + 1] = (
                     self.spacecraft.get_eps().get_battery_energy().value
@@ -233,12 +290,110 @@ class Simulation:
                 power_generation[t + 1] = (
                     self.spacecraft.get_eps().get_power_generation().value
                 )
-                all, GNSS_TOF, HK = self.spacecraft.get_obc().get_data()
+                solar_cells_efficiency[t + 1] = (
+                    self.spacecraft.get_eps().get_solar_cells_efficiency().value
+                )
+                
+                all, payload, HK = self.spacecraft.get_obc().get_data()
                 data_storage[t + 1] = all.value
-                data_storage_GNSS_TOF[t + 1] = GNSS_TOF.value
+                data_storage_payload[t + 1] = payload.value
                 data_storage_HK[t + 1] = HK.value
 
                 density_array[t + 1] = self.propagator.get_density().value
+
+
+                # 8. If live InfluxDB upload is activated, send data to database
+                if self.influxdb_delta_t > 0:
+                    # Check if enough simulation time has passed since the last upload or we're at the final timestep
+                    last_tof = self.tofs[self.influxdb_last_upload_t] if self.influxdb_last_upload_t >=0 else 0
+                    elapsed_since_last = (self.tofs[t] - last_tof).to(self.sim_unit)
+                    enough_time_elapsed = elapsed_since_last >= self.influxdb_delta_t
+                    is_final_timestep = (t == self.n_timesteps - 1)
+
+                    is_visible_check = np.any(vis_windows[t + 1]) if self.influxdb_only_visible else True
+                    if (enough_time_elapsed and is_visible_check) or is_final_timestep:
+
+                        print("Uploading data to InfluxDB...") if self.verbose else None
+
+                        # Only compute data for the new points since last upload
+                        start_idx = self.influxdb_last_upload_t + 1
+                        end_idx = t + 1
+                        n_new_points = end_idx - start_idx
+
+                        # Extract orbital elements
+                        rr_new, vv_new, SMAs_new, ECCs_new, INCs_new, RAANs_new, AOPs_new, TAs_new, altitudes_new = (
+                            extract_propagation_data_from_ephemeris(eph[start_idx:end_idx])
+                        )
+                        
+                        # Convert coordinates
+                        latitude_deg_new, longitude_deg_new = convert_cartesian_to_spherical(rr_new, self.epochs_array[start_idx:end_idx])
+                        
+                        # Handle visibility data
+                        vis_slice = vis_windows[start_idx:end_idx]
+                        if vis_slice.ndim > 1:  # Multiple ground stations
+                            vis_sums = np.sum(vis_slice, axis=1).astype(int)
+                            is_visible = (vis_sums > 0).astype(int)
+                        else:  # Single ground station or already summed
+                            vis_sums = vis_slice.astype(int)
+                            is_visible = vis_sums
+
+                        timestamps = self.epochs_array[start_idx:end_idx].to_datetime()
+
+                        # Extract all data slices as numpy arrays
+                        data_arrays = {
+                            'modes': modes[start_idx:end_idx].astype(int),
+                            'storage': data_storage[start_idx:end_idx],
+                            'storage_payload': data_storage_payload[start_idx:end_idx],
+                            'storage_hk': data_storage_HK[start_idx:end_idx],
+                            'battery': battery_energies[start_idx:end_idx],
+                            'consumption': power_consumption[start_idx:end_idx],
+                            'generation': power_generation[start_idx:end_idx],
+                            'eclipse': eclipse_windows[start_idx:end_idx].astype(int),
+                            'density': density_array[start_idx:end_idx],
+                            'solar_eff': solar_cells_efficiency[start_idx:end_idx],
+                            'altitudes': altitudes_new,
+                            'RAANs': RAANs_new,
+                            'AOPs': AOPs_new,
+                            'ECCs': ECCs_new,
+                            'INCs': INCs_new,
+                            'latitude': latitude_deg_new,
+                            'longitude': longitude_deg_new,
+                            'vis_sums': vis_sums,
+                            'is_visible': is_visible
+                        }
+                        # Use dictionary comprehension for batch creation (more efficient than explicit loop)
+                        batch_data = [
+                            {
+                                "measurement": "satellite_data",
+                                "tags": {"mode": int(data_arrays['modes'][i]), "visible": int(data_arrays['is_visible'][i])},
+                                "fields": {
+                                    "visibility": float(data_arrays['vis_sums'][i]),
+                                    "data": float(data_arrays['storage'][i]),
+                                    "data_payload": float(data_arrays['storage_payload'][i]),
+                                    "data_HK": float(data_arrays['storage_hk'][i]),
+                                    "battery": float(data_arrays['battery'][i]),
+                                    "consumption": float(data_arrays['consumption'][i]),
+                                    "generation": float(data_arrays['generation'][i]),
+                                    "eclipse": float(data_arrays['eclipse'][i]),
+                                    "modes": float(data_arrays['modes'][i]),
+                                    "altitude": float(data_arrays['altitudes'][i]),
+                                    "RAAN": float(data_arrays['RAANs'][i]),
+                                    "AOP": float(data_arrays['AOPs'][i]),
+                                    "ECC": float(data_arrays['ECCs'][i]),
+                                    "INC": float(data_arrays['INCs'][i]),
+                                    "density": float(data_arrays['density'][i]),
+                                    "Lat": float(data_arrays['latitude'][i]),
+                                    "Lng": float(data_arrays['longitude'][i]),
+                                    "solar_cells_efficiency": float(data_arrays['solar_eff'][i])
+                                },
+                                "time": timestamps[i]
+                            }
+                            for i in range(n_new_points)
+                        ]
+                        
+                        # Send batch data - InfluxDB client optimizes this internally
+                        self.write_api.write(bucket=self.influxdbbucket, org=self.influxdborg, record=batch_data)
+                        self.influxdb_last_upload_t = t
 
         end_for_loop = time.time()
         duration = end_for_loop - start_for_loop
@@ -276,8 +431,9 @@ class Simulation:
             battery_energies = battery_energies[:last_ind]
             power_consumption = power_consumption[:last_ind]
             power_generation = power_generation[:last_ind]
+            solar_cells_efficiency[:last_ind]
             data_storage = data_storage[:last_ind]
-            data_storage_GNSS_TOF = data_storage_GNSS_TOF[:last_ind]
+            data_storage_payload = data_storage_payload[:last_ind]
             data_storage_HK = data_storage_HK[:last_ind]
             eclipse_windows = eclipse_windows[:last_ind]
             density_array = density_array[:last_ind]
@@ -311,7 +467,7 @@ class Simulation:
             "consumption": power_consumption,
             "generation": power_generation,
             "storage": data_storage,
-            "storage_GNSS_TOF": data_storage_GNSS_TOF,
+            "storage_payload": data_storage_payload,
             "storage_HK": data_storage_HK,
             "duration_sim": self.duration_sim,
             "epochs_array": self.epochs_array,
@@ -320,6 +476,7 @@ class Simulation:
             "orbit_state": orbit_state,
             "spacecraft_state": spacecraft_state,
             "density_array": density_array,
+            "solar_cells_efficiency": solar_cells_efficiency
         }
 
         # Produce report
@@ -345,13 +502,24 @@ class Simulation:
         print("*******************")
         print("")
 
-    def handle_user_input(self, user_input: dict) -> None:
-        """Handle additional user input. Currently only implemented for uplink safe mode trigger.
+    def _process_commands(self) -> None:
+        """Process all pending commands in the queue."""
+        
+        while not self.command_queue.empty():
+            try:
+                command = self.command_queue.get_nowait()
+                success, message = self.command_processor.execute_command(command)
+                if self.verbose:
+                    print(f"Command {command['command']}: {'✓' if success else '✗'} {message}")
+            except Exception as e:
+                print(f"Error processing command: {e}")
 
+    def send_command(self, command: str, params: dict = {}) -> None:
+        """Send a command to the simulation.
+        
         Args:
-            user_input (dict): Dictionary containing the user input to consider.
+            command: Command name (e.g., 'set_mode', 'uplink_safe_mode')
+            params: Command parameters
         """
-        if user_input["uplink_safe_mode"]:  # If dic is not empty
-            self.spacecraft.get_telecom().add_uplink_safe_mode(
-                user_input["uplink_safe_mode"]
-            )
+        command_dict = {"command": command, "params": params}
+        self.command_queue.put(command_dict)

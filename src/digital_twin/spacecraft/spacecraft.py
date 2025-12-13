@@ -91,6 +91,7 @@ class Spacecraft:
         delta_t: TimeDelta,
         r_earth_sun: Quantity["length"],
         gs_coords: Optional[np.ndarray],
+        t: int
     ) -> None:
         """Update all subsystems and spacecraft properties based on current conditions.
 
@@ -103,7 +104,7 @@ class Spacecraft:
             delta_t (TimeDelta): Time step for the update.
             r_earth_sun (Quantity["length"]): Vector from Earth to the Sun.
             gs_coords (Optional[np.ndarray]): Coordinates of the ground station if satellite is in visibility window.
-
+            t (int): Current timestep.
         Updates:
             - Individual updates for each subsystem.
             - EPS battery level.
@@ -141,24 +142,25 @@ class Spacecraft:
             rv[:3] * u.km,  # position,
             gs_coords,
             new_mode,
+            t
         )
 
         # Compute data change (generation by payload or removal by telecom) at current timestep
-        data_update_TOF_GNSS = 0 * u.Mbit
+        data_update_payload = 0 * u.Mbit
         data_update_HK = 0.0 * u.Mbit
-        TOF_GNSS_telecom, HK_telecom = self.telecom_subsystem.compute_data_update(
+        payload_telecom, HK_telecom = self.telecom_subsystem.compute_data_update(
             new_mode, delta_t
         )
-        data_update_TOF_GNSS += TOF_GNSS_telecom
+        data_update_payload += payload_telecom
         data_update_HK += HK_telecom
 
-        TOF_GNSS_payload, HK_payload = self.payload_subsystem.compute_data_update(
+        payload_payload, HK_payload = self.payload_subsystem.compute_data_update(
             new_mode, delta_t
         )
-        data_update_TOF_GNSS += TOF_GNSS_payload
+        data_update_payload += payload_payload
         data_update_HK += HK_payload
         self.obc_subsystem.update_data_storage(
-            data_update_TOF_GNSS, data_update_HK, delta_t
+            data_update_payload, data_update_HK, delta_t
         )
 
         # Check if any safe flag is raised by subsystem and update OBC
@@ -249,11 +251,11 @@ class Spacecraft:
         )
 
         # Update data storage variables
-        full, TOF_GNSS, HK = self.obc_subsystem.get_data()
+        full, payload, HK = self.obc_subsystem.get_data()
         spacecraft_state["obc"]["data_storage"]["init_data"] = full.to_value()
         spacecraft_state["obc"]["data_storage"][
-            "init_data_TOF_GNSS"
-        ] = TOF_GNSS.to_value()
+            "init_data_payload"
+        ] = payload.to_value()
         spacecraft_state["obc"]["data_storage"]["init_data_HK"] = HK.to_value()
         spacecraft_state["obc"]["data_storage"]["init_data_to_downlink"] = (
             self.obc_subsystem.get_data_storage().get_data_to_downlink().to_value()

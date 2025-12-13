@@ -5,6 +5,9 @@ import json
 import astropy.units as u
 import numpy as np
 
+import pandas as pd
+import os
+
 from digital_twin.orbit_propagator.constants import attractor_string
 from digital_twin.plotting import (
     plot_1d,
@@ -18,9 +21,10 @@ from digital_twin.plotting import (
     plot_orbital_elem_evolution,
 )
 from digital_twin.utils import (
-    check_and_empty_folder,
+    check_and_empty_folder, convert_cartesian_to_spherical
 )
-
+import os
+import pandas as pd
 
 def produce_report(
     data: dict, report_params: dict, results_folder, verbose=False
@@ -37,12 +41,16 @@ def produce_report(
     figures_folder = folder + "figures/"
     check_and_empty_folder(figures_folder)
     data_folder = folder + "data/"
+    data_folder_csv = folder + "csv/"
     check_and_empty_folder(data_folder)
-    generate_figures(data, report_params["figures"], figures_folder)
+    check_and_empty_folder(data_folder_csv)
+    save_to_csv(data, data_folder_csv)
     save_data(data, report_params["data"], data_folder)
+    generate_figures(data, report_params["figures"], figures_folder, data_folder_csv)
 
 
-def generate_figures(data: dict, figure_params: dict, folder: str) -> None:
+
+def generate_figures(data: dict, figure_params: dict, folder: str, csv_folder:str) -> None:
     """Generate and save figures based on the simulation results."""
 
     if figure_params["orbital_elem_evolution"] == "yes":
@@ -123,7 +131,7 @@ def generate_figures(data: dict, figure_params: dict, folder: str) -> None:
             )
 
     x_label, x_label_f = find_x_scale(data["duration_sim"])
-    step = int(len(data["tofs"]) / 100)
+    step = np.max([int(len(data["tofs"]) / 100), 1])
 
     if figure_params["battery_energy"] == "yes":
         plot_1d(
@@ -156,6 +164,24 @@ def generate_figures(data: dict, figure_params: dict, folder: str) -> None:
             x_label_f=x_label_f,
             show=False,
             save_filename=folder + "power_consumption.png",
+            markersize_plot=0,
+        )
+    
+    
+    if figure_params["solar_cells_efficiency"] == "yes":
+        plot_1d(
+            data["tofs"].to_value("second")[1:],
+            data["solar_cells_efficiency"][1:],
+            "Solar cells efficiency Over Time",
+            x_label,
+            r"Solar cells efficiency",
+            step=1,
+            fill_under=False,
+            remove_box=True,
+            scatter=False,
+            x_label_f=x_label_f,
+            show=False,
+            save_filename=folder + "solar_cells_efficiency.png",
             markersize_plot=0,
         )
 
@@ -210,17 +236,17 @@ def generate_figures(data: dict, figure_params: dict, folder: str) -> None:
         )
         plot_1d(
             data["tofs"].to_value("second"),
-            data["storage_GNSS_TOF"],
-            "Data Storage Over Time (GNSS and TOF)",
+            data["storage_payload"],
+            "Data Storage Over Time (GNSS and TOF/Camera)",
             x_label,
-            r"GNSS/TOF Data Storage ($Mbit$)",
+            r"GNSS and TOF/Camera Data Storage ($Mbit$)",
             step=step,
             fill_under=False,
             remove_box=True,
             scatter=False,
             x_label_f=x_label_f,
             show=False,
-            save_filename=folder + "data_storage_GNSS_TOF.png",
+            save_filename=folder + "data_storage_payload.png",
         )
         plot_1d(
             data["tofs"].to_value("second"),
@@ -275,8 +301,8 @@ def save_data(data: dict, data_params: dict, folder: str) -> None:
             np.save(f, data["vis"])
         with open(folder + "data.npy", "wb") as f:
             np.save(f, data["storage"])
-        with open(folder + "data_GNSS_TOF.npy", "wb") as f:
-            np.save(f, data["storage_GNSS_TOF"])
+        with open(folder + "data_payload.npy", "wb") as f:
+            np.save(f, data["storage_payload"])
         with open(folder + "data_HK.npy", "wb") as f:
             np.save(f, data["storage_HK"])
 
@@ -291,6 +317,8 @@ def save_data(data: dict, data_params: dict, folder: str) -> None:
             np.save(f, data["generation"])
         with open(folder + "eclipse.npy", "wb") as f:
             np.save(f, data["eclipse"])
+        with open(folder + "solar_cells_efficiency.npy", "wb") as f:
+            np.save(f, data["solar_cells_efficiency"])
 
     if data_params["modes"] == "yes":
         with open(folder + "times.npy", "wb") as f:
@@ -341,3 +369,31 @@ def save_data(data: dict, data_params: dict, folder: str) -> None:
             np.save(f, data["tofs"].to_value("second"))
         with open(folder + "density.npy", "wb") as f:
             np.save(f, data["density_array"])
+
+
+def save_to_csv(data: dict, csv_folder: str) -> None:
+    """Save all simulation data into a single CSV file with labeled columns."""
+    df_data = {}
+
+    for key in data.keys():
+        if key in ["tofs"]:
+            df_data[key] = np.array(data[key].to_value("second")).flatten()
+        elif key in ["vis", "storage", "storage_payload", "storage_HK",
+                   "battery", "consumption", "generation",
+                   "eclipse", "modes", "altitudes",
+                   "RAANs", "AOPs", "ECCs", "INCs",
+                   "density_array", "solar_cells_efficiency"]:
+            df_data[key] = np.array(data[key]).flatten()
+
+    latitude_deg, longitude_deg = convert_cartesian_to_spherical(
+        data["rr"], data["epochs_array"]
+    )
+    df_data["latitude_deg"] = latitude_deg
+    df_data["longitude_deg"] = longitude_deg
+
+    df = pd.DataFrame(df_data)
+
+    # Save to CSV
+    csv_filename = os.path.join(csv_folder, "simulation_data.csv")
+    df.to_csv(csv_filename, index=False)
+    return

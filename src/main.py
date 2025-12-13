@@ -1,9 +1,11 @@
 """Main file to run."""
 
 import sys
+import time
 
 from digital_twin import Simulation
 from digital_twin.utils import parse_data_file
+from digital_twin.commands import SimulationGUI
 
 # Defining data paths
 SIMULATION_FOLDER = "data/simulation/"
@@ -11,6 +13,8 @@ ORBIT_FOLDER = "data/orbit/"
 SPACECRAFT_FOLDER = "data/spacecraft/"
 GROUND_STATION_FOLDER = "data/ground_station/"
 MISSION_DESIGN_FOLDER = "data/mission_design/"
+
+ENV_FILE = ".env"
 
 # Defining result paths
 RESULTS_FOLDER = "results/"
@@ -37,7 +41,14 @@ def run(args: list[str]) -> None:
         spacecraft_params,
         ground_station_params,
         mission_design_params,
+        ENV_FILE,
     )
+
+    if simulation_params.get("use_gui", False):
+        # Create and start the GUI in a separate thread
+        gui = SimulationGUI(simulation)
+        gui.start_non_blocking()
+    
     simulation.run(results_folder=RESULTS_FOLDER)
 
 
@@ -52,4 +63,5 @@ if __name__ == "__main__":
     elif len(sys.argv) > 2:  # User arguments provided as separate strings
         run(sys.argv[1:])
     else:
-        run([])  # No user argument
+        print("No user arguments provided, running with default template paths: simulation_template.json orbit_template.json spacecraft_template.json ground_station_template.json mission_design_template.json")
+        run(["simulation_template.json","orbit_template.json","spacecraft_template.json","ground_station_template.json","mission_design_template.json"])  # No user argument

@@ -41,7 +41,9 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../readme.html">README for the Digital Twin of the CHESS CubeSat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../digital_twin.html">digital_twin package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../grafana_visualization.html">Grafana Visualization Documentation</a></li>
 </ul>
 
         </div>
@@ -76,6 +78,9 @@
 <span class="kn">import</span> <span class="nn">astropy.units</span> <span class="k">as</span> <span class="nn">u</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
 <span class="kn">from</span> <span class="nn">digital_twin.orbit_propagator.constants</span> <span class="kn">import</span> <span class="n">attractor_string</span>
 <span class="kn">from</span> <span class="nn">digital_twin.plotting</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">plot_1d</span><span class="p">,</span>
@@ -89,9 +94,10 @@
     <span class="n">plot_orbital_elem_evolution</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">digital_twin.utils</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">check_and_empty_folder</span><span class="p">,</span>
+    <span class="n">check_and_empty_folder</span><span class="p">,</span> <span class="n">convert_cartesian_to_spherical</span>
 <span class="p">)</span>
-
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
 <div class="viewcode-block" id="produce_report">
 <a class="viewcode-back" href="../../digital_twin.html#digital_twin.report.produce_report">[docs]</a>
@@ -110,15 +116,19 @@
     <span class="n">figures_folder</span> <span class="o">=</span> <span class="n">folder</span> <span class="o">+</span> <span class="s2">&quot;figures/&quot;</span>
     <span class="n">check_and_empty_folder</span><span class="p">(</span><span class="n">figures_folder</span><span class="p">)</span>
     <span class="n">data_folder</span> <span class="o">=</span> <span class="n">folder</span> <span class="o">+</span> <span class="s2">&quot;data/&quot;</span>
+    <span class="n">data_folder_csv</span> <span class="o">=</span> <span class="n">folder</span> <span class="o">+</span> <span class="s2">&quot;csv/&quot;</span>
     <span class="n">check_and_empty_folder</span><span class="p">(</span><span class="n">data_folder</span><span class="p">)</span>
-    <span class="n">generate_figures</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">report_params</span><span class="p">[</span><span class="s2">&quot;figures&quot;</span><span class="p">],</span> <span class="n">figures_folder</span><span class="p">)</span>
-    <span class="n">save_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">report_params</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">data_folder</span><span class="p">)</span></div>
+    <span class="n">check_and_empty_folder</span><span class="p">(</span><span class="n">data_folder_csv</span><span class="p">)</span>
+    <span class="n">save_to_csv</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">data_folder_csv</span><span class="p">)</span>
+    <span class="n">save_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">report_params</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">data_folder</span><span class="p">)</span>
+    <span class="n">generate_figures</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">report_params</span><span class="p">[</span><span class="s2">&quot;figures&quot;</span><span class="p">],</span> <span class="n">figures_folder</span><span class="p">,</span> <span class="n">data_folder_csv</span><span class="p">)</span></div>
+
 
 
 
 <div class="viewcode-block" id="generate_figures">
 <a class="viewcode-back" href="../../digital_twin.html#digital_twin.report.generate_figures">[docs]</a>
-<span class="k">def</span> <span class="nf">generate_figures</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">figure_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">generate_figures</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">figure_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">csv_folder</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate and save figures based on the simulation results.&quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="n">figure_params</span><span class="p">[</span><span class="s2">&quot;orbital_elem_evolution&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;yes&quot;</span><span class="p">:</span>
@@ -199,7 +209,7 @@
             <span class="p">)</span>
 
     <span class="n">x_label</span><span class="p">,</span> <span class="n">x_label_f</span> <span class="o">=</span> <span class="n">find_x_scale</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;duration_sim&quot;</span><span class="p">])</span>
-    <span class="n">step</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;tofs&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;tofs&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="mi">100</span><span class="p">),</span> <span class="mi">1</span><span class="p">])</span>
 
     <span class="k">if</span> <span class="n">figure_params</span><span class="p">[</span><span class="s2">&quot;battery_energy&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;yes&quot;</span><span class="p">:</span>
         <span class="n">plot_1d</span><span class="p">(</span>
@@ -232,6 +242,24 @@
             <span class="n">x_label_f</span><span class="o">=</span><span class="n">x_label_f</span><span class="p">,</span>
             <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">save_filename</span><span class="o">=</span><span class="n">folder</span> <span class="o">+</span> <span class="s2">&quot;power_consumption.png&quot;</span><span class="p">,</span>
+            <span class="n">markersize_plot</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="p">)</span>
+    
+    
+    <span class="k">if</span> <span class="n">figure_params</span><span class="p">[</span><span class="s2">&quot;solar_cells_efficiency&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;yes&quot;</span><span class="p">:</span>
+        <span class="n">plot_1d</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;tofs&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="s2">&quot;second&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:],</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;solar_cells_efficiency&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">:],</span>
+            <span class="s2">&quot;Solar cells efficiency Over Time&quot;</span><span class="p">,</span>
+            <span class="n">x_label</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">&quot;Solar cells efficiency&quot;</span><span class="p">,</span>
+            <span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">fill_under</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">remove_box</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">scatter</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">x_label_f</span><span class="o">=</span><span class="n">x_label_f</span><span class="p">,</span>
+            <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">save_filename</span><span class="o">=</span><span class="n">folder</span> <span class="o">+</span> <span class="s2">&quot;solar_cells_efficiency.png&quot;</span><span class="p">,</span>
             <span class="n">markersize_plot</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
         <span class="p">)</span>
 
@@ -286,17 +314,17 @@
         <span class="p">)</span>
         <span class="n">plot_1d</span><span class="p">(</span>
             <span class="n">data</span><span class="p">[</span><span class="s2">&quot;tofs&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="s2">&quot;second&quot;</span><span class="p">),</span>
-            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;storage_GNSS_TOF&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;Data Storage Over Time (GNSS and TOF)&quot;</span><span class="p">,</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;storage_payload&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;Data Storage Over Time (GNSS and TOF/Camera)&quot;</span><span class="p">,</span>
             <span class="n">x_label</span><span class="p">,</span>
-            <span class="sa">r</span><span class="s2">&quot;GNSS/TOF Data Storage ($Mbit$)&quot;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">&quot;GNSS and TOF/Camera Data Storage ($Mbit$)&quot;</span><span class="p">,</span>
             <span class="n">step</span><span class="o">=</span><span class="n">step</span><span class="p">,</span>
             <span class="n">fill_under</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">remove_box</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">scatter</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="n">x_label_f</span><span class="o">=</span><span class="n">x_label_f</span><span class="p">,</span>
             <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">save_filename</span><span class="o">=</span><span class="n">folder</span> <span class="o">+</span> <span class="s2">&quot;data_storage_GNSS_TOF.png&quot;</span><span class="p">,</span>
+            <span class="n">save_filename</span><span class="o">=</span><span class="n">folder</span> <span class="o">+</span> <span class="s2">&quot;data_storage_payload.png&quot;</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">plot_1d</span><span class="p">(</span>
             <span class="n">data</span><span class="p">[</span><span class="s2">&quot;tofs&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="s2">&quot;second&quot;</span><span class="p">),</span>
@@ -354,8 +382,8 @@
             <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;vis&quot;</span><span class="p">])</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">folder</span> <span class="o">+</span> <span class="s2">&quot;data.npy&quot;</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;storage&quot;</span><span class="p">])</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">folder</span> <span class="o">+</span> <span class="s2">&quot;data_GNSS_TOF.npy&quot;</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;storage_GNSS_TOF&quot;</span><span class="p">])</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">folder</span> <span class="o">+</span> <span class="s2">&quot;data_payload.npy&quot;</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;storage_payload&quot;</span><span class="p">])</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">folder</span> <span class="o">+</span> <span class="s2">&quot;data_HK.npy&quot;</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;storage_HK&quot;</span><span class="p">])</span>
 
@@ -370,6 +398,8 @@
             <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;generation&quot;</span><span class="p">])</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">folder</span> <span class="o">+</span> <span class="s2">&quot;eclipse.npy&quot;</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;eclipse&quot;</span><span class="p">])</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">folder</span> <span class="o">+</span> <span class="s2">&quot;solar_cells_efficiency.npy&quot;</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;solar_cells_efficiency&quot;</span><span class="p">])</span>
 
     <span class="k">if</span> <span class="n">data_params</span><span class="p">[</span><span class="s2">&quot;modes&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;yes&quot;</span><span class="p">:</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">folder</span> <span class="o">+</span> <span class="s2">&quot;times.npy&quot;</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -420,6 +450,37 @@
             <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;tofs&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="s2">&quot;second&quot;</span><span class="p">))</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">folder</span> <span class="o">+</span> <span class="s2">&quot;density.npy&quot;</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;density_array&quot;</span><span class="p">])</span></div>
+
+
+
+<div class="viewcode-block" id="save_to_csv">
+<a class="viewcode-back" href="../../digital_twin.html#digital_twin.report.save_to_csv">[docs]</a>
+<span class="k">def</span> <span class="nf">save_to_csv</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">csv_folder</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save all simulation data into a single CSV file with labeled columns.&quot;&quot;&quot;</span>
+    <span class="n">df_data</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;tofs&quot;</span><span class="p">]:</span>
+            <span class="n">df_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="s2">&quot;second&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;vis&quot;</span><span class="p">,</span> <span class="s2">&quot;storage&quot;</span><span class="p">,</span> <span class="s2">&quot;storage_payload&quot;</span><span class="p">,</span> <span class="s2">&quot;storage_HK&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;battery&quot;</span><span class="p">,</span> <span class="s2">&quot;consumption&quot;</span><span class="p">,</span> <span class="s2">&quot;generation&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;eclipse&quot;</span><span class="p">,</span> <span class="s2">&quot;modes&quot;</span><span class="p">,</span> <span class="s2">&quot;altitudes&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;RAANs&quot;</span><span class="p">,</span> <span class="s2">&quot;AOPs&quot;</span><span class="p">,</span> <span class="s2">&quot;ECCs&quot;</span><span class="p">,</span> <span class="s2">&quot;INCs&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;density_array&quot;</span><span class="p">,</span> <span class="s2">&quot;solar_cells_efficiency&quot;</span><span class="p">]:</span>
+            <span class="n">df_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+    <span class="n">latitude_deg</span><span class="p">,</span> <span class="n">longitude_deg</span> <span class="o">=</span> <span class="n">convert_cartesian_to_spherical</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;rr&quot;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;epochs_array&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">df_data</span><span class="p">[</span><span class="s2">&quot;latitude_deg&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">latitude_deg</span>
+    <span class="n">df_data</span><span class="p">[</span><span class="s2">&quot;longitude_deg&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">longitude_deg</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df_data</span><span class="p">)</span>
+
+    <span class="c1"># Save to CSV</span>
+    <span class="n">csv_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">csv_folder</span><span class="p">,</span> <span class="s2">&quot;simulation_data.csv&quot;</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">csv_filename</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span></div>
 
 </pre></div>
 

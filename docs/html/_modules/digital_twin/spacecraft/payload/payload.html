@@ -41,7 +41,9 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../readme.html">README for the Digital Twin of the CHESS CubeSat</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../digital_twin.html">digital_twin package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../grafana_visualization.html">Grafana Visualization Documentation</a></li>
 </ul>
 
         </div>
@@ -70,13 +72,13 @@
              
   <h1>Source code for digital_twin.spacecraft.payload.payload</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">File for the Payload subsystem, which handles GNSS and TOF operations.</span>
+<span class="sd">File for the Payload subsystem, which handles GNSS and TOF/Camera operations.</span>
 
 <span class="sd">This module defines the Payload class responsible for managing the spacecraft&#39;s </span>
-<span class="sd">payload operations, including GNSS and TOF measurements.</span>
+<span class="sd">payload operations, including GNSS and TOF/Camera measurements.</span>
 
 <span class="sd">Classes:</span>
-<span class="sd">    Payload: Represents the Payload subsystem managing GNSS and TOF systems.</span>
+<span class="sd">    Payload: Represents the Payload subsystem managing GNSS and TOF/Camera systems.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">math</span>
@@ -94,14 +96,14 @@
 <a class="viewcode-back" href="../../../../digital_twin.spacecraft.payload.html#digital_twin.spacecraft.payload.payload.Payload">[docs]</a>
 <span class="k">class</span> <span class="nc">Payload</span><span class="p">(</span><span class="n">SubSystem</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Represent the Payload subsystem, which includes the GNSS and TOF systems for the spacecraft.</span>
+<span class="sd">    Represent the Payload subsystem, which includes the GNSS and TOF/Camera systems for the spacecraft.</span>
 
 <span class="sd">    Attributes:</span>
 <span class="sd">        name (str): The name of the subsystem.</span>
 <span class="sd">        consumption_mean_gnss (dict[int, Quantity[&quot;power&quot;]]): Mean power consumption for the GNSS system at different operating modes.</span>
-<span class="sd">        consumption_mean_tof (dict[int, Quantity[&quot;power&quot;]]): Mean power consumption for the TOF system at different operating modes.</span>
-<span class="sd">        measurement_TOF_rate (Quantity[&quot;bandwidth&quot;]): Rate at which TOF data is generated.</span>
-<span class="sd">        measurement_GNSS_rate (Quantity[&quot;bandwidth&quot;]): Rate at which GNSS data is generated.</span>
+<span class="sd">        consumption_mean_measurement (dict[int, Quantity[&quot;power&quot;]]): Mean power consumption for the TOF/Camera system at different operating modes.</span>
+<span class="sd">        data_rate_measurment (Quantity[&quot;bandwidth&quot;]): Rate at which TOF/Camera data is generated.</span>
+<span class="sd">        data_rate_GNSS (Quantity[&quot;bandwidth&quot;]): Rate at which GNSS data is generated.</span>
 <span class="sd">        measurement_max_duration (Quantity[&quot;time&quot;]): Maximum duration for a single measurement session.</span>
 <span class="sd">        nb_measurement_per_day (int): Number of measurements allowed per day.</span>
 <span class="sd">        start_measurement (Quantity[&quot;time&quot;]): Duration of the pre-conditioning period before measurements can begin.</span>
@@ -123,21 +125,21 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">consumption_mean_gnss</span> <span class="o">=</span> <span class="p">{</span>
             <span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="n">v</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">W</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;consumption_gnss&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
         <span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">consumption_mean_tof</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="n">v</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">W</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;consumption_tof&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">consumption_mean_measurment</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="n">v</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">W</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;consumption_measurment&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
         <span class="p">}</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">measurement_TOF_rate</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;measurement_TOF_rate&quot;</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_rate_measurment</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;data_rate_measurment&quot;</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span>
             <span class="n">u</span><span class="o">.</span><span class="n">Mbit</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span>
         <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">measurement_GNSS_rate</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;measurement_GNSS_rate&quot;</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_rate_GNSS</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;data_rate_GNSS&quot;</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span>
             <span class="n">u</span><span class="o">.</span><span class="n">Mbit</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span>
         <span class="p">)</span>
         <span class="n">measure_unit</span> <span class="o">=</span> <span class="n">get_astropy_unit_time</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;max_duration_unit&quot;</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">measurement_max_duration</span> <span class="o">=</span> <span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;max_duration&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">measure_unit</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nb_measurement_per_day</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;nb_measurements_per_day&quot;</span><span class="p">])</span>
 
-        <span class="c1"># Duration of the pre conditioning before the TOF can actually generate data (at the beginning of the measurement session)</span>
+        <span class="c1"># Duration of the pre conditioning before the TOF/Camera can actually generate data (at the beginning of the measurement session)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">start_measurement</span> <span class="o">=</span> <span class="p">(</span>
             <span class="nb">float</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;measurement_pre_conditioning_time&quot;</span><span class="p">])</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span>
         <span class="p">)</span>
@@ -214,7 +216,7 @@
 <span class="sd">            eclipse_status (bool): Indicate if the spacecraft is in eclipse.</span>
 <span class="sd">            delta_t (TimeDelta): Timestep for the update.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">new_mode</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>  <span class="c1"># MEASUREMENT</span>
+        <span class="k">if</span> <span class="n">new_mode</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># MEASUREMENT</span>
             <span class="k">if</span> <span class="n">old_mode</span> <span class="o">!=</span> <span class="n">new_mode</span><span class="p">:</span>  <span class="c1"># Just switched to measurement mode</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">measurement_duration</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">nb_measurement_windows</span> <span class="o">+=</span> <span class="mi">1</span>
@@ -227,7 +229,7 @@
 
         <span class="c1"># SAFE FLAG HANDLING</span>
         <span class="c1"># Check safe flag triggers (cannot generate a safe flag if already in safe mode)</span>
-        <span class="k">if</span> <span class="n">new_mode</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">safe_flag</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">new_mode</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">safe_flag</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
             <span class="k">pass</span>  <span class="c1"># Not implemented yet for this subsystem</span>
         <span class="c1"># Check safe flag resolution</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">safe_flag</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
@@ -238,15 +240,15 @@
 <a class="viewcode-back" href="../../../../digital_twin.spacecraft.payload.html#digital_twin.spacecraft.payload.payload.Payload.compute_power_consumed">[docs]</a>
     <span class="k">def</span> <span class="nf">compute_power_consumed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Quantity</span><span class="p">[</span><span class="s2">&quot;power&quot;</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the power consumed in the specified mode.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">consumption_mean_gnss</span><span class="p">[</span><span class="n">mode</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">consumption_mean_tof</span><span class="p">[</span><span class="n">mode</span><span class="p">]</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">consumption_mean_gnss</span><span class="p">[</span><span class="n">mode</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">consumption_mean_measurment</span><span class="p">[</span><span class="n">mode</span><span class="p">]</span></div>
 
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a string representation of the Payload subsystem.&quot;&quot;&quot;</span>
         <span class="n">strings</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="p">[</span>
-                <span class="sa">f</span><span class="s2">&quot;- TOF data generation rate: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">measurement_TOF_rate</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;- GNSS data generation rate: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">measurement_GNSS_rate</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;- TOF/Camera data generation rate: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data_rate_measurment</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;- GNSS data generation rate: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">data_rate_GNSS</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                 <span class="sa">f</span><span class="s2">&quot;- Measurement session max duration: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">measurement_max_duration</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                 <span class="sa">f</span><span class="s2">&quot;- Measurement pre-conditioning time: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">start_measurement</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                 <span class="sa">f</span><span class="s2">&quot;- Measurement post-conditioning time: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">measurement_max_duration</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">stop_measurement</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
@@ -267,14 +269,14 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">data</span> <span class="o">=</span> <span class="mf">0.0</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">Mbit</span>
         <span class="k">if</span> <span class="p">(</span>
-            <span class="n">new_mode</span> <span class="o">==</span> <span class="mi">5</span>
+            <span class="n">new_mode</span> <span class="o">==</span> <span class="mi">1</span>
             <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">measurement_duration</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_measurement</span>
             <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">measurement_duration</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop_measurement</span>
         <span class="p">):</span>  <span class="c1"># Only add data if in measurement mode and after/before pre/post conditioning (power budget)</span>
-            <span class="n">data</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">measurement_TOF_rate</span> <span class="o">*</span> <span class="n">delta_t</span>
+            <span class="n">data</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_rate_measurment</span> <span class="o">*</span> <span class="n">delta_t</span>
 
-        <span class="k">if</span> <span class="n">new_mode</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># If not in safe mode, GNSS continuously add data</span>
-            <span class="n">data</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">measurement_GNSS_rate</span> <span class="o">*</span> <span class="n">delta_t</span>
+        <span class="k">if</span> <span class="n">new_mode</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># If not in safe mode, GNSS continuously add data</span>
+            <span class="n">data</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_rate_GNSS</span> <span class="o">*</span> <span class="n">delta_t</span>
 
         <span class="k">return</span> <span class="p">(</span>
             <span class="n">data</span><span class="p">,</span>
