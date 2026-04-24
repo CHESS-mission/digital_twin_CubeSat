@@ -1,4 +1,4 @@
-# CubeSat EST — Spacecraft Parameters
+# CubeSat EST - Spacecraft Parameters
 
 Explains the key choices made in `spacecraft_template.json`.
 
@@ -8,15 +8,15 @@ Explains the key choices made in `spacecraft_template.json`.
 
 ---
 
-## EPS — Battery
+## EPS - Battery
 
-- `total_energy`: **50 Wh** — updated battery capacity from CP0 Energy Budget reference
-- `min_battery`: **20% of total** — same ratio as previous design
-- `max_battery`: 100% of total — simulation charges to full
-- `init_battery_level`: 100% — simulation starts with full battery
-- `measure_threshold`: 40% of total — enough energy to run a full measurement campaign
-- `com_threshold`: 45% of total — slightly above measurement threshold as UHF com consumes more
-- `xb_threshold`: 60% of total — X-band consumes ~30 W (highest mode), requires a well-charged battery
+- `total_energy`: **50 Wh** - updated battery capacity from CP0 Energy Budget reference
+- `min_battery`: **20% of total** - same ratio as previous design
+- `max_battery`: 100% of total - simulation charges to full
+- `init_battery_level`: 100% - simulation starts with full battery
+- `measure_threshold`: 40% of total - enough energy to run a full measurement campaign
+- `com_threshold`: 45% of total - slightly above measurement threshold as UHF com consumes more
+- `xb_threshold`: 60% of total - X-band consumes ~30 W (highest mode), requires a well-charged battery
 
 ## EPS Board
 
@@ -25,7 +25,7 @@ Explains the key choices made in `spacecraft_template.json`.
 ## Solar Panels
 
 - 28 cells (4 panels × 7 cells), unchanged from previous design
-- `efficiency`: 0.25 (BOL) — unchanged 
+- `efficiency`: 0.25 (BOL) - unchanged 
 
 ---
 
@@ -43,7 +43,7 @@ All values from `ADCS-New` sheet (CubeSpace) × 1.25 margin. Mode-dependent:
 
 ## OBC
 
-- `consumption`: 1.7 W — unchanged from previous design 
+- `consumption`: 1.7 W - unchanged from previous design 
 
 ---
 
