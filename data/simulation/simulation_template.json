@@ -1,17 +1,17 @@
 {
     "delta_t_unit": "second",
-    "delta_t": 10,
-    "duration_sim_unit": "day",
-    "duration_sim": 1,
+    "delta_t": 2,
+    "duration_sim_unit": "second",
+    "duration_sim": 60,
     "atmosphere_model" : "nrlmsise00",
     "update_air_density_timestep": 1,
     "update_air_density_timestep_unit": "day",
     "propagation_only": "no",
     "verbose": "yes",
     "print_initial_parameters": "yes",
-    "influxdb_delta_t": 1,
-    "influxdb_delta_t_unit": "hour",
+    "influxdb_delta_t": 2,
+    "influxdb_delta_t_unit": "second",
     "influxdb_only_visible": false,
-    "run_real_time": false,
+    "run_real_time": true,
     "use_gui": false
 }
