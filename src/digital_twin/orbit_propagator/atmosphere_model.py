@@ -37,6 +37,24 @@ from pyatmos import nrlmsise00, jb2008
 from digital_twin.constants import earth_R
 
 
+def _download_space_weather(download_func, path: str, model_name: str, verbose: bool):
+    """Download pyatmos space-weather data, with a deterministic offline fallback.
+
+    The end-to-end simulator should keep running when the external CelesTrak
+    download is unavailable or its certificate chain is broken. The physical
+    model is less precise in fallback mode, but the DT wrapper remains usable.
+    """
+    try:
+        return download_func(path)
+    except Exception as exc:
+        if verbose:
+            print(
+                f"{model_name} space-weather download failed: {exc}. "
+                "Falling back to COESA76 atmosphere."
+            )
+        return None
+
+
 class AtmosphereModel:
     """
     Interface for atmosphere models.
@@ -156,7 +174,16 @@ class NRLMSISE00(AtmosphereModel):
         self, path: str = "data/atmosphere_data/NRLMSISE00/", verbose: bool = False
     ) -> None:
         super(NRLMSISE00, self).__init__(verbose)
-        swfile = download_sw_nrlmsise00(path)
+        self.fallback_model = None
+        swfile = _download_space_weather(
+            download_sw_nrlmsise00,
+            path,
+            "NRLMSISE00",
+            verbose,
+        )
+        if swfile is None:
+            self.fallback_model = Coesa76(verbose=verbose)
+            return
         # Read the space weather data
         self.swdata = read_sw_nrlmsise00(swfile)
         self.t_max = datetime.strptime(
@@ -168,6 +195,9 @@ class NRLMSISE00(AtmosphereModel):
         self, iso_date_str: str, position: np.ndarray
     ) -> Quantity["mass density"]:
         """Calculate the atmospheric density at a given position and date using the NRLMSISE-00 model."""
+        if self.fallback_model is not None:
+            return self.fallback_model.get_density(iso_date_str, position)
+
         t_wanted = datetime.strptime(iso_date_str, "%Y-%m-%d %H:%M:%S.%f")
 
         # Do back in time with solar cycles in order to ask for a valid date
@@ -192,6 +222,8 @@ class NRLMSISE00(AtmosphereModel):
 
     def __str__(self) -> str:
         """Return a string representation of the atmosphere model."""
+        if self.fallback_model is not None:
+            return "NRLMSISE00 atmosphere model (COESA76 fallback)"
         return "NRLMSISE00 atmosphere model"
 
 
@@ -207,7 +239,16 @@ class JB2008(AtmosphereModel):
         self, path: str = "data/atmosphere_data/JB2008/", verbose: bool = False
     ) -> None:
         super(JB2008, self).__init__(verbose)
-        swfile = download_sw_jb2008(path)
+        self.fallback_model = None
+        swfile = _download_space_weather(
+            download_sw_jb2008,
+            path,
+            "JB2008",
+            verbose,
+        )
+        if swfile is None:
+            self.fallback_model = Coesa76(verbose=verbose)
+            return
         # Read the space weather data
         self.swdata = read_sw_jb2008(swfile)
         self.t_max = datetime.strptime(
@@ -219,6 +260,9 @@ class JB2008(AtmosphereModel):
         self, iso_date_str: str, position: np.ndarray
     ) -> Quantity["mass density"]:
         """Calculate the atmospheric density at a given position and date using the JB2008 model."""
+        if self.fallback_model is not None:
+            return self.fallback_model.get_density(iso_date_str, position)
+
         t_wanted = datetime.strptime(iso_date_str, "%Y-%m-%d %H:%M:%S.%f")
 
         # Do back in time with solar cycles in order to ask for a valid date
@@ -243,4 +287,6 @@ class JB2008(AtmosphereModel):
 
     def __str__(self) -> str:
         """Return a string representation of the atmosphere model."""
+        if self.fallback_model is not None:
+            return "JB2008 atmosphere model (COESA76 fallback)"
         return "JB2008 atmosphere model"
