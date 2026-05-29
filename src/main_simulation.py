@@ -150,6 +150,14 @@ class SimulationService:
         with self._lock:
             if self._runner is None:
                 raise ValueError("simulation has not been started")
+            if str(command_name) in {"set_speed", "set_speed_multiplier"}:
+                speed_multiplier = float(params.get("speed_multiplier", params.get("speed", 1.0)))
+                self._set_speed_locked(speed_multiplier)
+                return {
+                    "accepted": True,
+                    "command": command_name,
+                    "params": {"speed_multiplier": self._speed_multiplier},
+                }
             self._runner.send_command(str(command_name), params)
             return {"accepted": True, "command": command_name, "params": params}
 
@@ -218,6 +226,20 @@ class SimulationService:
             + (next_step * self._runner.delta_t_s / self._speed_multiplier)
         )
         return target - time.monotonic()
+
+    def _set_speed_locked(self, speed_multiplier: float) -> None:
+        if speed_multiplier <= 0:
+            raise ValueError("speed_multiplier must be > 0")
+
+        assert self._runner is not None
+        now = time.monotonic()
+        paused_total_s = self._paused_total_s
+        self._speed_multiplier = speed_multiplier
+        self._started_wall_s = (
+            now
+            - paused_total_s
+            - (self._runner.current_step * self._runner.delta_t_s / self._speed_multiplier)
+        )
 
     def _step_locked(self) -> dict[str, Any]:
         assert self._runner is not None
