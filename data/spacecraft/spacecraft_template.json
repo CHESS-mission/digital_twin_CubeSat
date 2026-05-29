@@ -9,8 +9,8 @@
     "eps": {
         "total_energy": 76.32,
         "min_battery": 15.264,
-        "max_battery": 61.056,
-        "init_battery_level": 61.056,
+        "max_battery": 50, 
+        "init_battery_level": 50,
         "measure_threshold": 26.27,
         "com_threshold": 15.63,
         "xb_threshold": 18.08,
